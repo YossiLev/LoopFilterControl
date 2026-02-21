@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$']]
+            },
+            chtml: {
+                // This tells MathJax to match the surrounding font
+                displayAlign: 'center',
+                adaptiveCSS: true
+            }
+        };
+    </script>    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>    
+    <title>Loop Filter Control</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.js"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #020617; color: #f1f5f9; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1200px; margin: auto; }
+        .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .slider-box { margin-bottom: 16px; border-bottom: 1px solid #334155; padding-bottom: 12px; }
+        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; }
+        input[type=range] { width: 100%; margin: 8px 0; accent-color: #38bdf8; cursor: pointer; }
+        .matrix-view { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 11px; table-layout: fixed; }
+        td { border: 1px solid #334155; padding: 6px 2px; text-align: center; color: #38bdf8; overflow: hidden; }
+        .spinor-display { display: flex; align-items: center; justify-content: space-around; background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #334155; }
+        .spinor-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        input[type=number] { width: 60px; background: #0f172a; border: 1px solid #475569; color: #fff; padding: 4px; border-radius: 4px; text-align: center; }
+        .out-val { color: #4ade80; font-weight: bold; font-family: monospace; height: 24px; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+        .stat-card { background: #0f172a; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #334155; }
+        .stat-label { font-size: 0.7rem; color: #64748b; display: block; }
+        .stat-num { font-size: 1rem; font-weight: bold; color: #38bdf8; }
+        h2, h3 { margin: 0 0 16px 0; font-weight: 500; }
+        select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; width: 100%; cursor: pointer; }
+
+        .badge { background: #38bdf8; color: #020617; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        /* Target the internal MathJax elements specifically */
+        mjx-container[jax="CHTML"] {
+            font-family: 'Inter', system-ui, sans-serif !important;
+        }
+        .button { padding: 2px 2px; vertical-align: middle; margin: 2px; background: #38bdf8; color: #020617; border: none; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="display:flex; align-items:center; gap:2px; place-items:center; margin-bottom:24px;">
+        <button onclick="location.reload()" class="button">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-4a5 5 0 0 0-5 5m01 5h3"/>
+            </svg>
+        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-5a5 5 0 0 0-5 5m-1 10L20 11"/>
+            </svg>
+        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32px" height="32px" viewBox="0 0 0.96 0.96" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.18 0.08v0.112c0 0.045 0 0.067 0.009 0.084a0.08 0.08 0 0 0 0.035 0.035C0.341 0.32 0.363 0.32 0.408 0.32H0.6" stroke="#33363F" stroke-width="0.05"/><path d="M0.18 0.2v0.392c0 0.045 0 0.067 0.009 0.084a0.08 0.08 0 0 0 0.035 0.035C0.341 0.72 0.363 0.72 0.408 0.72H0.6" stroke="#33363F" stroke-width="0.05"/><path d="M0.6 0.664c0 -0.022 0 -0.034 0.004 -0.042a0.04 0.04 0 0 1 0.017 -0.017C0.63 0.6 0.642 0.6 0.664 0.6h0.016l0.04 0.04h0.056c0.022 0 0.034 0 0.042 0.004a0.04 0.04 0 0 1 0.017 0.017C0.84 0.67 0.84 0.682 0.84 0.704v0.072c0 0.022 0 0.034 -0.004 0.042a0.04 0.04 0 0 1 -0.017 0.017C0.81 0.84 0.798 0.84 0.776 0.84h-0.112c-0.022 0 -0.034 0 -0.042 -0.004a0.04 0.04 0 0 1 -0.017 -0.017C0.6 0.81 0.6 0.798 0.6 0.776z" stroke="#33363F" stroke-width="0.05" stroke-linejoin="round"/><path d="M0.6 0.264c0 -0.022 0 -0.034 0.004 -0.042a0.04 0.04 0 0 1 0.017 -0.017C0.63 0.2 0.642 0.2 0.664 0.2h0.016l0.04 0.04h0.056c0.022 0 0.034 0 0.042 0.004a0.04 0.04 0 0 1 0.017 0.017C0.84 0.27 0.84 0.282 0.84 0.304v0.072c0 0.022 0 0.034 -0.004 0.042a0.04 0.04 0 0 1 -0.017 0.017C0.81 0.44 0.798 0.44 0.776 0.44h-0.112c-0.022 0 -0.034 0 -0.042 -0.004a0.04 0.04 0 0 1 -0.017 -0.017C0.6 0.41 0.6 0.398 0.6 0.376z" stroke="#33363F" stroke-width="0.05" stroke-linejoin="round"/></svg>        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="23" y1="9" x2="9" y2="23"/><line x1="9" y1="9" x2="23" y2="23"/>
+            </svg>
+        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32px" height="32px" viewBox="0 0 0.64 0.64" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path fill-rule="evenodd" clip-rule="evenodd" d="m0.17 0.12 0.047 -0.025 0.32 0.213v0.05l-0.32 0.213 -0.047 -0.025zm0.06 0.056v0.315l0.236 -0.157z"/></svg>        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+            <rect x="8" y="8" width="16" height="16" rx="2"/>
+            </svg>
+        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32px" height="32px" viewBox="0 0 0.64 0.64" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"  stroke-width="0.01" ><path d="M0.32 0c-0.022 0 -0.04 0.018 -0.04 0.04v0.2c0 0.022 0.018 0.04 0.04 0.04s0.04 -0.018 0.04 -0.04V0.04c0 -0.022 -0.018 -0.04 -0.04 -0.04M0.04 0.04l0.082 0.082a0.28 0.28 0 0 0 -0.053 0.322 0.28 0.28 0 0 0 0.287 0.154 0.28 0.28 0 0 0 0.238 -0.222 0.28 0.28 0 0 0 -0.133 -0.297 0.04 0.04 0 0 0 -0.04 0.069 0.2 0.2 0 0 1 0.095 0.212 0.2 0.2 0 0 1 -0.17 0.159c-0.085 0.011 -0.167 -0.033 -0.205 -0.11s-0.023 -0.169 0.038 -0.23L0.24 0.24V0.08C0.24 0.059 0.222 0.04 0.2 0.04zm0 0" fill="#2e3436"/></svg>        </button>
+        <button onclick="location.reload()" class="button">
+            <svg width="32px" height="32px" viewBox="0 0 1.28 1.28" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_901_1551)"><path d="M1.08 0.32h0.12a0.04 0.04 0 0 1 0.04 0.04v0.84a0.04 0.04 0 0 1 -0.04 0.04H0.08a0.04 0.04 0 0 1 -0.04 -0.04V0.36a0.04 0.04 0 0 1 0.04 -0.04h0.76M0.16 1.12l0.48 -0.48 0.32 0.32V0.04m0 0 -0.16 0.16m0.16 -0.16 0.16 0.16" stroke="#000000" stroke-width="0.08" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_901_1551"><path width="32" height="32" fill="white" d="M0 0H1.28V1.28H0V0z"/></clipPath></defs></svg>
+        </button>
+
+        <h2 style="text-align: center; letter-spacing: -0.025em;">Loop Fiter Control</h2>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+    <div class="controls">
+        <div class="panel">
+            <h3>1. Select Basis Element (\(\Gamma\))</h3>
+            <select id="basisSelect" onchange="update()">
+                <optgroup label="Scalar">
+                    <option value="I">Identity (1)</option>
+                </optgroup>
+                <optgroup label="Vectors">
+                    <option value="G0">γ⁰ (Time-like)</option>
+                    <option value="G1">γ¹ (x-direction)</option>
+                    <option value="G2">γ² (y-direction)</option>
+                    <option value="G3">γ³ (z-direction)</option>
+                </optgroup>
+                <optgroup label="Bivectors (Rotations/Boosts)">
+                    <option value="G01">γ⁰γ¹ (Boost x)</option>
+                    <option value="G02">γ⁰γ² (Boost y)</option>
+                    <option value="G03">γ⁰γ³ (Boost z)</option>
+                    <option value="G23">γ²γ³ (Rotation x)</option>
+                    <option value="G12">γ¹γ² (Rotation z)</option>
+                </optgroup>
+                <optgroup label="Pseudoscalar">
+                    <option value="G5">γ⁵ (Chirality)</option>
+                </optgroup>
+            </select>
+            <div class="info">Basis elements generate the full 16-dimensional \(\mathbb{C}\ell_{1,3}\) algebra.</div>
+        </div>
+    </div>
+          </div>
+
+        <div class="card">
+            <div class="spinor-display">
+                <div class="spinor-col">
+                    <span class="badge">INPUT ψ</span>
+                    <input type="number" id="s1" value="1" step="0.1">
+                    <input type="number" id="s2" value="0" step="0.1">
+                    <input type="number" id="s3" value="0" step="0.1">
+                    <input type="number" id="s4" value="0" step="0.1">
+                </div>
+                <div style="font-size: 2rem; color: #334155;">×</div>
+                <div class="spinor-col">
+                    <span class="badge">TRANSFORM [S]</span>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">Applying...</div>
+                </div>
+                <div style="font-size: 2rem; color: #334155;">=</div>
+                <div class="spinor-col">
+                    <span class="badge" style="background: #4ade80;">OUTPUT ψ'</span>
+                    <div id="o1" class="out-val">1.00</div>
+                    <div id="o2" class="out-val">0.00</div>
+                    <div id="o3" class="out-val">0.00</div>
+                    <div id="o4" class="out-val">0.00</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card"><span class="stat-label">DETERMINANT</span><span id="det" class="stat-num">1.00</span></div>
+                <div class="stat-card"><span class="stat-label">TRACE (Tr S)</span><span id="tr" class="stat-num">4.00</span></div>
+                <div class="stat-card"><span class="stat-label">L/R RATIO</span><span id="ratio" class="stat-num">1.00</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="margin-top: 24px;font-family: 'Inter', system-ui, sans-serif !important;">
+        <canvas id="spinor-vec" style="width: 100%; height: 500px; background:#0f172a; border-radius:8px;"></canvas>
+        <h2>Spinor vs Vector Transformations</h2>
+        
+        $${ \begin{array}{llll}
+            \hline
+            \mathbf{Object} & \mathbf{Type} & \mathbf{Exponential \ Form} & \mathbf{Expansion \ Form} \\
+            \hline
+            \text{Spinor} & \text{Rotation} & \psi' = e^{\frac{\theta}{2}\gamma^1\gamma^2}\psi & \psi' = \left(\cos\frac{\theta}{2} + \gamma^1\gamma^2\sin\frac{\theta}{2}\right)\psi \\
+            \\
+            \text{Vector} & \text{Rotation} & V' = e^{\frac{\theta}{2}\gamma^1\gamma^2} V e^{-\frac{\theta}{2}\gamma^1\gamma^2} & V' = (V^x \cos\theta - V^y \sin\theta)\gamma^1 + \dots \\
+            \\
+            \text{Spinor} & \text{Boost}    & \psi' = e^{\frac{\phi}{2}\gamma^0\gamma^3}\psi & \psi' = \left(\cosh\frac{\phi}{2} + \gamma^0\gamma^3\sinh\frac{\phi}{2}\right)\psi \\
+            \\
+            \text{Vector} & \text{Boost}    & V' = e^{\frac{\phi}{2}\gamma^0\gamma^3} V e^{-\frac{\phi}{2}\gamma^0\gamma^3} & V'^t = V^t \cosh\phi + V^z \sinh\phi \\
+            \hline
+            \end{array} }$$
+        <p style="font-size: 0.9rem; color: #64748b;">This table contrasts how spinors and vectors transform under rotations and boosts. Spinors transform via a single exponential, while vectors require the adjoint action, leading to more complex transformations. The expansion forms show how the parameters (θ for rotation, φ for boost) affect the transformations differently for spinors and vectors.</p>
+
+        $$
+            \begin{aligned}
+            \text{Adjoint Action: } & e^{A} V e^{-A} = V + [A, V] + \frac{1}{2!}[A, [A, V]] + \dots \\
+            \text{For Rotation: } & A = \frac{\theta}{2} \gamma^1\gamma^2 \\
+            \text{Commutator: } & [A, \gamma^1] = \frac{\theta}{2}(\gamma^1\gamma^2\gamma^1 - \gamma^1\gamma^1\gamma^2) = -\theta\gamma^2 \\
+            \text{Result: } & V' = V \cos\theta + [(\gamma^1\gamma^2) \cdot V] \sin\theta
+            \end{aligned}
+        $$
+
+    </div>
+    
+
+</div>
+
+<script>
+const { complex, multiply, add, subtract, exp, matrix, det, trace, format } = math;
+
+function update() {
+    // 1. Inputs
+    const rz = document.getElementById('rz').value * Math.PI / 180;
+    const bz = document.getElementById('bz').value / 100;
+    document.getElementById('rz_v').innerText = document.getElementById('rz').value + '°';
+    document.getElementById('bz_v').innerText = bz.toFixed(2);
+
+    // 2. Generators (simplified for Z-axis focus for clarity)
+    // Rotation Z: exp(-i/2 * theta * sigma3)
+    const cosR = Math.cos(rz / 2);
+    const sinR = Math.sin(rz / 2);
+    const RotL = [[complex(cosR, -sinR), 0], [0, complex(cosR, sinR)]];
+    const RotR = RotL;
+
+    // Boost Z: L = exp(-zeta/2 * sigma3), R = exp(zeta/2 * sigma3)
+    const zeta = Math.atanh(bz);
+    const bFactorL = Math.exp(-zeta / 2);
+    const bFactorR = Math.exp(zeta / 2);
+    
+    // 3. Construct Weyl Matrix S_W (Block Diagonal)
+    // Left sector (Top-Left 2x2)
+    const WL = [
+        [multiply(RotL[0][0], bFactorL), 0],
+        [0, multiply(RotL[1][1], bFactorL)]
+    ];
+    // Right sector (Bottom-Right 2x2)
+    const WR = [
+        [multiply(RotR[0][0], bFactorR), 0],
+        [0, multiply(RotR[1][1], bFactorR)]
+    ];
+
+    const SW = [
+        [WL[0][0], 0, 0, 0],
+        [0, WL[1][1], 0, 0],
+        [0, 0, WR[0][0], 0],
+        [0, 0, 0, WR[1][1]]
+    ];
+
+    // 4. Transform to Dirac Basis (Change of basis)
+    const SD = [
+        [add(WL[0][0], WR[0][0]).div(2), 0, subtract(WL[0][0], WR[0][0]).div(2), 0],
+        [0, add(WL[1][1], WR[1][1]).div(2), 0, subtract(WL[1][1], WR[1][1]).div(2)],
+        [subtract(WL[0][0], WR[0][0]).div(2), 0, add(WL[0][0], WR[0][0]).div(2), 0],
+        [0, subtract(WL[1][1], WR[1][1]).div(2), 0, add(WL[1][1], WR[1][1]).div(2)]
+    ];
+
+    // 5. Apply to Input Spinor
+    const psi_in = [
+        parseFloat(document.getElementById('s1').value),
+        parseFloat(document.getElementById('s2').value),
+        parseFloat(document.getElementById('s3').value),
+        parseFloat(document.getElementById('s4').value)
+    ];
+
+    for(let i=0; i<4; i++) {
+        let res = complex(0,0);
+        for(let j=0; j<4; j++) {
+            res = add(res, multiply(SW[i][j], psi_in[j]));
+        }
+        document.getElementById('o'+(i+1)).innerText = format(res, {precision: 3}).replace(/\s/g, '');
+    }
+
+    // 6. Metrics
+    const mSW = matrix(SW);
+    document.getElementById('det').innerText = format(det(mSW), {precision: 3});
+    document.getElementById('tr').innerText = format(trace(mSW), {precision: 3});
+    document.getElementById('ratio').innerText = (bFactorR / bFactorL).toFixed(2);
+
+    renderTable(SW, 'weyl_mat');
+    renderTable(SD, 'dirac_mat');
+}
+
+function renderTable(m, id) {
+    let h = "<table>";
+    for(let i=0; i<4; i++) {
+        h += "<tr>";
+        for(let j=0; j<4; j++) {
+            let v = m[i][j] || 0;
+            h += `<td>${v === 0 ? '0' : format(v, {precision: 2}).replace(/\s/g, '')}</td>`;
+        }
+        h += "</tr>";
+    }
+    document.getElementById(id).innerHTML = h + "</table>";
+}
+
+document.querySelectorAll('input').forEach(el => el.addEventListener('input', update));
+window.onload = update;
+</script>
+
+</body>
+</html>
