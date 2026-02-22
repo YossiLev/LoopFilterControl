@@ -5,16 +5,6 @@ let ws = null;
 let seq = 1;
 let pending = new Map();
 
-// export function connect() {
-//   return new Promise((resolve, reject) => {
-//     ws = new WebSocket(WS_URL);
-//     ws.binaryType = "arraybuffer";
-//     ws.onopen = () => resolve();
-//     ws.onerror = e => reject(e);
-//   });
-// }
-
-
 export function packU32(x) {
   const b = new ArrayBuffer(4);
   new DataView(b).setUint32(0, x, true);
@@ -106,33 +96,3 @@ export async function sendPacket(pkt) {
     });
 }
 
-// export async function readReg(addr) {
-//     let pkt = new Uint8Array(8);
-//     pkt[0] = 0xAA;
-//     pkt[2] = 0x01;
-//     pkt[4] = (addr >> 24) & 0xFF;
-//     pkt[5] = (addr >> 16) & 0xFF;
-//     pkt[6] = (addr >> 8) & 0xFF;
-//     pkt[7] = addr & 0xFF;
-
-//     let r = await sendPacket(pkt);
-//     return (r[8]<<24)|(r[9]<<16)|(r[10]<<8)|r[11];
-// }
-
-// export async function writeReg(addr, val) {
-//     let pkt = new Uint8Array(12);
-//     pkt[0] = 0xAA;
-//     pkt[2] = 0x02;
-
-//     pkt[4] = (addr >> 24) & 0xFF;
-//     pkt[5] = (addr >> 16) & 0xFF;
-//     pkt[6] = (addr >> 8) & 0xFF;
-//     pkt[7] = addr & 0xFF;
-
-//     pkt[8]  = (val >> 24) & 0xFF;
-//     pkt[9]  = (val >> 16) & 0xFF;
-//     pkt[10] = (val >> 8) & 0xFF;
-//     pkt[11] = val & 0xFF;
-
-//     await sendPacket(pkt);
-// }

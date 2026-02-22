@@ -36,18 +36,6 @@ export const ALL_REGS = [
     PID_SETPOINT, PID_FEEDBACK, PID_ERROR
 ];
 
-// export const PID_KP = {
-//     addr: 0x24,
-//     scale: 1/65536,
-//     signed: true
-// };
-
-// export const PID_KI = {
-//     addr: 0x28,
-//     scale: 1/65536,
-//     signed: true
-// };
-
 export function decode(reg, raw) {
     if (reg.signed && raw & 0x80000000) raw -= 0x100000000;
     return raw * reg.scale;
