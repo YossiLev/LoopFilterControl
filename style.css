@@ -1,0 +1,24 @@
+body {
+  font-family: monospace;
+  background: #111;
+  color: #0f0;
+}
+
+button {
+  font-size: 14px;
+  margin: 4px;
+}
+
+input {
+  width: 80px;
+}
+
+canvas {
+  border: 1px solid #0f0;
+  margin-top: 10px;
+}
+
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
