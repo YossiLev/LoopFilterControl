@@ -22,23 +22,22 @@ document.getElementById("disconnectBtn").onclick = () => {
 };
 
 document.getElementById("getVersionBtn").onclick = async () => {
+    console.log("Getting version...");
     const r = await sendBinaryBuffer(packU32(0));
-    console.log("returned on get version");
+    console.log("Got version response:", r);
+    log("VERSION: " + new TextDecoder().decode(r));
 };
 
 document.getElementById("predOnBtn").onclick = async () => {
     const r = await sendBinaryBuffer(packU32(16));
-    console.log("returned on predOn");
 };
 
 document.getElementById("predOffBtn").onclick = async () => {
     const r = await sendBinaryBuffer(packU32(15));
-    console.log("returned on predOff");
 };
 
 document.getElementById("rebootBtn").onclick = async () => {
     const r = await sendBinaryBuffer(packU32(99));
-    console.log("returned on reboot");
 };
 
 const scopeSample1Select = document.getElementById("scopeSample1Select");

@@ -7,10 +7,9 @@ export function initScopeUI() {
 
   document.getElementById("scopeBtn").onclick = async () => {
 
-    const r1 = parseInt(scopeReg1.value);
-    const r2 = parseInt(scopeReg2.value);
-    const n  = parseInt(scopeSamples.value);
-    
+    const r1 = parseInt(scopeSample1Select.value);
+    const r2 = parseInt(scopeSample2Select.value);
+    const n  = 300;//parseInt(scopeSamples.value);
 
     const data = await getTwoRegisterSamples(r1,r2,n);
     const dv = new DataView(data);

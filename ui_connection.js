@@ -1,4 +1,5 @@
 import { connect, disconnect } from "./transport.js";
+import { setPredictor } from "./api.js";
 
 export function initConnectionUI() {
   const status = document.getElementById("connectionStatus");
@@ -6,6 +7,8 @@ export function initConnectionUI() {
   document.getElementById("connectBtn").onclick = async () => {
     await connect();
     status.textContent = "CONNECTED";
+    await setPredictor(false);
+    status.textContent = "CONNECTED - PREDICTOR OFF";
   };
 
   document.getElementById("disconnectBtn").onclick = () => {

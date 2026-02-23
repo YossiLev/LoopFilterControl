@@ -1,5 +1,5 @@
 import { dumpRegisters } from "./api.js";
-import { RegisterDump } from "./registers.js";
+import { RegisterDump, friendlyNames } from "./registers.js";
 
 export function initRegisterUI() {
 
@@ -9,4 +9,10 @@ export function initRegisterUI() {
     dumpOutput.textContent =
       JSON.stringify(dump.predictor, null, 2);
   };
+
+  const scopeSample1Select = document.getElementById("scopeSample1Select");
+  scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}">${n}</option>`).join("");
+  const scopeSample2Select = document.getElementById("scopeSample2Select");
+  scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}">${n}</option>`).join("");
+
 }

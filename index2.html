@@ -27,11 +27,11 @@
 <section id="scopePanel">
   <h2>Two Register Scope</h2>
   <div>
-  Reg 1 Index:
-  <input id="scopeReg1" value="3">
-  Reg 2 Index:
-  <input id="scopeReg2" value="11">
-  Samples:
+            <label for="scopeSample1Select">Scope 1</label>
+            <select id="scopeSample1Select" onchange="update()"></select>
+            <label for="scopeSample2Select">Scope 2</label>
+            <select id="scopeSample2Select" onchange="update()"></select>
+
   <input id="scopeSamples" value="300">
   <button id="scopeBtn">Acquire</button>
   </div>
