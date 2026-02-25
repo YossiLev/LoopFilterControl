@@ -9,21 +9,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; color: #333; margin: 0; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 5px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 
-        .grid { display: grid; grid-template-columns: 400px 1fr; gap: 12px; }
+        .grid { display: grid; gap: 12px; margin-bottom: 10px;}
         .card { background: #dddddd; border: 1px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; }
+        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 4px; }
         input[type=range] { width: 100%; margin: 8px 0; accent-color: #38bdf8; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 11px; table-layout: fixed; }
         td { border: 1px solid #334155; padding: 6px 2px; text-align: center; color: #38bdf8; overflow: hidden; }
         .spinor-display { display: flex; align-items: center; justify-content: space-around; background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #334155; }
         .spinor-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-        input[type=number] { width: 60px; background: #0f172a; border: 1px solid #475569; color: #fff; padding: 4px; border-radius: 4px; text-align: center; }
+        input[type=number] { width: 60px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; }
         .out-val { color: #4ade80; font-weight: bold; font-family: monospace; height: 24px; }
         h2 { margin: 0 0 16px 0; font-weight: 500; white-space: nowrap;}
         h1 { text-align: center; color: #2c3e50; }
-        .controls { display: grid; gap: 20px; margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
+        .controls { display: flex; gap: 20px; margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
         .panel { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
         select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; width: 100%; cursor: pointer; }
         button { background: #3498db; color: white; border: none; transition: 0.3s; }
@@ -80,27 +80,66 @@
             <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" style="enable-background:new 0 0 310 310;" xml:space="preserve" width="32" height="32"><path d="m31.03 16.488 -4.679 -4.679c-0.605 -0.605 -1.585 -0.605 -2.19 0l-0.935 0.935V1.548C23.226 0.693 22.533 0 21.678 0H2.064C1.209 0 0.516 0.693 0.516 1.548v24.774c0 0.855 0.693 1.548 1.548 1.548h8.774v2.581c0 0.855 0.693 1.548 1.548 1.548h4.679a1.548 1.548 0 0 0 1.095 -0.454l12.869 -12.869c0.605 -0.605 0.605 -1.585 0 -2.19M3.613 3.097h16.516v12.744l-8.837 8.837a1.524 1.524 0 0 0 -0.088 0.097H3.613zm12.812 25.806H13.936v-2.49l11.321 -11.32 2.49 2.49z"/></svg>        </button>
         <h2 style="text-align: center; letter-spacing: -0.025em; flex-grow:1;">Loop Fiter Control</h2>
     </div>
-    <div id="connectionStatus">DISCONNECTED</div>
-
+    <div style="position:relative;">
+        <div id="connectionStatus" style="position: absolute; top:5px; left:5px;">DISCONNECTED</div>
+    </div>
     <div class="grid">
+        <img src="./images/fpga.png" alt="Loop Filter Control" style="position: absolute; width:1200px; border-radius:8px; border:1px solid #334155;box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+        <canvas id="systemCanvas" width="1200" height="400" style="width: 1200px;"></canvas>
         <div class="card">
             <div class="controls">
-                <label for="scopeSample1Select">Scope 1</label>
-                <select id="scopeSample1Select"></select>
-                <label for="scopeSample2Select">Scope 2</label>
-                <select id="scopeSample2Select"></select>
+                <div >
+                    <label for="scopeSample1Select" style="color:green !important;">Scope 1</label>
+                    <select id="scopeSample1Select"></select>
+                </div>
+                <div  >
+                    <label for="scopeSample2Select" style="color:blue !important;">Scope 2</label>
+                    <select id="scopeSample2Select"></select>
+                </div>
+                <div >
+                    <label for="scopeAddSelect" style="color:red !important;">Add</label>
+                    <select id="scopeAddSelect">
+                        <option value="none">None</option>
+                        <option value="sum">Sum</option>
+                        <option value="diff">Diff</option> 
+                    </select>
+                </div>
+
             </div>
+            <div>
+                <canvas id="scopeCanvas" width="800" height="300" style="width: 100%; height: 300px; background:#889bc9; border-radius:8px;"></canvas>
+            </div>
+            <div class="controls">
+                <div>
+                <label for="modeSelect">Running mode</label>
+                <select id="modeSelect">
+                    <option value="normal">Normal</option>
+                    <option value="sawtooth">Sawtooth injection</option>
+                </select>
+                </div>
+                <div>
+                    <label for="inputGain">Input gain</label>
+                    <input type="number" id="inputGain" value="1" min="0" step="0.1">
+                </div>
+                <div>
+                    <label for="inputOffset">Input offset</label>
+                    <input type="number" id="inputOffset" value="0" min="-1000" max="1000" step="1">
+                </div>
+                <div>
+                    <label for="outputGain">Output gain</label>
+                    <input type="number" id="outputGain" value="1" min="0" step="0.1">
+                </div>
+                <div>
+                    <label for="outputOffset">Output offset</label>
+                    <input type="number" id="outputOffset" value="0" min="-1000" max="1000" step="1">
+                </div>
+            </div>    
         </div>
-
         <div class="card">
-        </div>
+            <pre id="dumpOutput" class="info"></pre>
+            <div id="log"></div>
+        </div>    
     </div>
-    <div class="card" style="margin-top: 24px;font-family: 'Inter', system-ui, sans-serif !important;">
-        <canvas id="scopeCanvas" width="800" height="300" style="width: 100%; height: 300px; background:#889bc9; border-radius:8px;"></canvas>
-    </div>
-    <pre id="dumpOutput" class="info"></pre>
-    <div id="log"></div>
-
 </div>
 
 

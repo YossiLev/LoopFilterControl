@@ -11,8 +11,8 @@ export function initRegisterUI() {
   };
 
   const scopeSample1Select = document.getElementById("scopeSample1Select");
-  scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}">${n}</option>`).join("");
+  scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 3 ? "selected" : ""}>${n}</option>`).join("");
   const scopeSample2Select = document.getElementById("scopeSample2Select");
-  scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}">${n}</option>`).join("");
+  scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 11 ? "selected" : ""}>${n}</option>`).join("");
 
 }
