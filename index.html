@@ -84,8 +84,10 @@
         <div id="connectionStatus" style="position: absolute; top:5px; left:5px;">DISCONNECTED</div>
     </div>
     <div class="grid">
-        <img src="./images/fpga.png" alt="Loop Filter Control" style="position: absolute; width:1200px; border-radius:8px; border:1px solid #334155;box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-        <canvas id="systemCanvas" width="1200" height="400" style="width: 1200px;"></canvas>
+        <div style="position: relative;">
+            <img src="./images/fpgaR.png" alt="Loop Filter Control" style="position: absolute; width:1200px; border-radius:8px; border:1px solid #334155;box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+            <canvas id="systemCanvas" width="1200" height="420" style="position: relative; width: 1200px; z-index:10;"></canvas>
+        </div>
         <div class="card">
             <div class="controls">
                 <div >
@@ -114,7 +116,7 @@
                 <label for="modeSelect">Running mode</label>
                 <select id="modeSelect">
                     <option value="normal">Normal</option>
-                    <option value="sawtooth">Sawtooth injection</option>
+                    <option value="sawtooth">Scan</option>
                 </select>
                 </div>
                 <div>

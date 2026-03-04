@@ -68,6 +68,18 @@ export function disconnect() {
   ws = null;
 }
 
+export async function sendValue(setCode, value) {
+    // const b = new ArrayBuffer(8);
+    // const v = new DataView(b);
+    // v.setFloat64(0, value, true);
+    // const pkt = new Uint8Array(4 + 8);
+    // pkt[0] = setCode & 0xFF;
+    // pkt[1] = (setCode >> 8) & 0xFF;
+    // pkt[2] = (setCode >> 16) & 0xFF;
+    // pkt[3] = (setCode >> 24) & 0xFF;
+    // pkt.set(new Uint8Array(b), 4);
+    // await sendWithHeader(pkt);
+}
 export async function sendBinaryBuffer(buffer) {
     const a = await sendWithHeader(new Uint8Array(buffer));
     return new Uint8Array(a).buffer;
