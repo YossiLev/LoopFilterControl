@@ -1,4 +1,4 @@
-import { sendBinaryBuffer, packU32 } from "./transport.js";
+import { sendBinaryBuffer, sendBinaryBufferConsistent, packU32 } from "./transport.js";
 
 
 export async function setPredictor(on) {
@@ -27,6 +27,30 @@ export async function writeRegister(index, value) {
   await sendBinaryBuffer(buffer);
 }
 
+    // COMMAND_SCAN_BEGIN                      =    24
+    // COMMAND_SCAN_END                        =    25
+    // ScanType(Enum): SAW_TOOTH = 1    TRIANGLE = 2     NONE = 0
+
+export async function setScanOn(offset, frequency, amplitude, scanType) {
+  const buffer = new ArrayBuffer(20);
+  const dv = new DataView(buffer);
+  dv.setUint32(0, 24, true);
+  dv.setUint32(4, offset, true);
+  dv.setUint32(8, frequency, true);
+  dv.setUint32(12, amplitude, true);
+  dv.setUint32(12, scanType, true);
+
+  return await sendBinaryBuffer(buffer);
+}
+
+export async function setScanOff() {
+  const buffer = new ArrayBuffer(4);
+  const dv = new DataView(buffer);
+  dv.setUint32(0, 25, true);
+
+  return await sendBinaryBuffer(buffer);
+}
+
 export async function dumpRegisters() {
   const cmd = packU32(8);
   return await sendBinaryBuffer(cmd);
@@ -42,4 +66,16 @@ export async function getTwoRegisterSamples(r1, r2, n) {
   dv.setFloat64(16, 0.0, true);
 
   return await sendBinaryBuffer(buffer);
+}
+
+export function getTwoRegisterStream(r1, r2, n, cb) {
+  const buffer = new ArrayBuffer(24);
+  const dv = new DataView(buffer);
+  dv.setUint32(0, 19, true);
+  dv.setUint32(4, r1, true);
+  dv.setUint32(8, r2, true);
+  dv.setUint32(12, n, true);
+  dv.setFloat64(16, 0.0, true);
+
+  sendBinaryBufferConsistent(buffer, cb);
 }

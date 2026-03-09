@@ -7,6 +7,7 @@
     
     <title>Loop Filter Control</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.js"></script>
+    <link rel="stylesheet" href="./style.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; color: #333; margin: 0; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 5px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -34,6 +35,7 @@
         optgroup { font-weight: bold; color: #757575; }
         option { padding: 8px; color:#020617}
         option:hover { background: #e0e0e0; }
+        .zoomedFrame { transform: scale(0.25); margin-top: -32px; height: 101px;}
     </style>
 </head>
 <body>
@@ -70,6 +72,17 @@
             <rect x="8" y="8" width="16" height="16" rx="2"/>
             </svg>
         </button>
+        <div class="custom-checkbox">
+        <input id="status" class="status-input" 
+                type="checkbox" 
+                name="status" tabindex="-1">
+        <label for="status">
+            <div class="status-switch"
+                data-unchecked="Off"
+                data-checked="On">Scan
+            </div>
+        </label> 
+        </div>
         <button id="rebootBtn" title="Reboot device" class="button">
             <svg width="32px" height="32px" viewBox="0 0 0.64 0.64" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"  stroke-width="0.01" ><path d="M0.32 0c-0.022 0 -0.04 0.018 -0.04 0.04v0.2c0 0.022 0.018 0.04 0.04 0.04s0.04 -0.018 0.04 -0.04V0.04c0 -0.022 -0.018 -0.04 -0.04 -0.04M0.04 0.04l0.082 0.082a0.28 0.28 0 0 0 -0.053 0.322 0.28 0.28 0 0 0 0.287 0.154 0.28 0.28 0 0 0 0.238 -0.222 0.28 0.28 0 0 0 -0.133 -0.297 0.04 0.04 0 0 0 -0.04 0.069 0.2 0.2 0 0 1 0.095 0.212 0.2 0.2 0 0 1 -0.17 0.159c-0.085 0.011 -0.167 -0.033 -0.205 -0.11s-0.023 -0.169 0.038 -0.23L0.24 0.24V0.08C0.24 0.059 0.222 0.04 0.2 0.04zm0 0" fill="#2e3436"/></svg>
         </button>
@@ -81,13 +94,14 @@
         <h2 style="text-align: center; letter-spacing: -0.025em; flex-grow:1;">Loop Fiter Control</h2>
     </div>
     <div style="position:relative;">
-        <div id="connectionStatus" style="position: absolute; top:5px; left:5px;">DISCONNECTED</div>
+        <div id="connectionStatus" style="position: absolute; top:5px; left:5px; color: gray; z-index: 100;">DISCONNECTED</div>
     </div>
     <div class="grid">
-        <div style="position: relative;">
-            <img src="./images/fpgaR.png" alt="Loop Filter Control" style="position: absolute; width:1200px; border-radius:8px; border:1px solid #334155;box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-            <canvas id="systemCanvas" width="1200" height="420" style="position: relative; width: 1200px; z-index:10;"></canvas>
+        <div id="frameBoard" style="position: relative; border:1px solid #3003f8; margin: auto; transition: all 0.5s ease-in-out; margin-top 0.5s ease, width 0.5s ease, height 0.5s ease">
+            <img src="./images/fpgaR.png" alt="Loop Filter Control" style="position: absolute; width:1200px; border-radius:8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+            <canvas id="systemCanvas" width="1200" height="420" style="position: relative; width: 1200px; z-index:10; "></canvas>
         </div>
+        <div id="zBut" style="width:40px; height:40px; background-color: yellow;" ></div>
         <div class="card">
             <div class="controls">
                 <div >
@@ -135,6 +149,10 @@
                     <label for="outputOffset">Output offset</label>
                     <input type="number" id="outputOffset" value="0" min="-1000" max="1000" step="1">
                 </div>
+                <div>
+                    <label for="nSamples">Output offset</label>
+                    <input type="number" id="nSamples" value="10" min="10" max="3000" step="1">
+                </div>
             </div>    
         </div>
         <div class="card">
@@ -146,5 +164,6 @@
 
 
 <script type="module" src="main.js"></script>
+
 </body>
 </html>

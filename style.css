@@ -1,24 +1,76 @@
+* { box-sizing: border-box; }
+/* html, body {   height: 100%; }
 body {
-  font-family: monospace;
-  background: #111;
-  color: #0f0;
-}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Helvetica, Arial, sans-serif;
+} */
 
-button {
-  font-size: 14px;
-  margin: 4px;
-}
+.custom-checkbox {
+  width: 140px;
+  height: 30px;
+  input.status-input {
+    display: none;
+    outline: none; 
+    
+     /* Unchecked State */
+    + label {
+      height: 100%;
+      width: 100%;
+      > .status-switch {
+        cursor: pointer;
+        width: 80px;
+        height: 40px;
+        position: relative;
+        background-color: grey;
+        color: white;
+        transition: all 0.5s ease;
+        padding: 3px;
+        border-radius: 3px;
 
-input {
-  width: 80px;
-}
+        &:before,
+        &:after {
+          border-radius: 2px;
+          height: calc(100% - 6px);
+          width: calc(50% - 3px);
+          display: flex;
+          align-items: center;
+          position: absolute;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+        
+        &:before {
+          background-color: white;
+          color: black;
+          box-shadow: 0 0 4px 4px rgba(#000, 0.2);
+          left: 3px;
+          z-index: 10;
+          content: attr(data-unchecked);
+        }
+        
+        &:after {
+          right: 0;
+          content: attr(data-checked);
+        }
+      }
+    }
 
-canvas {
-  border: 1px solid #0f0;
-  margin-top: 10px;
-}
-
-pre {
-  max-height: 300px;
-  overflow-y: auto;
+    /* // Checked state */
+    &:checked + label > .status-switch {
+      background-color: #40c253;
+ 
+      &:after {
+        left: 0;
+        content: attr(data-unchecked);
+      }
+ 
+      &:before {
+        color: #40c253;
+        left: 50%;
+        content: attr(data-checked);
+      }
+    }
+  }
 }

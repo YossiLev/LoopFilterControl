@@ -1,6 +1,9 @@
-import { setPredictor } from "./api.js";
+import { setPredictor, setScanOff, setScanOn } from "./api.js";
 import { sendBinaryBuffer, packU32 } from "./transport.js";
 
+function flipZoom(id, z) {
+    document.getElementById("frameBoard").classList.toggle('zoomedFrame');
+}
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");
 
@@ -29,6 +32,22 @@ export function initControlUI() {
       }
       //log("VERSION: " + new TextDecoder().decode(r));
   };
+
+  document.getElementById("status").onchange = async ev => {
+    console.log("change states");
+    console.log(ev);
+    console.log(ev.target.checked);
+    if (ev.target.checked) {
+        //await setScanOn(offset, frequency, amplitude, scanType)
+        await setScanOn(0, 10, 8192, 1);
+    } else {
+        await setScanOff();
+    }
+  }
+
+  document.getElementById("zBut").onclick = () => {
+      flipZoom("frameBoard", 0.25);
+  }
 
   //add events
   const systemCanvas = document.getElementById("systemCanvas");
