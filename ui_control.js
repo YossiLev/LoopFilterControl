@@ -30,13 +30,26 @@ export function initControlUI() {
       } else {
         status.textContent += "  VERSION: " + new TextDecoder().decode(r);
       }
-      //log("VERSION: " + new TextDecoder().decode(r));
   };
 
-  document.getElementById("status").onchange = async ev => {
-    console.log("change states");
-    console.log(ev);
-    console.log(ev.target.checked);
+  document.getElementById("connect").onchange = async ev => {
+    if (ev.target.checked) {
+        await connect();
+        status.textContent = "CONNECTED";
+        await setPredictor(false);
+        status.textContent = "CONNECTED - PREDICTOR OFF";
+    } else {
+        disconnect();
+        status.textContent = "DISCONNECTED";        
+    }
+  }
+
+  document.getElementById("predict").onchange = async ev => {
+    await setPredictor(ev.target.checked);
+    status.textContent = `CONNECTED - PREDICTOR ${ev.target.checked ? "ON": "OFF"}`;
+  }
+
+  document.getElementById("scan").onchange = async ev => {
     if (ev.target.checked) {
         //await setScanOn(offset, frequency, amplitude, scanType)
         await setScanOn(0, 10, 8192, 1);
@@ -44,6 +57,7 @@ export function initControlUI() {
         await setScanOff();
     }
   }
+
 
   document.getElementById("zBut").onclick = () => {
       flipZoom("frameBoard", 0.25);

@@ -50,7 +50,79 @@ export function presentScopeData(data) {
   return lastBatch;
 }
 
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {Array} dataConfigs - Array of objects: { data: [], color: string, width: number }
+ */
+function drawMultiScaleChart(canvas, dataConfigs) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const padding = 60; // Extra space for dual labels
+  const paddingY = 20;
 
+  ctx.clearRect(0, 0, W, H);
+  
+  // Calculate Min/Max for each dataset
+  dataConfigs.forEach(config => {
+    config.min = Math.min(...config.data);
+    config.max = Math.max(...config.data);
+  });
+
+  const gridSteps = 5;
+
+  // 1. Draw Grid Lines
+  ctx.strokeStyle = "#ccc";
+  for (let i = 0; i <= gridSteps; i++) {
+    const y = (H - paddingY) - (i / gridSteps) * (H - 2 * paddingY);
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(W - padding, y);
+    ctx.stroke();
+  }
+
+  // 2. Draw Dual Y-Axes Labels
+  dataConfigs.forEach((config, idx) => {
+    ctx.fillStyle = config.color;
+    ctx.textAlign = idx === 0 ? "right" : "left";
+    const xPos = idx === 0 ? padding - 10 : W - padding + 10;
+
+    for (let i = 0; i <= gridSteps; i++) {
+      const y = (H - paddingY) - (i / gridSteps) * (H - 2 * paddingY);
+      const val = config.min + (i / gridSteps) * (config.max - config.min);
+      ctx.fillText(val.toFixed(1), xPos, y);
+    }
+  });
+
+  // 3. Draw Data Lines
+  dataConfigs.forEach(config => {
+    ctx.beginPath();
+    ctx.strokeStyle = config.color;
+    ctx.lineWidth = config.width || 2;
+
+    config.data.forEach((val, i) => {
+      const x = padding + (i / (config.data.length - 1)) * (W - 2 * padding);
+      const normalizedY = (val - config.min) / (config.max - config.min);
+      const y = (H - paddingY) - normalizedY * (H - 2 * paddingY);
+
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  });
+}
+function demoDraw() {
+    const canvas = document.getElementById("scopeCanvas");
+    const data1 = [10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 95];
+    const data2 = [-20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, 85]; 
+    const dataConfigs = [{
+      data: data1, color: "red", width: 1
+    }, 
+    {
+      data: data2, color: "blue", width: 1
+    }];
+    drawMultiScaleChart(canvas, dataConfigs);
+}
 export function initScopeUI() {
 
   document.getElementById("scopeBtn").onclick = async () => {
@@ -65,3 +137,4 @@ export function initScopeUI() {
 
   };
 }
+demoDraw();
