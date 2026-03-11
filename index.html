@@ -77,7 +77,7 @@
             </div>
         </label> 
         </div>
-
+<!--  
         <button id="connectBtn" title="Connect to device" class="button">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-4a5 5 0 0 0-5 5m01 5h3"/>
@@ -88,8 +88,6 @@
                 <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-5a5 5 0 0 0-5 5m-1 10L20 11"/>
             </svg>
         </button>
-        
-        
 
         <button id="predOnBtn" title="Turn predictor on" class="button">
             <svg width="32px" height="32px" viewBox="0 0 0.96 0.96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -107,7 +105,7 @@
             <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
             <rect x="8" y="8" width="16" height="16" rx="2"/>
             </svg>
-        </button>
+        </button> -->
 
         <button id="scopeBtn" title="Get a sample for the scope" class="button">
             <svg width="32px" height="32px" viewBox="0 0 1.28 1.28" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_901_1551)"><path d="M1.08 0.32h0.12a0.04 0.04 0 0 1 0.04 0.04v0.84a0.04 0.04 0 0 1 -0.04 0.04H0.08a0.04 0.04 0 0 1 -0.04 -0.04V0.36a0.04 0.04 0 0 1 0.04 -0.04h0.76M0.16 1.12l0.48 -0.48 0.32 0.32V0.04m0 0 -0.16 0.16m0.16 -0.16 0.16 0.16" stroke="#000000" stroke-width="0.08" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_901_1551"><path width="32" height="32" fill="white" d="M0 0H1.28V1.28H0V0z"/></clipPath></defs></svg>
@@ -127,7 +125,7 @@
         <div id="connectionStatus">DISCONNECTED</div>
     </div>
     <div class="grid">
-        <div id="frameBoard" style="position: relative; transition: transform 0.2s ease; ">
+        <div id="frameBoard" style="position: relative; transition: transform 0.2s ease; " class="zoomedFrame">
             <img src="./images/fpgaR.png" alt="Loop Filter Control" style="position:absolute ; width:1200px; border-radius:8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
             <canvas id="systemCanvas" width="1200" height="420" style="position: relative; width: 1200px; z-index:10; "></canvas>
         </div>

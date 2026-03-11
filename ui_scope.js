@@ -26,24 +26,32 @@ export function presentScopeData(data) {
       vecs[2].push(vecs[0][i] - vecs[1][i]);
     }
   }
-  const maxVecs = vecs.map(v => Math.max(...v));
-  const minVecs = vecs.map(v => Math.min(...v));
-  const factors = maxVecs.map((max, i) => max > minVecs[i] ? 200.0 / (max - minVecs[i]) : 0.0);
 
-  ctx.lineWidth = 2;
-  for (let ig = 0; ig < 3; ig++) {
-    if (vecs[ig].length === 0) continue;
-    ctx.strokeStyle = ig === 0 ? "rgba(6, 114, 6, 1)" : ig === 1 ? "rgba(0, 0, 255, 1)" : "rgba(255, 0, 0, 1)";
-    ctx.beginPath();
-    for(let i=0;i<n;i++){
-      const sample = vecs[ig][i];
-      const x = i*(800/n);
-      const y = 280 - (sample - minVecs[ig]) * factors[ig];
-      if(i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
-    }
-    ctx.stroke();
-  }
+  const dataConfigs = [{
+    data: vecs[0], color: "green", width: 1
+  }, 
+  {
+    data: vecs[1], color: "blue", width: 1
+  }];
+  drawMultiScaleChart(canvas, dataConfigs);
+  // const maxVecs = vecs.map(v => Math.max(...v));
+  // const minVecs = vecs.map(v => Math.min(...v));
+  // const factors = maxVecs.map((max, i) => max > minVecs[i] ? 200.0 / (max - minVecs[i]) : 0.0);
+
+  // ctx.lineWidth = 2;
+  // for (let ig = 0; ig < 3; ig++) {
+  //   if (vecs[ig].length === 0) continue;
+  //   ctx.strokeStyle = ig === 0 ? "rgba(6, 114, 6, 1)" : ig === 1 ? "rgba(0, 0, 255, 1)" : "rgba(255, 0, 0, 1)";
+  //   ctx.beginPath();
+  //   for(let i=0;i<n;i++){
+  //     const sample = vecs[ig][i];
+  //     const x = i*(800/n);
+  //     const y = 280 - (sample - minVecs[ig]) * factors[ig];
+  //     if(i===0) ctx.moveTo(x,y);
+  //     else ctx.lineTo(x,y);
+  //   }
+  //   ctx.stroke();
+  // }
 
   console.log(`lastBatch ${lastBatch}`);
 
@@ -58,15 +66,17 @@ function drawMultiScaleChart(canvas, dataConfigs) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
-  const padding = 60; // Extra space for dual labels
+  const padding = 80; // Extra space for dual labels
   const paddingY = 20;
 
   ctx.clearRect(0, 0, W, H);
   
   // Calculate Min/Max for each dataset
+  console.log("=");
   dataConfigs.forEach(config => {
     config.min = Math.min(...config.data);
     config.max = Math.max(...config.data);
+    console.log(`${config.min} - ${config.max}`);
   });
 
   const gridSteps = 5;
