@@ -57,7 +57,7 @@ export async function connect() {
         ws.onmessage = ev => {
             const data = new Uint8Array(ev.data);
             //console.log("Response ", uint8ArrayToHexString(data));
-            log(`Rx: ${uint8ArrayToHexString(data)}`);
+            log(`Rx: ${uint8ArrayToHexString(data.slice(0, 40))}`);
             const s = (data[3] << 8) | data[2];
             console.log(`Returned s ${s}`);
             if ((s & 0x8000) == 0) {

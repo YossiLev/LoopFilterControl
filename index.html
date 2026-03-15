@@ -77,35 +77,19 @@
             </div>
         </label> 
         </div>
-<!--  
-        <button id="connectBtn" title="Connect to device" class="button">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-4a5 5 0 0 0-5 5m01 5h3"/>
-            </svg>
-        </button>
-        <button id="disconnectBtn" title="Disconnect from device" class="button">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 16a5 5 0 0 0 0 10h4a5 5 0 0 0 5-5m3-5a5 5 0 0 0 0-10h-5a5 5 0 0 0-5 5m-1 10L20 11"/>
-            </svg>
-        </button>
+        <div class="custom-checkbox"><div>Scope</div>
+        <input id="scope" class="status-input" 
+                type="checkbox" 
+                name="scan" tabindex="-1">
+        <label for="scope">
+            <div class="status-switch"
+                data-unchecked="Off"
+                data-checked="On">
+            </div>
+        </label> 
+        </div>
 
-        <button id="predOnBtn" title="Turn predictor on" class="button">
-            <svg width="32px" height="32px" viewBox="0 0 0.96 0.96" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0.18 0.08v0.112c0 0.045 0 0.067 0.009 0.084a0.08 0.08 0 0 0 0.035 0.035C0.341 0.32 0.363 0.32 0.408 0.32H0.6" stroke="#33363F" stroke-width="0.05"/><path d="M0.18 0.2v0.392c0 0.045 0 0.067 0.009 0.084a0.08 0.08 0 0 0 0.035 0.035C0.341 0.72 0.363 0.72 0.408 0.72H0.6" stroke="#33363F" stroke-width="0.05"/><path d="M0.6 0.664c0 -0.022 0 -0.034 0.004 -0.042a0.04 0.04 0 0 1 0.017 -0.017C0.63 0.6 0.642 0.6 0.664 0.6h0.016l0.04 0.04h0.056c0.022 0 0.034 0 0.042 0.004a0.04 0.04 0 0 1 0.017 0.017C0.84 0.67 0.84 0.682 0.84 0.704v0.072c0 0.022 0 0.034 -0.004 0.042a0.04 0.04 0 0 1 -0.017 0.017C0.81 0.84 0.798 0.84 0.776 0.84h-0.112c-0.022 0 -0.034 0 -0.042 -0.004a0.04 0.04 0 0 1 -0.017 -0.017C0.6 0.81 0.6 0.798 0.6 0.776z" stroke="#33363F" stroke-width="0.05" stroke-linejoin="round"/><path d="M0.6 0.264c0 -0.022 0 -0.034 0.004 -0.042a0.04 0.04 0 0 1 0.017 -0.017C0.63 0.2 0.642 0.2 0.664 0.2h0.016l0.04 0.04h0.056c0.022 0 0.034 0 0.042 0.004a0.04 0.04 0 0 1 0.017 0.017C0.84 0.27 0.84 0.282 0.84 0.304v0.072c0 0.022 0 0.034 -0.004 0.042a0.04 0.04 0 0 1 -0.017 0.017C0.81 0.44 0.798 0.44 0.776 0.44h-0.112c-0.022 0 -0.034 0 -0.042 -0.004a0.04 0.04 0 0 1 -0.017 -0.017C0.6 0.41 0.6 0.398 0.6 0.376z" stroke="#33363F" stroke-width="0.05" stroke-linejoin="round"/></svg>
-        </button>
-        <button id="predOffBtn" title="Turn predictor off" class="button">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="23" y1="9" x2="9" y2="23"/><line x1="9" y1="9" x2="23" y2="23"/>
-            </svg>
-        </button>
-        <button class="button">
-            <svg width="32px" height="32px" viewBox="0 0 0.64 0.64" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path fill-rule="evenodd" clip-rule="evenodd" d="m0.17 0.12 0.047 -0.025 0.32 0.213v0.05l-0.32 0.213 -0.047 -0.025zm0.06 0.056v0.315l0.236 -0.157z"/></svg>
-        </button>
-        <button onclick="location.reload()" class="button">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
-            <rect x="8" y="8" width="16" height="16" rx="2"/>
-            </svg>
-        </button> -->
+
 
         <button id="scopeBtn" title="Get a sample for the scope" class="button">
             <svg width="32px" height="32px" viewBox="0 0 1.28 1.28" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_901_1551)"><path d="M1.08 0.32h0.12a0.04 0.04 0 0 1 0.04 0.04v0.84a0.04 0.04 0 0 1 -0.04 0.04H0.08a0.04 0.04 0 0 1 -0.04 -0.04V0.36a0.04 0.04 0 0 1 0.04 -0.04h0.76M0.16 1.12l0.48 -0.48 0.32 0.32V0.04m0 0 -0.16 0.16m0.16 -0.16 0.16 0.16" stroke="#000000" stroke-width="0.08" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_901_1551"><path width="32" height="32" fill="white" d="M0 0H1.28V1.28H0V0z"/></clipPath></defs></svg>
@@ -114,8 +98,6 @@
         <button id="getVersionBtn" title="Get version description" class="button">
             <svg width="32px" height="32px" viewBox="0 0 96 96" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><title>version-history</title><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="version-history" fill="#000000"><g id="icon" transform="translate(6 8)"><path d="M49.654 0c19.884 0 36 16.116 36 36a36 36 0 0 1 -61.106 25.8l5.578 -5.733A27.998 27.998 0 1 0 21.657 36q0 1.139 0.089 2.25l7.912 -7.908L35.316 36l-17.658 17.658L0 36l5.658 -5.658 8.082 8.076a37.5 37.5 0 0 1 -0.085 -2.419A36 36 0 0 1 49.654 0M43.462 23.836l6.229 16.603 6.229 -16.603h8.546l-10.5 27.998h-8.545l-10.5 -27.998z" id="Combined-Shape"/></g></g></g></svg>
         </button>
-        <button id="dumpBtn" title="Dump registers content" class="button">
-            <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" style="enable-background:new 0 0 310 310;" xml:space="preserve" width="32" height="32"><path d="m31.03 16.488 -4.679 -4.679c-0.605 -0.605 -1.585 -0.605 -2.19 0l-0.935 0.935V1.548C23.226 0.693 22.533 0 21.678 0H2.064C1.209 0 0.516 0.693 0.516 1.548v24.774c0 0.855 0.693 1.548 1.548 1.548h8.774v2.581c0 0.855 0.693 1.548 1.548 1.548h4.679a1.548 1.548 0 0 0 1.095 -0.454l12.869 -12.869c0.605 -0.605 0.605 -1.585 0 -2.19M3.613 3.097h16.516v12.744l-8.837 8.837a1.524 1.524 0 0 0 -0.088 0.097H3.613zm12.812 25.806H13.936v-2.49l11.321 -11.32 2.49 2.49z"/></svg>        </button>
         <button id="rebootBtn" title="Reboot device" class="button">
             <svg width="32px" height="32px" viewBox="0 0 0.64 0.64" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"  stroke-width="0.01" ><path d="M0.32 0c-0.022 0 -0.04 0.018 -0.04 0.04v0.2c0 0.022 0.018 0.04 0.04 0.04s0.04 -0.018 0.04 -0.04V0.04c0 -0.022 -0.018 -0.04 -0.04 -0.04M0.04 0.04l0.082 0.082a0.28 0.28 0 0 0 -0.053 0.322 0.28 0.28 0 0 0 0.287 0.154 0.28 0.28 0 0 0 0.238 -0.222 0.28 0.28 0 0 0 -0.133 -0.297 0.04 0.04 0 0 0 -0.04 0.069 0.2 0.2 0 0 1 0.095 0.212 0.2 0.2 0 0 1 -0.17 0.159c-0.085 0.011 -0.167 -0.033 -0.205 -0.11s-0.023 -0.169 0.038 -0.23L0.24 0.24V0.08C0.24 0.059 0.222 0.04 0.2 0.04zm0 0" fill="#2e3436"/></svg>
         </button>
@@ -179,12 +161,16 @@
                     <input type="number" id="outputOffset" value="0" min="-1000" max="1000" step="1">
                 </div>
                 <div>
-                    <label for="nSamples">Output offset</label>
-                    <input type="number" id="nSamples" value="10" min="10" max="3000" step="1">
+                    <label for="nSamples">Smaples</label>
+                    <input type="number" id="nSamples" value="512" min="10" max="3000" step="1" style="width:120px">
                 </div>
             </div>    
         </div>
         <div class="card">
+            <button id="dumpBtn" title="Dump registers content" class="button">
+                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" style="enable-background:new 0 0 310 310;" xml:space="preserve" width="32" height="32"><path d="m31.03 16.488 -4.679 -4.679c-0.605 -0.605 -1.585 -0.605 -2.19 0l-0.935 0.935V1.548C23.226 0.693 22.533 0 21.678 0H2.064C1.209 0 0.516 0.693 0.516 1.548v24.774c0 0.855 0.693 1.548 1.548 1.548h8.774v2.581c0 0.855 0.693 1.548 1.548 1.548h4.679a1.548 1.548 0 0 0 1.095 -0.454l12.869 -12.869c0.605 -0.605 0.605 -1.585 0 -2.19M3.613 3.097h16.516v12.744l-8.837 8.837a1.524 1.524 0 0 0 -0.088 0.097H3.613zm12.812 25.806H13.936v-2.49l11.321 -11.32 2.49 2.49z"/></svg>
+            </button>
+
             <pre id="dumpOutput" class="info"></pre>
             <div id="log"></div>
         </div>    

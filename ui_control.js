@@ -1,21 +1,12 @@
 import { setPredictor, setScanOff, setScanOn } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
+import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
 function flipZoom(id, z) {
     document.getElementById("frameBoard").classList.toggle('zoomedFrame');
 }
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");
-
-//   document.getElementById("predOnBtn").onclick = async () => {
-//     await setPredictor(true);
-//     status.textContent = "CONNECTED - PREDICTOR ON";
-//   };
-
-//   document.getElementById("predOffBtn").onclick = async () => {
-//     await setPredictor(false);
-//     status.textContent = "CONNECTED - PREDICTOR OFF";
-//   };
 
   document.getElementById("rebootBtn").onclick = async () => {
       await sendBinaryBuffer(packU32(99));
@@ -59,6 +50,13 @@ export function initControlUI() {
     }
   }
 
+  document.getElementById("scope").onchange = async ev => {
+    if (ev.target.checked) {
+        setScopeOn();
+    } else {
+        setScopeOff();
+    }
+  }
 
   document.getElementById("zBut").onclick = () => {
       flipZoom("frameBoard", 0.25);
@@ -79,7 +77,17 @@ export function initControlUI() {
       for (const item of focusItems) {
           if (item.status !== "hidden") {       
               if ((x - item.x) ** 2 + (y - item.y) ** 2 < item.radius ** 2) {
-                  item.status = item.status === "active" ? "selected" : "active";
+                  if (item.status === "active") {
+                    const prevItem = focusItems.find(it => it.status === "selected" && it.selectIndex == selectIndex);
+                    if (prevItem) {
+                        prevItem.status = "active";
+                    }
+                    item.status = "selected";
+                    item.selectIndex = selectIndex;
+                    selectIndex = 1 - selectIndex;
+                  } else {
+                    item.status = "active";
+                  }
               }
           }
       }
@@ -101,6 +109,7 @@ export function initControlUI() {
                       {x: 797, y: 323, radius: 15, name: "H", status: "active"},
                       {x: 1077, y: 323, radius: 15, name: "I", status: "active"},
   ];
+  let selectIndex = 0;
   function drawSystemCanvas(x, y) {
       const ctx = systemCanvas.getContext("2d");
       ctx.clearRect(0,0,systemCanvas.width, systemCanvas.height);
@@ -108,10 +117,14 @@ export function initControlUI() {
           if (item.status !== "hidden") {       
               switch (item.status) {
                   case "active":
-                      ctx.fillStyle = "rgba(14, 189, 14, 0.34)";
+                      ctx.fillStyle = "rgba(243, 241, 99, 0.45)";
                       break;
                   case "selected":
-                      ctx.fillStyle = "rgba(202, 34, 34, 0.58)";
+                      if (item.selectIndex == 0) {
+                        ctx.fillStyle = "rgba(16, 202, 10, 0.58)";
+                      } else {
+                        ctx.fillStyle = "rgba(93, 34, 231, 0.58)";
+                      }
                       break;
               }
               // if ((x - item.x) ** 2 + (y - item.y) ** 2 < item.radius ** 2) {

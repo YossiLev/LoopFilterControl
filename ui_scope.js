@@ -18,7 +18,7 @@ export function presentScopeData(data) {
 
   let vecs = [[], [], []];
   for(let i=0;i<n;i++){ 
-    vecs[0].push(dv.getUint32(28 + i*12 + 4, true));
+    vecs[0].push(dv.getInt32(28 + i*12 + 4, true));
     vecs[1].push(dv.getUint32(28 + i*12 + 8, true));
     if (scopeAddSelect.value === "sum") {
       vecs[2].push(vecs[0][i] + vecs[1][i]);
@@ -26,34 +26,26 @@ export function presentScopeData(data) {
       vecs[2].push(vecs[0][i] - vecs[1][i]);
     }
   }
+  function tt(d, i) {
+    return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
+  }
+  for (let i = 0; i < n; i += 8) {
+    console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
+  }
 
   const dataConfigs = [{
-    data: vecs[0], color: "green", width: 1
+    data: vecs[0], color: "green", width: 2
   }, 
   {
-    data: vecs[1], color: "blue", width: 1
+    data: vecs[1], color: "blue", width: 2
   }];
   drawMultiScaleChart(canvas, dataConfigs);
-  // const maxVecs = vecs.map(v => Math.max(...v));
-  // const minVecs = vecs.map(v => Math.min(...v));
-  // const factors = maxVecs.map((max, i) => max > minVecs[i] ? 200.0 / (max - minVecs[i]) : 0.0);
-
-  // ctx.lineWidth = 2;
-  // for (let ig = 0; ig < 3; ig++) {
-  //   if (vecs[ig].length === 0) continue;
-  //   ctx.strokeStyle = ig === 0 ? "rgba(6, 114, 6, 1)" : ig === 1 ? "rgba(0, 0, 255, 1)" : "rgba(255, 0, 0, 1)";
-  //   ctx.beginPath();
-  //   for(let i=0;i<n;i++){
-  //     const sample = vecs[ig][i];
-  //     const x = i*(800/n);
-  //     const y = 280 - (sample - minVecs[ig]) * factors[ig];
-  //     if(i===0) ctx.moveTo(x,y);
-  //     else ctx.lineTo(x,y);
-  //   }
-  //   ctx.stroke();
-  // }
 
   console.log(`lastBatch ${lastBatch}`);
+
+  if (scopeStatus) {
+    setTimeout(getSample, 100);
+  }
 
   return lastBatch;
 }
@@ -133,18 +125,129 @@ function demoDraw() {
     }];
     drawMultiScaleChart(canvas, dataConfigs);
 }
-export function initScopeUI() {
 
-  document.getElementById("scopeBtn").onclick = async () => {
-
+function getSample() {
     const r1 = parseInt(scopeSample1Select.value);
     const r2 = parseInt(scopeSample2Select.value);
     const n  = parseInt(document.getElementById("nSamples").value);
 
     getTwoRegisterStream(r1, r2, n, presentScopeData);
-    // const data = await getTwoRegisterSamples(r1,r2,n);
-    // presentScopeData(data);
+}
+let scopeStatus = false;
+export function setScopeOn() {
+    scopeStatus = true;
+
+    getSample();
+}
+export function setScopeOff() {
+  scopeStatus = false;
+}
+
+export function initScopeUI() {
+
+  document.getElementById("scopeBtn").onclick = async () => {
+    setScopeOn();
 
   };
 }
+
 demoDraw();
+
+
+
+
+//"pid_magic": 288650904,
+//  "pid_version": 4455,
+//  "pid_live_counter": 4245199675,
+/*
+  "o_y_n": 4294965476,
+
+  "o_q0_q4": 4,
+  "o_q1_q5": 1114106,
+  "o_q2_q6": 4,
+  "o_q3_q7": 1114111,
+  "o_config": 1077968898,
+  "o_y_reference": 8192,
+  "o_i0": 0,
+  "o_z_n": 475797851,
+  "o_count": 1388904769,
+  "o_y_n_3": 4294965619,
+  "o_delay_count": 0,
+  "o_delay_counter": 0,
+  "o_out_offset": 4294959104,
+  "o_magic": 2579169296,
+  "o_dacb_output": 1,
+  "o_dither_config_1": 0,
+  "o_dither_config_2": 0,
+  "o_dither_config_3": 0,
+  "o_dither_count_1": 0,
+  "o_dither_count_2": 0,
+  "o_dither_count_3": 4294959104,
+  "o_2nd_out_offset": 0,
+  "o_2nd_config": 0,
+  "o_3rd_config": 0,
+  "o_y_n_4": 4294965839,
+  "o_y_n_5": 4294965858,
+  "o_y_n_6": 4294965869,
+  "o_y_n_7": 4294965866,
+  "o_2nd_output": 0,
+  "o_manual_dac_output": 0,
+  "o_y_input": 4294966612,
+  "o_dac_a": 6848,
+  "o_dac_b": 7524,
+  "o_debug_reg_1": 1164378114,
+  "o_pre_dither_manual_value": 0,
+  "o_current_sum_before_rebase": 1384905490,
+  "o_current_sum_total_low": 1409416019,
+  "o_current_sum_total_high": 4294967295,
+  "o_dac_output": 1482955604
+
+
+
+
+/// "pid_magic": 288650904,
+//  "pid_version": 4455,
+//  "pid_live_counter": 3395798202,
+  "o_y_n": 914,
+
+  "o_q0_q4": 100,
+  "o_q1_q5": 1113962,
+  "o_q2_q6": 100,
+  "o_q3_q7": 1114087,
+  "o_config": 1078558726,
+  "o_y_reference": 8192,
+  "o_i0": 0,
+  "o_z_n": 3978484,
+  "o_count": 690301294,
+  "o_y_n_3": 925,
+  "o_delay_count": 0,
+  "o_delay_counter": 0,
+  "o_out_offset": 3640,
+  "o_magic": 2579169296,
+  "o_dacb_output": 1,
+  "o_dither_config_1": 65546,
+  "o_dither_config_2": 65537,
+  "o_dither_config_3": 0,
+  "o_dither_count_1": 0,
+  "o_dither_count_2": 0,
+  "o_dither_count_3": 3640,
+  "o_2nd_out_offset": 0,
+  "o_2nd_config": 65537,
+  "o_3rd_config": 0,
+  "o_y_n_4": 916,
+  "o_y_n_5": 920,
+  "o_y_n_6": 918,
+  "o_y_n_7": 924,
+  "o_2nd_output": 0,
+  "o_manual_dac_output": 0,
+  "o_y_input": 443,
+  "o_dac_a": 13814,
+  "o_dac_b": 9966,
+  "o_debug_reg_1": 1164378114,
+  "o_pre_dither_manual_value": 0,
+  "o_current_sum_before_rebase": 4056094,
+  "o_current_sum_total_low": 2032158663,
+  "o_current_sum_total_high": 0,
+  "o_dac_output": 3917561
+
+  */

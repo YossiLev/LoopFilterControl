@@ -144,6 +144,59 @@ export const friendlyNames = {
  'dac output':'o_dac_output'
 };
 
+export const regType = {
+ 'pid_magic': "O",
+ 'pid_version': "O",
+ 'pid_live_counter': "O",
+ 'o_y_n': "O",
+ 'o_q0_q4': "S",
+ 'o_q1_q5': "S",
+ 'o_q2_q6': "S",
+ 'o_q3_q7': "S",
+ 'o_config': "X",
+ 'o_y_reference': "",
+ 'o_i0': "",
+ 'o_z_n': "O",
+ 'o_count': "O",
+ 'o_y_n_3': "O",
+ 'o_delay_count': "",
+ 'o_delay_counter': "",
+ 'o_out_offset': "",
+ 'o_magic': "",
+ 'o_dacb_output': "",
+ 'o_dither_config_1': "",
+ 'o_dither_config_2': "",
+ 'o_dither_config_3': "",
+ 'o_dither_count_1': "",
+ 'o_dither_count_2': "",
+ 'o_dither_count_3': "",
+ 'o_2nd_out_offset': "",
+ 'o_2nd_config': "X",
+ 'o_3rd_config': "X",
+ 'o_y_n_4': "O",
+ 'o_y_n_5': "O",
+ 'o_y_n_6': "O",
+ 'o_y_n_7': "O",
+ 'o_2nd_output': "",
+ 'o_manual_dac_output': "",
+ 'o_y_input': "",
+ 'o_dac_a': "O",
+ 'o_dac_b': "O",
+ 'o_debug_reg_1': "",
+ 'o_pre_dither_manual_value': "",
+ 'o_current_sum_before_rebase': "O",
+ 'o_current_sum_total_low': "O",
+ 'o_current_sum_total_high': "O",
+ 'o_dac_output': "O",  
+}
+
+export const regInput = {
+  'o_y_reference': "Input offset (ADC units) 8192",
+  'o_out_offset': "Output oset (DAC units) 3640",
+
+
+}
+
 export class Config {
   constructor(w=0){
     this.continuous   = (w>>1)&1;
