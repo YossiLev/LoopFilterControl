@@ -7,6 +7,10 @@ body {
   font-family: Helvetica, Arial, sans-serif;
 } */
 
+td {
+  text-align: left;
+}
+
 .custom-checkbox {
   width: 140px;
   height: 30px;

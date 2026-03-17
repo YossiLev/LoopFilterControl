@@ -3,7 +3,7 @@ import { RegisterDump, friendlyNames, regType } from "./registers.js";
 
 
 let prevDump = {}
-function displayValue([key, value]) {
+function displayValue([key, value], i) {
   const color = key in regType ? (regType[key].includes("O") ? "black" : "green") : "red";
   let tVal = value;
   if (regType[key].includes("S")) {
@@ -12,7 +12,7 @@ function displayValue([key, value]) {
   if (regType[key].includes("X")) {
     tVal = `${value.toString(16)}`; 
   }
-  return `<div style="color: ${color};">${key}: ${tVal}</div>`
+  return `<div style="color: ${color};">${i}) ${key}: ${tVal}</div>`
 }
 function displayDiff([key, value]) {
   if (regType[key].includes("O")) {

@@ -19,7 +19,7 @@ export function presentScopeData(data) {
   let vecs = [[], [], []];
   for(let i=0;i<n;i++){ 
     vecs[0].push(dv.getInt32(28 + i*12 + 4, true));
-    vecs[1].push(dv.getUint32(28 + i*12 + 8, true));
+    vecs[1].push(dv.getInt32(28 + i*12 + 8, true));
     if (scopeAddSelect.value === "sum") {
       vecs[2].push(vecs[0][i] + vecs[1][i]);
     } else if (scopeAddSelect.value === "diff") {
@@ -249,5 +249,31 @@ demoDraw();
   "o_current_sum_total_low": 2032158663,
   "o_current_sum_total_high": 0,
   "o_dac_output": 3917561
+
+
+
+
+o_q0_q4: 0 # 4
+o_q1_q5: 16 # 65530
+o_q2_q6: 0 # 4
+o_q3_q7: 16 # 65535
+o_config: 40408002
+o_out_offset: 4294959104
+o_dither_config_1: 0
+o_dither_config_2: 0
+o_dither_count_3: 4294959104
+o_2nd_config: 0
+
+
+4) o_q0_q4: 0 # 75
+5) o_q1_q5: 16 # 65461
+6) o_q2_q6: 0 # 25
+7) o_q3_q7: 0 # 0
+8) o_config: 40498006
+16) o_out_offset: 3640
+19) o_dither_config_1: 65546
+20) o_dither_config_2: 65537
+21) o_dither_config_3: 0
+26) o_2nd_config: 10001
 
   */
