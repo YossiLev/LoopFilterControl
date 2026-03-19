@@ -1,5 +1,23 @@
 import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
+function f14s(s) {
+  if (s < 0x2000) {
+    return s;
+  }
+  let b =  1 - (0x01ff ^ (s & 0x1fff));
+  console.log("converted ",s, b)
+  return b;
+}
+
+function toSigned14Bit(value) {
+    // 1. Mask to 14 bits (0 to 16,383)
+    let val = value;// & 0xFFFF; 
+    
+    // 2. Shift left by 18 (32 - 14) to reach the 32nd bit
+    // 3. Shift right (>>) to sign-extend back to 14 bits
+    return (val << 16) >> 16;
+}
+
 export function presentScopeData(data) {
   const canvas = document.getElementById("scopeCanvas");
   const ctx = canvas.getContext("2d");
@@ -18,8 +36,12 @@ export function presentScopeData(data) {
 
   let vecs = [[], [], []];
   for(let i=0;i<n;i++){ 
-    vecs[0].push(dv.getInt32(28 + i*12 + 4, true));
-    vecs[1].push(dv.getInt32(28 + i*12 + 8, true));
+    vecs[0].push(toSigned14Bit(dv.getInt16(28 + i*12 + 4, true)));
+    vecs[1].push(toSigned14Bit(dv.getInt16(28 + i*12 + 8, true)));
+    if (i < 10) {
+
+      console.log(`registers ${vecs[0][i].toString(16)}  ${vecs[1][i].toString(16)}`);
+    }
     if (scopeAddSelect.value === "sum") {
       vecs[2].push(vecs[0][i] + vecs[1][i]);
     } else if (scopeAddSelect.value === "diff") {
@@ -215,6 +237,14 @@ demoDraw();
   "o_q2_q6": 100,
   "o_q3_q7": 1114087,
   "o_config": 1078558726,
+  "o_count": 690301294,
+  "o_y_n_3": 925,
+  "o_delay_count": 0,
+  "o_delay_counter": 0,
+  "o_out_offset": 3640,
+  "o_magic": 2579169296,
+  "o_dacb_output": 1,
+  "o_dither_config_1": 65546,
   "o_y_reference": 8192,
   "o_i0": 0,
   "o_z_n": 3978484,

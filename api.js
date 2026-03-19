@@ -1,6 +1,30 @@
 import { sendBinaryBuffer, sendBinaryBufferConsistent, packU32 } from "./transport.js";
 
 
+export async function setPredictorGains(integral_gain, integral_2nd_gain, proportional_gain) {
+    // Command 0x05 = set gain
+  const buffer = new ArrayBuffer(20);
+  const dv = new DataView(buffer);
+  dv.setUint32(0, 5, true);
+  dv.setUint32(4, integral_gain, true);
+  dv.setUint32(8, integral_2nd_gain, true);
+  dv.setFloat64(12, proportional_gain, true);
+
+  const resp = await sendBinaryBuffer(buffer);
+  return new DataView(resp).getUint32(0, true);
+}
+
+export async function setAveragingTimeInCycles(numCycles=2) {
+  // command 0x04 = set averaging time
+  const buffer = new ArrayBuffer(8);
+  const dv = new DataView(buffer);
+  dv.setUint32(0, 4, true);
+  dv.setUint32(4, numCycles, true);
+
+  const resp = await sendBinaryBuffer(buffer);
+  return new DataView(resp).getUint32(0, true);  
+}
+
 export async function setPredictor(on) {
   const cmd = packU32(on ? 16 : 15);
   return await sendBinaryBuffer(cmd);
