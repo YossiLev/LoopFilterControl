@@ -25,11 +25,16 @@ export function initControlUI() {
 
   document.getElementById("connect").onchange = async ev => {
     if (ev.target.checked) {
-        await connect();
-        status.textContent = "CONNECTED";
-        await setPredictor(false);
-        status.textContent = "CONNECTED - PREDICTOR OFF";
-        document.getElementById("predict").checked = false;
+        try {
+            await connect();
+            status.textContent = "CONNECTED";
+            await setPredictor(false);
+            status.textContent = "CONNECTED - PREDICTOR OFF";
+            document.getElementById("predict").checked = false;
+        } catch(er) {
+            ev.target.checked = false;
+            status.textContent = `CONNECTION ERROR`;
+        }        
     } else {
         disconnect();
         status.textContent = "DISCONNECTED";        
