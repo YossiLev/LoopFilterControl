@@ -75,14 +75,14 @@ export async function connect() {
                 // console.log(`Loooking for ${s & 0x7FFF} in consistent pending`);
 
                 if (conPending.has(s & 0x7FFF)) {
-                    console.log(`Found in consistent pending`);
+                    // console.log(`Found in consistent pending`);
                     const dat = Array.from(data);
-                    console.log(`data ${dat[0]} ${dat[1]} ${dat[2]} ${dat[3]} ${dat[4]} ${dat[5]} ${dat[6]} ${dat[7]} ${dat[8]} ${dat[9]} ${dat[10]} ${dat[11]} `)
+                    // console.log(`data ${dat[0]} ${dat[1]} ${dat[2]} ${dat[3]} ${dat[4]} ${dat[5]} ${dat[6]} ${dat[7]} ${dat[8]} ${dat[9]} ${dat[10]} ${dat[11]} `)
 
                     dat.splice(0, 12); // Remove header
                     if (conPending.get(s & 0x7FFF)(new Uint8Array(dat).buffer)) {
                         // an end-data message reported
-                        console.log(`deleting ${s & 0x7FFF} in consistent pending`);
+                        // console.log(`deleting ${s & 0x7FFF} in consistent pending`);
 
                         conPending.delete(s & 0x7FFF);
                     }
@@ -154,7 +154,7 @@ function sendPacketConsistent(pkt, cb) {
     const s = conSeq++ & 0x7FFF;
     pkt[2] = s & 0xFF;
     pkt[3] = ((s >> 8) & 0xFF) | 0x80; // the marker 0x80 for consistent message
-    console.log(`Putting consistent ${s} input pending`)
+    //console.log(`Putting consistent ${s} input pending`)
     conPending.set(s, cb);
 
     //console.log(uint8ArrayToHexString(pkt));

@@ -23,9 +23,9 @@ export function presentScopeData(data) {
   const ctx = canvas.getContext("2d");
 
   const dv = new DataView(data);
-  console.log(`scope length ${dv.byteLength}`);
+  // console.log(`scope length ${dv.byteLength}`);
   const n  = (dv.byteLength - 28) / 12;
-  console.log(`Nomber of samples ${n}`);
+  // console.log(`Nomber of samples ${n}`);
   // for (let i = 0; i < 7; i++) {
   //   console.log(`int ${dv.getInt32(i * 4, true)}`);
   // }
@@ -38,10 +38,10 @@ export function presentScopeData(data) {
   for(let i=0;i<n;i++){ 
     vecs[0].push(toSigned14Bit(dv.getInt16(28 + i*12 + 4, true)));
     vecs[1].push(toSigned14Bit(dv.getInt16(28 + i*12 + 8, true)));
-    if (i < 10) {
+    // if (i < 10) {
 
-      console.log(`registers ${vecs[0][i].toString(16)}  ${vecs[1][i].toString(16)}`);
-    }
+    //   console.log(`registers ${vecs[0][i].toString(16)}  ${vecs[1][i].toString(16)}`);
+    // }
     if (scopeAddSelect.value === "sum") {
       vecs[2].push(vecs[0][i] + vecs[1][i]);
     } else if (scopeAddSelect.value === "diff") {
@@ -51,9 +51,9 @@ export function presentScopeData(data) {
   function tt(d, i) {
     return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
   }
-  for (let i = 0; i < n; i += 8) {
-    console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
-  }
+  // for (let i = 0; i < n; i += 8) {
+  //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
+  // }
 
   const dataConfigs = [{
     data: vecs[0], color: "green", width: 2
@@ -62,8 +62,6 @@ export function presentScopeData(data) {
     data: vecs[1], color: "blue", width: 2
   }];
   drawMultiScaleChart(canvas, dataConfigs);
-
-  console.log(`lastBatch ${lastBatch}`);
 
   if (scopeStatus) {
     setTimeout(getSample, 100);
@@ -86,11 +84,9 @@ function drawMultiScaleChart(canvas, dataConfigs) {
   ctx.clearRect(0, 0, W, H);
   
   // Calculate Min/Max for each dataset
-  console.log("=");
   dataConfigs.forEach(config => {
     config.min = Math.min(...config.data);
     config.max = Math.max(...config.data);
-    console.log(`${config.min} - ${config.max}`);
   });
 
   const gridSteps = 5;
