@@ -59,9 +59,9 @@ export async function connect() {
             //console.log("Response ", uint8ArrayToHexString(data));
             log(`Rx: ${uint8ArrayToHexString(data.slice(0, 40))}`);
             const s = (data[3] << 8) | data[2];
-            console.log(`Returned s ${s}`);
+            // console.log(`Returned s ${s}`);
             if ((s & 0x8000) == 0) {
-                console.log(`Loooking for ${s} in pending`);
+                // console.log(`Loooking for ${s} in pending`);
 
                 if (pending.has(s)) {
                     const dat = Array.from(data);
@@ -72,7 +72,7 @@ export async function connect() {
                     console.log("* * * * Not found in pending")
                 }
             } else {
-                console.log(`Loooking for ${s & 0x7FFF} in consistent pending`);
+                // console.log(`Loooking for ${s & 0x7FFF} in consistent pending`);
 
                 if (conPending.has(s & 0x7FFF)) {
                     console.log(`Found in consistent pending`);
@@ -129,7 +129,7 @@ async function sendPacket(pkt) {
         const s = seq++ & 0x7FFF;
         pkt[2] = s & 0xFF;
         pkt[3] = (s >> 8) & 0xFF;
-        console.log(`Putting ${s} input pending`)
+        // console.log(`Putting ${s} input pending`)
         pending.set(s, resolve);
 
         //console.log(uint8ArrayToHexString(pkt));
