@@ -1,4 +1,4 @@
-import { setPredictor, setScanOff, setScanOn } from "./api.js";
+import { selectOutputSignal, setOutputOffsets, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
@@ -65,6 +65,49 @@ export function initControlUI() {
 
   document.getElementById("zBut").onclick = () => {
       flipZoom("frameBoard", 0.25);
+  }
+
+  async function handleOrder(ev) {
+    const valueStr = ev.target.value;
+    console.log(`Order change to ${valueStr}`);
+    const value = parseInt(valueStr);
+    if (value >= 1 & value < 9) {
+      const rc = await setPredictorOrder(value);
+      console.log(`order set rc = ${rc}`);
+    }
+  }
+  document.getElementById("paramOrder").onchange = handleOrder;
+  document.getElementById("paramOrder").oninput = handleOrder;
+
+  async function handleOutputOfsets(ev) {
+    const valueStr1 = document.getElementById("paramOutputOffset1").value;
+    const valueStr2 = document.getElementById("paramOutputOffset2").value;
+    console.log(`Ourput offsets change to ${valueStr1} ${valueStr2}`);
+    const value1 = parseInt(valueStr1);
+    const value2 = parseInt(valueStr2);
+    const rc = await setOutputOffsets(value1, value2);
+    console.log(`Ourput offsets set rc = ${rc}`);
+  }
+  document.getElementById("paramOutputOffset1").onchange = handleOutputOfsets;
+  document.getElementById("paramOutputOffset1").oninput = handleOutputOfsets;
+  document.getElementById("paramOutputOffset2").onchange = handleOutputOfsets;
+  document.getElementById("paramOutputOffset2").oninput = handleOutputOfsets;
+
+  document.getElementById("paramAlpha").onchange = async ev => {
+    const valueStr = ev.target.value;
+    console.log(`Alpha change to ${valueStr}`);
+    const value = parseFloat(valueStr);
+    if (value >= 0.999999 & value < 5.0) {
+      const rc = await setPredictorAlpha(value);
+      console.log(`alpha set rc = ${rc}`);
+    }
+  }
+
+  document.getElementById("output2Select").onchange = async ev => {
+    const value = ev.target.value;
+    console.log(`output2Select = ${value}`);
+    const rc = await selectOutputSignal(value);
+    console.log(`order set rc = ${rc}`);
   }
 
   //add events

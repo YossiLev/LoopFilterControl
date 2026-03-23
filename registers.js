@@ -156,20 +156,20 @@ export const regType = {
  'o_config': "X",
  'o_y_reference': "",
  'o_i0': "",
- 'o_z_n': "O",
+ 'o_z_n': "O SI",
  'o_count': "O",
  'o_y_n_3': "O",
  'o_delay_count': "",
  'o_delay_counter': "",
- 'o_out_offset': "",
+ 'o_out_offset': "SI",
  'o_magic': "O",
  'o_dacb_output': "",
  'o_dither_config_1': "",
  'o_dither_config_2': "",
  'o_dither_config_3': "",
- 'o_dither_count_1': "",
- 'o_dither_count_2': "",
- 'o_dither_count_3': "",
+ 'o_dither_count_1': "SI",
+ 'o_dither_count_2': "SI",
+ 'o_dither_count_3': "SI",
  'o_2nd_out_offset': "",
  'o_2nd_config': "X",
  'o_3rd_config': "X",
@@ -179,14 +179,14 @@ export const regType = {
  'o_y_n_7': "O",
  'o_2nd_output': "",
  'o_manual_dac_output': "",
- 'o_y_input': "O",
+ 'o_y_input': "O SI",
  'o_dac_a': "O",
  'o_dac_b': "O",
  'o_debug_reg_1': "",
  'o_pre_dither_manual_value': "",
- 'o_current_sum_before_rebase': "O",
- 'o_current_sum_total_low': "O",
- 'o_current_sum_total_high': "O",
+ 'o_current_sum_before_rebase': "O SI",
+ 'o_current_sum_total_low': "O SI",
+ 'o_current_sum_total_high': "O SI",
  'o_dac_output': "O",  
 }
 
@@ -196,6 +196,27 @@ export const regInput = {
 
 
 }
+
+export const regOutput2 = [
+          'ADC_DA',
+        '0x2000 (const)',
+        'input (o_y_n)',
+        'prev input (o_y_n_1)',
+        '2nd prev input (o_y_n_2)',
+        '3rd prev input (o_y_n_3)',
+        '4th prev input (o_y_n_4)',
+        'output (o_z_n)',
+        '5th prev input (o_y_n_5)',
+        'counter (o_count)',
+        '6th prev input (o_y_n_6)',
+        '7th prev input (o_y_n_7)',
+        'o_dither_input_counter',
+        'output no integral (o_z_n_no_integral)',
+        'raw input (o_y_input)',
+        'integration sum (o_integral_sum)',
+        '2nd integration (o_2nd_integral)',
+        '0 (const)'
+];
 
 export class Config {
   constructor(w=0){

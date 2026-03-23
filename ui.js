@@ -40,7 +40,7 @@ document.getElementById("rebootBtn").onclick = async () => {
     const r = await sendBinaryBuffer(packU32(99));
 };
 
-const scopeSample1Select = document.getElementById("scopeSample1Select");
-scopeSample1Select.innerHTML = Object.keys(friendlyNames).map(n => `<option value="${n}">${n}</option>`).join("");
-const scopeSample2Select = document.getElementById("scopeSample2Select");
-scopeSample2Select.innerHTML = Object.keys(friendlyNames).map(n => `<option value="${n}">${n}</option>`).join("");
+// const scopeSample1Select = document.getElementById("scopeSample1Select");
+// scopeSample1Select.innerHTML = Object.keys(friendlyNames).map(n => `<option value="${n}">${n}</option>`).join("");
+// const scopeSample2Select = document.getElementById("scopeSample2Select");
+// scopeSample2Select.innerHTML = Object.keys(friendlyNames).map(n => `<option value="${n}">${n}</option>`).join("");

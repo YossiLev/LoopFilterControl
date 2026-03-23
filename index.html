@@ -93,12 +93,16 @@
                     <select id="scopeSample2Select"></select>
                 </div>
                 <div>
-                    <label for="scopeAddSelect" style="color:red !important;">Add</label>
+                    <label for="scopeAddSelect" style="color:rgb(48, 47, 47) !important;">Add</label>
                     <select id="scopeAddSelect">
                         <option value="none">None</option>
                         <option value="sum">Sum</option>
                         <option value="diff">Diff</option> 
                     </select>
+                </div>
+                <div>
+                    <label for="output2Select" style="color:red !important;">Second output</label>
+                    <select id="output2Select"></select>
                 </div>
 
             </div>
@@ -112,8 +116,10 @@
                 <div><label for="paramOrder">Order</label><input type="number" id="paramOrder" value="4" min="1" step="1"></div>
                 <div><label for="paramAlpha">&alpha;</label><input type="number" id="paramAlpha" value="1.0" min="1" step="0.1"></div>
                 <div><label for="paramPGain">P Gain</label><input type="number" id="paramPGain" value="0.10" min="0.0" step="0.01" style="width: 70px;"></div>
-                <div><label for="paramPiCorner">PI corner (KHz)</label><input type="number" id="paramPiCorner" value="0.10" min="0.0" step="0.01" style="width: 70px;"></div>
-                <div><label for="paramAveragingTimer">Averaging time (nsec)</label><input type="number" id="paramAveragingTimer" value="40" min="40" step="20"></div>
+                <div><label for="paramPiCorner">PI corner (KHz)</label><input type="number" id="paramPiCorner" value="0.10" min="0.0" step="0.01" style="width: 90px;"></div>
+                <div><label for="paramAveragingTimer">Avg time (ns)</label><input type="number" id="paramAveragingTimer" value="40" min="40" step="20" style="width: 80px;"></div>
+                <div><label for="paramOutputOffset1">Out offset 1</label><input type="number" id="paramOutputOffset1" value="0" min="-10000" step="20" style="width: 80px;"></div>
+                <div><label for="paramOutputOffset2">Out offset 2</label><input type="number" id="paramOutputOffset2" value="0" min="-10000" step="20" style="width: 80px;"></div>
 
                 <div>
                     <label for="modeSelect">Running mode</label>

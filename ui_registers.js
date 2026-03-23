@@ -1,30 +1,38 @@
 import { dumpRegisters } from "./api.js";
-import { RegisterDump, friendlyNames, regType } from "./registers.js";
+import { RegisterDump, friendlyNames, regType, regOutput2 } from "./registers.js";
 
+
+function checkRegFlag(r, f) {
+  return regType[r].split(" ").includes(f);
+}
+function convertRegValue(r, v) {
+  let tVal = v;
+  if (checkRegFlag(r, "S")) {
+    tVal = `${v >> 16} # ${v & 0xffff}`; 
+  }
+  if (checkRegFlag(r, "X")) {
+    tVal = `${v.toString(16)}`; 
+  }
+  if (checkRegFlag(r, "SI")) {
+    if (v > 2147483647) {
+        v = v - 4294967296;
+    }
+    tVal = `${v}`; 
+  }
+  return tVal;
+}
 
 let prevDump = {}
 function displayValue([key, value], i) {
   const color = key in regType ? (regType[key].includes("O") ? "black" : "green") : "red";
-  let tVal = value;
-  if (regType[key].includes("S")) {
-    tVal = `${value >> 16} # ${value & 0xffff}`; 
-  }
-  if (regType[key].includes("X")) {
-    tVal = `${value.toString(16)}`; 
-  }
+  let tVal = convertRegValue(key, value);
   return `<div style="color: ${color};">${i}) ${key}: ${tVal}</div>`
 }
 function displayDiff([key, value]) {
-  if (regType[key].includes("O")) {
+  if (checkRegFlag(key, "O")) {
     return "";
   }
-  let tVal = value;
-  if (regType[key].includes("S")) {
-    tVal = `${value >> 16} # ${value & 0xffff}`; 
-  }
-  if (regType[key].includes("X")) {
-    tVal = `${value.toString(16)}`; 
-  }
+  let tVal = convertRegValue(key, value);
   return `<div style="color: purple;">${key}: ${tVal}</div>`
 }
 export function initRegisterUI() {
@@ -49,5 +57,7 @@ export function initRegisterUI() {
   scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 3 ? "selected" : ""}>${n}</option>`).join("");
   const scopeSample2Select = document.getElementById("scopeSample2Select");
   scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 11 ? "selected" : ""}>${n}</option>`).join("");
+  const output2Select = document.getElementById("output2Select");
+  output2Select.innerHTML = regOutput2.map((n, i) => `<option value="${i}" ${i === 1 ? "selected" : ""}>${n}</option>`).join("");      
 
 }
