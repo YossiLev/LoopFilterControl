@@ -147,15 +147,15 @@ export function initControlUI() {
       mouseDown = false;
       e.stopPropagation();
   }
-  const focusItems = [{x: 142, y: 71, radius: 15, name: "A", status: "active"},
-                      {x: 433, y: 71, radius: 15, name: "B", status: "active"},
-                      {x: 614, y: 71, radius: 15, name: "C", status: "active"},
-                      {x: 797, y: 71, radius: 15, name: "D", status: "active"},
-                      {x: 1077, y: 71, radius: 15, name: "E", status: "active"},
-                      {x: 225, y: 168, radius: 15, name: "F", status: "active"},
-                      {x: 142, y: 195, radius: 15, name: "G", status: "active"},
-                      {x: 797, y: 323, radius: 15, name: "H", status: "active"},
-                      {x: 1077, y: 323, radius: 15, name: "I", status: "active"},
+  const focusItems = [{x: 130.5, y: 59, radius: 14, name: "A", status: "active"},
+                      {x: 289, y: 59, radius: 14, name: "B", status: "active"},
+                      {x: 599, y: 59, radius: 14, name: "C", status: "active"},
+                      {x: 786.5, y: 59, radius: 14, name: "D", status: "active"},
+                      {x: 1075, y: 59, radius: 15, name: "E", status: "active"},
+                      {x: 374, y: 158, radius: 15, name: "F", status: "active"},
+                      {x: 130, y: 185, radius: 15, name: "G", status: "active"},
+                      {x: 786, y: 313, radius: 15, name: "H", status: "active"},
+                      {x: 1075, y: 313, radius: 15, name: "I", status: "active"},
   ];
   let selectIndex = 0;
   function drawSystemCanvas(x, y) {
