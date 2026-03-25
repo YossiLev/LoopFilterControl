@@ -8,35 +8,7 @@
     <title>Loop Filter Control</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.js"></script>
     <link rel="stylesheet" href="./style.css">
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; color: #333; margin: 0; }
-        .container { max-width: 1230px; margin: auto; background: white; padding: 5px 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-
-        .grid { display: grid; gap: 12px; margin-bottom: 10px;}
-        .card { background: #dddddd; border: 1px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        input[type=range] { width: 100%; margin: 8px 0; accent-color: #38bdf8; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 11px; table-layout: fixed; }
-        td { border: 1px solid #334155; padding: 6px 2px; text-align: left; color: #38bdf8; overflow: hidden; }
-        .spinor-display { display: flex; align-items: center; justify-content: space-around; background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #334155; }
-        .spinor-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-        input[type=number] { width: 60px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; }
-        .out-val { color: #4ade80; font-weight: bold; font-family: monospace; height: 24px; }
-        h2 { margin: 0 0 16px 0; font-weight: 500; white-space: nowrap;}
-        h1 { text-align: center; color: #2c3e50; }
-        .controls { display: flex; gap: 20px; margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
-        .panel { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
-        select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; width: 100%; cursor: pointer; }
-        button { background: #3498db; color: white; border: none; transition: 0.3s; }
-        button:hover { background: #2980b9; }
-        .info { font-size: 0.9em; color: #1e1f1f; margin-top: 10px; }
-
-        .button { padding: 2px 2px; vertical-align: middle; margin: 2px; background: #38bdf8; color: #020617; border: none; border-radius: 6px; cursor: pointer; } 
-        optgroup { font-weight: bold; color: #757575; }
-        option { padding: 8px; color:#020617}
-        option:hover { background: #e0e0e0; }
-        .zoomedFrame { transform: translate(-474px, -15px) scale(0.25); margin-top:-42px; margin-left: 10px; height: 160px;}
-    </style>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 
@@ -78,10 +50,10 @@
     <div class="grid">
         <div id="frameBoard" style="position: relative; transition: transform 0.2s ease; " class="zoomedFrame">
             <img src="./images/fpga2R.png" alt="Loop Filter Control" style="position:absolute ; width:1200px; border-radius:8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-            <canvas id="systemCanvas" width="1200" height="420" style="position: relative; width: 1200px; z-index:10; "></canvas>
+            <canvas id="systemCanvas" width="1200" height="398" style="position: relative; width: 1200px; z-index:10; "></canvas>
         </div>
         <div id="zBut" style="width:40px; height:40px; background-color: rgb(22, 25, 56); border:2px solid rgb(180, 177, 177); 
-        margin-left: 10px; margin-top: -75px; z-index: 200; border-radius: 8px; " ></div>
+        margin-left: 10px; margin-top: -75px; z-index: 200; border-radius: 8px; padding:2px; " ><img id="imageScr", src="./images/sOpenB.png"/></div>
         <div class="card">
             <div class="controls">
                 <div>
@@ -93,7 +65,7 @@
                     <select id="scopeSample2Select"></select>
                 </div>
                 <div>
-                    <label for="scopeAddSelect" style="color:rgb(48, 47, 47) !important;">Add</label>
+                    <label for="scopeAddSelect" style="color:rgb(48, 47, 47) !important;">Mix</label>
                     <select id="scopeAddSelect">
                         <option value="none">None</option>
                         <option value="sum">Sum</option>
@@ -101,12 +73,11 @@
                     </select>
                 </div>
                 <div>
-                    <label for="output2Select" style="color:red !important;">Second output</label>
-                    <select id="output2Select"></select>
+                    <label for="trigger" style="color:rgb(48, 47, 47) !important;">Trigger</label>
+                    <input type="checkbox" id="trigger">
                 </div>
-
             </div>
-            <div>
+            <div style="margin-top: 20px;">
                 <canvas id="scopeCanvas" width="800" height="300" style="width: 100%; height: 300px; background:#ecedee; border-radius:8px;"></canvas>
             </div>
         </div>
@@ -118,8 +89,33 @@
                 <div><label for="paramPGain">P Gain</label><input type="number" id="paramPGain" value="0.10" min="0.0" step="0.01" style="width: 70px;"></div>
                 <div><label for="paramPiCorner">PI corner (KHz)</label><input type="number" id="paramPiCorner" value="0.10" min="0.0" step="0.01" style="width: 90px;"></div>
                 <div><label for="paramAveragingTimer">Avg time (ns)</label><input type="number" id="paramAveragingTimer" value="40" min="40" step="20" style="width: 80px;"></div>
-                <div><label for="paramOutputOffset1">Out offset 1</label><input type="number" id="paramOutputOffset1" value="0" min="-10000" step="20" style="width: 80px;"></div>
-                <div><label for="paramOutputOffset2">Out offset 2</label><input type="number" id="paramOutputOffset2" value="0" min="-10000" step="20" style="width: 80px;"></div>
+                <div><label for="paramInputOffset">In offset</label><input type="number" id="paramInputOffset" value="0" min="-10000" step="20" style="width: 70px;"></div>
+                <div><label for="paramOutputOffset1">Out offset 1</label><input type="number" id="paramOutputOffset1" value="0" min="-10000" step="20" style="width: 70px;"></div>
+                <div><label for="paramOutputOffset2">Out offset 2</label><input type="number" id="paramOutputOffset2" value="0" min="-10000" step="20" style="width: 70px;"></div>
+                <div style="flex-basis:100%; height:0px;"></div>
+                <div><label for="paramOutputShift">Output shift</label><input type="number" id="paramOutputShift" value="0" min="0" step="1" style="width: 80px;"></div>
+                <div><label for="paramIntegratorShift">Integ. shift</label><input type="number" id="paramIntegratorShift" value="0" min="0" step="1" style="width: 80px;"></div>
+                <div><label for="paramIntegrator2Shift">Integ2. shift</label><input type="number" id="paramIntegrator2Shift" value="0" min="0" step="1" style="width: 80px;"></div>
+                <div><label for="paramIntegrator2Gain">Integ2. gain</label><input type="number" id="paramIntegrator2Shift" value="0" min="0" step="0.1" style="width: 80px;"></div>
+
+                <div>
+                    <label for="inputSelect">Input</label>
+                    <select id="inputSelect"><option value="A">A</option><option value="B">B</option></select>
+                </div>
+                <div>
+                    <label for="Int2IsOnSelect">Integ 2</label>
+                    <select id="Int2IsOnSelect"><option value="0">Off</option><option value="1">On</option></select>
+                </div>
+                <div style="flex-basis:100%; height:0px;"></div>
+                <div>
+                    <label for="DitherSelect">Dither</label>
+                    <select id="DitherSelect"><option value="0">Off</option><option value="1">On</option></select>
+                </div>
+                <div><label for="paramDitherOutputAmpliture">Dither amplitude</label><input type="number" id="paramDitherOutputAmpliture" value="10" min="0" step="1" style="width: 80px;"></div>
+                <div><label for="paramDitherInputPhase">Dither phase</label><input type="number" id="paramDitherInputPhase" value="10" min="0" step="0.01" style="width: 80px;"></div>
+
+
+
 
                 <div>
                     <label for="modeSelect">Running mode</label>
@@ -145,9 +141,14 @@
                     <label for="nSamples">Smaples</label>
                     <input type="number" id="nSamples" value="512" min="10" max="3000" step="1" style="width:120px">
                 </div>
+                <div>
+                    <label for="output2Select" style="color:red !important;">Second output</label>
+                    <select id="output2Select"></select>
+                </div>
+
             </div>    
         </div>
-        <div class="card">
+        <div class="card" style="min-height: 200px;">
             <button id="dumpBtn" title="Dump registers content" class="button">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" style="enable-background:new 0 0 310 310;" xml:space="preserve" width="32" height="32"><path d="m31.03 16.488 -4.679 -4.679c-0.605 -0.605 -1.585 -0.605 -2.19 0l-0.935 0.935V1.548C23.226 0.693 22.533 0 21.678 0H2.064C1.209 0 0.516 0.693 0.516 1.548v24.774c0 0.855 0.693 1.548 1.548 1.548h8.774v2.581c0 0.855 0.693 1.548 1.548 1.548h4.679a1.548 1.548 0 0 0 1.095 -0.454l12.869 -12.869c0.605 -0.605 0.605 -1.585 0 -2.19M3.613 3.097h16.516v12.744l-8.837 8.837a1.524 1.524 0 0 0 -0.088 0.097H3.613zm12.812 25.806H13.936v-2.49l11.321 -11.32 2.49 2.49z"/></svg>
             </button>

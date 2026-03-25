@@ -1,0 +1,57 @@
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; color: #333; margin: 0; }
+        .container { max-width: 1230px; margin: auto; background: white; padding: 5px 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+        .grid { display: grid; gap: 12px; margin-bottom: 10px;}
+        .card { width:1200px; background: #dddddd; border: 1px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        input[type=range] { width: 100%; margin: 8px 0; accent-color: #38bdf8; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 11px; table-layout: fixed; }
+        td { border: 1px solid #334155; padding: 6px 2px; text-align: left; color: #38bdf8; overflow: hidden; }
+        .spinor-display { display: flex; align-items: center; justify-content: space-around; background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #334155; }
+        .spinor-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        input[type=number] { width: 60px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; }
+/* Custom checkbox */
+input[type=checkbox] {
+    appearance: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 5px;
+    border: 1px solid #bdc3c7;
+    background-color: white;
+    cursor: pointer;
+    vertical-align: middle;
+    position: relative;
+}
+
+/* Checked state */
+input[type=checkbox]:checked {
+    background-color: #6dd05f;
+    border-color: #52db34;
+}
+
+/* Checkmark */
+input[type=checkbox]:checked::after {
+ content: "";
+    position: absolute;
+    top: 3px;
+    left: 10px;
+    width: 11px;
+    height: 19px;
+    border: solid white;
+    border-width: 0 4px 4px 0;
+    transform: rotate(45deg);
+}        .out-val { color: #4ade80; font-weight: bold; font-family: monospace; height: 24px; }
+        h2 { margin: 0 0 16px 0; font-weight: 500; white-space: nowrap;}
+        h1 { text-align: center; color: #2c3e50; }
+        .controls { display: flex; flex-wrap: wrap; gap: 20px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
+        .panel { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; width: 100%; cursor: pointer; }
+        button { background: #3498db; color: white; border: none; transition: 0.3s; }
+        button:hover { background: #2980b9; }
+        .info { font-size: 0.9em; color: #1e1f1f; margin-top: 10px; }
+
+        .button { padding: 2px 2px; vertical-align: middle; margin: 2px; background: #38bdf8; color: #020617; border: none; border-radius: 6px; cursor: pointer; } 
+        optgroup { font-weight: bold; color: #757575; }
+        option { padding: 8px; color:#020617}
+        option:hover { background: #e0e0e0; }
+        .zoomedFrame { transform: translate(-460px, -15px) scale(0.25); margin-top:-42px; margin-left: 10px; height: 160px;}

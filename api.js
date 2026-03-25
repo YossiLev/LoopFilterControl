@@ -35,7 +35,7 @@ export async function selectOutputSignal(index) {
   // Command 0x15 = select output signal
   if (index == setOutputSignalLast) return 0;
   setOutputSignalLast = index;
-  return await sendParameters(15, "i", [index]);
+  return await sendParameters(21, "i", [index]);
 
   // const buffer = new ArrayBuffer(8);
   // const dv = new DataView(buffer);
@@ -69,29 +69,30 @@ export async function setOutputOffsets(offset1, offset2) {
   setOutputOffsetLast[1] = offset2;
 
   return await sendParameters(12, "ii", [offset1, offset2]);
-
-  // const buffer = new ArrayBuffer(12);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 12, true);
-  // dv.setUint32(4, offset1, true);
-  // dv.setUint32(8, offset2, true);
-
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(4, true);
 }
+
+let setInputOffsetLast = -9999999;
+export async function setInputOffset(offset) {
+  // Command 0x0b = set output offsets
+  if (offset == setInputOffsetLast) return 0;
+  setInputOffsetLast = offset;
+
+  return await sendParameters(11, "i", [offset]);
+}
+
 
 export async function setPredictorAlpha(alpha) {
   // Command 0x03 = set predictor alpha
 
   return await sendParameters(3, "d", [alpha]);
   
-  // const buffer = new ArrayBuffer(12);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 3, true);
-  // dv.setFloat64(4, alpha, true);
+}
 
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(4, true);
+export async function setGains(p_gain, pi_corner_hz, i2_gain) {
+  // Command 0x03 = set predictor alpha
+  const i_gain       = 2*np.pi*pi_corner_hz * p_gain
+  return await sendParameters(3, "d", [alpha]);
+  
 }
 
 export async function setPredictorGains(integral_gain, integral_2nd_gain, proportional_gain) {

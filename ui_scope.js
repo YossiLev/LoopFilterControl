@@ -1,5 +1,7 @@
 import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
+
+const triggerElement = document.getElementById("trigger");
 function f14s(s) {
   if (s < 0x2000) {
     return s;
@@ -88,6 +90,8 @@ function drawMultiScaleChart(canvas, dataConfigs) {
     config.min = Math.min(...config.data);
     config.max = Math.max(...config.data);
   });
+  const trigger = (dataConfigs[0].max + dataConfigs[0].min) / 2;
+  const pTrigger = triggerElement.checked ? Math.max(dataConfigs[0].data.findIndex((v, i, a) => i > 0 &&v > trigger && a[i - 1] < trigger), 0): 0;
 
   const gridSteps = 5;
 
@@ -120,7 +124,7 @@ function drawMultiScaleChart(canvas, dataConfigs) {
     ctx.strokeStyle = config.color;
     ctx.lineWidth = config.width || 2;
 
-    config.data.forEach((val, i) => {
+    config.data.slice(pTrigger).forEach((val, i) => {
       const x = padding + (i / (config.data.length - 1)) * (W - 2 * padding);
       const normalizedY = (val - config.min) / (config.max - config.min);
       const y = (H - paddingY) - normalizedY * (H - 2 * paddingY);

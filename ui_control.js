@@ -1,9 +1,24 @@
-import { selectOutputSignal, setOutputOffsets, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn } from "./api.js";
+import { selectOutputSignal, setGains, setOutputOffsets, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
+
+function setChangeHandlers(handler, ...controls) {
+  controls.forEach(c => {
+    const el = document.getElementById(c)
+    el.onchange = handler;
+    el.oninput = handler;
+  });
+}
+
 function flipZoom(id, z) {
     document.getElementById("frameBoard").classList.toggle('zoomedFrame');
+    const img = document.getElementById("imageScr");
+    if (img.src.indexOf("Close") >= 0) {
+      img.src = img.src.replace("Close", "Open");
+    } else {
+      img.src = img.src.replace("Open", "Close");
+    }
 }
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");
@@ -76,8 +91,9 @@ export function initControlUI() {
       console.log(`order set rc = ${rc}`);
     }
   }
-  document.getElementById("paramOrder").onchange = handleOrder;
-  document.getElementById("paramOrder").oninput = handleOrder;
+  setChangeHandlers(handleOrder, "paramOrder");
+  // document.getElementById("paramOrder").onchange = handleOrder;
+  // document.getElementById("paramOrder").oninput = handleOrder;
 
   async function handleOutputOfsets(ev) {
     const valueStr1 = document.getElementById("paramOutputOffset1").value;
@@ -86,14 +102,26 @@ export function initControlUI() {
     const value1 = parseInt(valueStr1);
     const value2 = parseInt(valueStr2);
     const rc = await setOutputOffsets(value1, value2);
-    console.log(`Ourput offsets set rc = ${rc}`);
+    console.log(`Output offsets set rc = ${rc}`);
   }
-  document.getElementById("paramOutputOffset1").onchange = handleOutputOfsets;
-  document.getElementById("paramOutputOffset1").oninput = handleOutputOfsets;
-  document.getElementById("paramOutputOffset2").onchange = handleOutputOfsets;
-  document.getElementById("paramOutputOffset2").oninput = handleOutputOfsets;
+  setChangeHandlers(handleOutputOfsets, "paramOutputOffset1", "paramOutputOffset2");
+  // document.getElementById("paramOutputOffset1").onchange = handleOutputOfsets;
+  // document.getElementById("paramOutputOffset1").oninput = handleOutputOfsets;
+  // document.getElementById("paramOutputOffset2").onchange = handleOutputOfsets;
+  // document.getElementById("paramOutputOffset2").oninput = handleOutputOfsets;
 
-  document.getElementById("paramAlpha").onchange = async ev => {
+  async function handleInputOfsets(ev) {
+    const valueStr = ev.target.value;
+    console.log(`Input offset change to ${valueStr}`);
+    const value = parseInt(valueStr);
+    const rc = await setInputOffset(value);
+    console.log(`Input offset set rc = ${rc}`);
+  }
+  setChangeHandlers(handleInputOfsets, "paramInputOffset");
+  //document.getElementById("paramInputOffset").onchange = handleInputOfsets;
+  //document.getElementById("paramInputOffset").oninput = handleInputOfsets;
+
+  async function handleAlpha(ev) {
     const valueStr = ev.target.value;
     console.log(`Alpha change to ${valueStr}`);
     const value = parseFloat(valueStr);
@@ -102,6 +130,18 @@ export function initControlUI() {
       console.log(`alpha set rc = ${rc}`);
     }
   }
+  setChangeHandlers(handleAlpha, "paramAlpha");
+
+  async function handleGains(ev) {
+    const valueStr1 = document.getElementById("paramPGain").value;
+    const valueStr2 = document.getElementById("paramPiCorner").value;
+    console.log(`Gains change to ${valueStr1} ${valueStr2}`);
+    const value1 = parseInt(valueStr1);
+    const value2 = parseInt(valueStr2);
+    const rc = await setGains(value1, value2);
+    console.log(`Gains set rc = ${rc}`);
+  }
+  setChangeHandlers(handleGains, "paramPGain", "paramPiCorner");
 
   document.getElementById("output2Select").onchange = async ev => {
     const value = ev.target.value;

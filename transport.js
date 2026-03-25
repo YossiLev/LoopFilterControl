@@ -15,8 +15,8 @@ export function packU32(x) {
 function log(a, clear=false) {
     const d = document.getElementById("log");
     if (d) {
-        if (clear) d.textContent = "";
-        d.textContent += a + "\n";
+        if (clear) d.innerHTML = "";
+        d.innerHTML += a + "</br>";
         d.scrollTop = d.scrollHeight;
     }
 }
@@ -29,7 +29,6 @@ async function sendWithHeader(pkt) {
   //console.log(r);
   return r;
 }
-
 
 function sendWithHeaderConsistent(pkt, cb) {
   // Header format: 4 bytes magic (outof which last two will be stammed with a sequence number), 4 bytes message type, 4 bytes length
