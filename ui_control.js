@@ -20,6 +20,9 @@ function flipZoom(id, z) {
       img.src = img.src.replace("Open", "Close");
     }
 }
+const scopeSample1Select = document.getElementById("scopeSample1Select");
+const scopeSample2Select = document.getElementById("scopeSample2Select");
+
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");
 
@@ -86,7 +89,7 @@ export function initControlUI() {
     const valueStr = ev.target.value;
     console.log(`Order change to ${valueStr}`);
     const value = parseInt(valueStr);
-    if (value >= 1 & value < 9) {
+    if (value >= 1 && value < 9) {
       const rc = await setPredictorOrder(value);
       console.log(`order set rc = ${rc}`);
     }
@@ -125,7 +128,7 @@ export function initControlUI() {
     const valueStr = ev.target.value;
     console.log(`Alpha change to ${valueStr}`);
     const value = parseFloat(valueStr);
-    if (value >= 0.999999 & value < 5.0) {
+    if (value >= 0.999999 && value < 5.0) {
       const rc = await setPredictorAlpha(value);
       console.log(`alpha set rc = ${rc}`);
     }
@@ -172,6 +175,8 @@ export function initControlUI() {
                     }
                     item.status = "selected";
                     item.selectIndex = selectIndex;
+                    const scopeSelect = selectIndex === 0 ? scopeSample1Select : scopeSample2Select;
+                    scopeSelect.value = item.sampleIndex;                    
                     selectIndex = 1 - selectIndex;
                   } else {
                     item.status = "active";
@@ -187,16 +192,27 @@ export function initControlUI() {
       mouseDown = false;
       e.stopPropagation();
   }
-  const focusItems = [{x: 130.5, y: 59, radius: 14, name: "A", status: "active"},
-                      {x: 289, y: 59, radius: 14, name: "B", status: "active"},
-                      {x: 599, y: 59, radius: 14, name: "C", status: "active"},
-                      {x: 786.5, y: 59, radius: 14, name: "D", status: "active"},
-                      {x: 1075, y: 59, radius: 15, name: "E", status: "active"},
-                      {x: 374, y: 158, radius: 15, name: "F", status: "active"},
-                      {x: 130, y: 185, radius: 15, name: "G", status: "active"},
-                      {x: 786, y: 313, radius: 15, name: "H", status: "active"},
-                      {x: 1075, y: 313, radius: 15, name: "I", status: "active"},
-  ];
+  // const focusItems = [{x: 130.5, y: 59, radius: 14, name: "A", status: "active"},
+  //                     {x: 289, y: 59, radius: 14, name: "B", status: "active"},
+  //                     {x: 599, y: 59, radius: 14, name: "C", status: "active"},
+  //                     {x: 786.5, y: 59, radius: 14, name: "D", status: "active"},
+  //                     {x: 1075, y: 59, radius: 15, name: "E", status: "active"},
+  //                     {x: 374, y: 158, radius: 15, name: "F", status: "active"},
+  //                     {x: 130, y: 185, radius: 15, name: "G", status: "active"},
+  //                     {x: 786, y: 313, radius: 15, name: "H", status: "active"},
+  //                     {x: 1075, y: 313, radius: 15, name: "I", status: "active"},
+  // ];
+  const focusItems = [
+  {x: 130.5, y: 59,  radius: 14, name: "A", status: "active", sampleIndex: 1},
+  {x: 289,   y: 59,  radius: 14, name: "B", status: "active", sampleIndex: 2},
+  {x: 599,   y: 59,  radius: 14, name: "C", status: "active", sampleIndex: 3},
+  {x: 786.5, y: 59,  radius: 14, name: "D", status: "active", sampleIndex: 4},
+  {x: 1075,  y: 59,  radius: 15, name: "E", status: "active", sampleIndex: 5},
+  {x: 374,   y: 158, radius: 15, name: "F", status: "active", sampleIndex: 6},
+  {x: 130,   y: 185, radius: 15, name: "G", status: "active", sampleIndex: 7},
+  {x: 786,   y: 313, radius: 15, name: "H", status: "active", sampleIndex: 8},
+  {x: 1075,  y: 313, radius: 15, name: "I", status: "active", sampleIndex: 9},
+];
   let selectIndex = 0;
   function drawSystemCanvas(x, y) {
       const ctx = systemCanvas.getContext("2d");

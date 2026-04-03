@@ -2,14 +2,6 @@ import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
 
 const triggerElement = document.getElementById("trigger");
-function f14s(s) {
-  if (s < 0x2000) {
-    return s;
-  }
-  let b =  1 - (0x01ff ^ (s & 0x1fff));
-  console.log("converted ",s, b)
-  return b;
-}
 
 function toSigned14Bit(value) {
     // 1. Mask to 14 bits (0 to 16,383)
@@ -40,10 +32,7 @@ export function presentScopeData(data) {
   for(let i=0;i<n;i++){ 
     vecs[0].push(toSigned14Bit(dv.getInt16(28 + i*12 + 4, true)));
     vecs[1].push(toSigned14Bit(dv.getInt16(28 + i*12 + 8, true)));
-    // if (i < 10) {
 
-    //   console.log(`registers ${vecs[0][i].toString(16)}  ${vecs[1][i].toString(16)}`);
-    // }
     if (scopeAddSelect.value === "sum") {
       vecs[2].push(vecs[0][i] + vecs[1][i]);
     } else if (scopeAddSelect.value === "diff") {
@@ -148,7 +137,11 @@ function demoDraw() {
     drawMultiScaleChart(canvas, dataConfigs);
 }
 
+const scopeSample1Select = document.getElementById("scopeSample1Select");
+const scopeSample2Select = document.getElementById("scopeSample2Select");
+
 function getSample() {
+  
     const r1 = parseInt(scopeSample1Select.value);
     const r2 = parseInt(scopeSample2Select.value);
     const n  = parseInt(document.getElementById("nSamples").value);
@@ -163,14 +156,6 @@ export function setScopeOn() {
 }
 export function setScopeOff() {
   scopeStatus = false;
-}
-
-export function initScopeUI() {
-
-  document.getElementById("scopeBtn").onclick = async () => {
-    setScopeOn();
-
-  };
 }
 
 demoDraw();

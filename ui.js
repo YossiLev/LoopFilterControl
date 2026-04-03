@@ -7,33 +7,11 @@ export const log = s => {
     d.scrollTop = d.scrollHeight;
 };
 
-document.getElementById("connectBtn").onclick = async () => {
-    try {
-        await connect();
-        log("CONNECTED");
-    } catch(e) {
-        log("CONNECT ERROR");
-    }
-};
-
-document.getElementById("disconnectBtn").onclick = () => {
-    disconnect();
-    log("DISCONNECTED");
-};
-
 document.getElementById("getVersionBtn").onclick = async () => {
     console.log("Getting version...");
     const r = await sendBinaryBuffer(packU32(0));
     console.log("Got version response:", r);
     log("VERSION: " + new TextDecoder().decode(r));
-};
-
-document.getElementById("predOnBtn").onclick = async () => {
-    const r = await sendBinaryBuffer(packU32(16));
-};
-
-document.getElementById("predOffBtn").onclick = async () => {
-    const r = await sendBinaryBuffer(packU32(15));
 };
 
 document.getElementById("rebootBtn").onclick = async () => {

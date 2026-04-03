@@ -253,8 +253,8 @@ export class RegisterDump {
   unpack(buffer){
     const headerLength = 8;
     if(buffer.byteLength !== expectedDumpBytes + headerLength) {
-      throw "Bad register dump size";
       console.log(`Unpacking register dump of ${buffer.byteLength} bytes, expected ${expectedDumpBytes} bytes`);
+      throw "Bad register dump size";
     }
   
     const dv = new DataView(buffer);

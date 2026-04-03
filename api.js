@@ -90,7 +90,7 @@ export async function setPredictorAlpha(alpha) {
 
 export async function setGains(p_gain, pi_corner_hz, i2_gain) {
   // Command 0x03 = set predictor alpha
-  const i_gain       = 2*np.pi*pi_corner_hz * p_gain
+  const i_gain       = 2 * Math.PI * pi_corner_hz * p_gain;
   return await sendParameters(3, "d", [alpha]);
   
 }
