@@ -80,7 +80,6 @@ export async function setInputOffset(offset) {
   return await sendParameters(11, "i", [offset]);
 }
 
-
 export async function setPredictorAlpha(alpha) {
   // Command 0x03 = set predictor alpha
 
@@ -88,26 +87,68 @@ export async function setPredictorAlpha(alpha) {
   
 }
 
-export async function setGains(p_gain, pi_corner_hz, i2_gain) {
-  // Command 0x03 = set predictor alpha
-  const i_gain       = 2 * Math.PI * pi_corner_hz * p_gain;
-  return await sendParameters(3, "d", [alpha]);
+function getIntAndShift(_float) {
+  //Evaluate integer and shift part which would match _float as near as possible
+  //Limits are on shift value (<= 16)
+  if (_float == 0) {
+      return [0 ,0];
+  }
+  let _f = _float
+  let _i = Math.floor(_f);          // integer part
   
+  let _shift = 0;
+  let precision = (_i / (1<< _shift))  / _float;
+
+  //  Try and evaluate best shift and integer values:
+  //  >   Precision should be 95%
+  //  >   Shift at most by 16 bits
+  //  >   integer value has to be limited as well
+  //  >   Small values fix - do not shift too much to 
+  //      arrive at low gain precision
+  while (Math.abs(1. - precision)  > 0.05 && _shift < 17 &&  Math.abs(_i) < 0x7fff &&
+          (Math.abs(_i) > 2 || _shift < 8)) {
+      _f     = _f*2;
+      _shift = _shift + 1;
+      _i     = Math.floor(_f);         // integer part
+      precision = (_i / (1 << _shift))  // _float
+  }
+
+  return [Math.floor(_i), _shift];
 }
 
-export async function setPredictorGains(integral_gain, integral_2nd_gain, proportional_gain) {
-  // Command 0x05 = set gain
-  return await sendParameters(5, "iid", [integral_gain, integral_2nd_gain, proportional_gain]);
+export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
+  // Command 0x03 = set predictor alpha
+  const i_gain = 2 * Math.PI * pi_corner_hz * p_gain;
+  let averagingTimeCycles = Math.ceil(averagingTimeNs / 20);
 
-  // const buffer = new ArrayBuffer(20);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 5, true);
-  // dv.setUint32(4, integral_gain, true);
-  // dv.setUint32(8, integral_2nd_gain, true);
-  // dv.setFloat64(12, proportional_gain, true);
+  let [p_gain_int, int_p_shift] = getIntAndShift(p_gain);
+  let [i_gain_int, int_i_shift] = getIntAndShift(i_gain);
+  let [i2_gain_int, int_i2_shift] = getIntAndShift(i2_gain);
 
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(0, true);
+  let output_shift = int_p_shift               
+  let i0_shift     = int_i_shift  - int_p_shift
+  let i2_shift     = int_i2_shift - int_p_shift 
+  if (i0_shift < 0) {
+      i0_shift = 0;
+  }
+  if (i2_shift < 0) {
+      i2_shift = 0;
+  }
+  // #
+  // # Now consider averaging.
+  // # Since averaging is achieved by summation, the input signal is essentially amplified by it.
+  // #
+  let log2_cycles = Math.ceil(Math.log2(averagingTimeCycles));
+
+  output_shift+= log2_cycles;
+  i0_shift    += log2_cycles;
+  i2_shift    += log2_cycles;
+
+  console.log(`Gains ${p_gain} ${i_gain} ${i2_gain} converted to int ${p_gain_int} ${i_gain_int} ${i2_gain_int} with shifts ${output_shift} ${i0_shift} ${i2_shift}`); 
+
+  //await sendParameters(5, "ddd", [p_gain_int, i_gain_int, i2_gain_int]);
+  //return await sendParameters(9, "ddd", [output_shift, i0_shift, i2_shift]);
+  return 1;
 }
 
 export async function setAveragingTimeInCycles(numCycles=2) {

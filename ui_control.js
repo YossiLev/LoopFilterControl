@@ -138,13 +138,17 @@ export function initControlUI() {
   async function handleGains(ev) {
     const valueStr1 = document.getElementById("paramPGain").value;
     const valueStr2 = document.getElementById("paramPiCorner").value;
-    console.log(`Gains change to ${valueStr1} ${valueStr2}`);
-    const value1 = parseInt(valueStr1);
-    const value2 = parseInt(valueStr2);
-    const rc = await setGains(value1, value2);
+    const valueStr3 = document.getElementById("paramIntegrator2Gain").value;
+    const valueStr4 = document.getElementById("paramAveragingTimer").value;
+    console.log(`Gains change to ${valueStr1} ${valueStr2} ${valueStr3} ${valueStr4}`);
+    const value1 = parseFloat(valueStr1);
+    const value2 = parseFloat(valueStr2);
+    const value3 = parseFloat(valueStr3);
+    const value4 = parseFloat(valueStr4);
+    const rc = await setGains(value1, value2, value3, value4);
     console.log(`Gains set rc = ${rc}`);
   }
-  setChangeHandlers(handleGains, "paramPGain", "paramPiCorner");
+  setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
 
   document.getElementById("output2Select").onchange = async ev => {
     const value = ev.target.value;
