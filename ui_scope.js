@@ -2,6 +2,7 @@ import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
 
 const triggerElement = document.getElementById("trigger");
+const timerElement = document.getElementById("timer");
 
 function toSigned14Bit(value) {
     // 1. Mask to 14 bits (0 to 16,383)
@@ -33,10 +34,14 @@ export function presentScopeData(data) {
     vecs[0].push(toSigned14Bit(dv.getInt16(28 + i*12 + 4, true)));
     vecs[1].push(toSigned14Bit(dv.getInt16(28 + i*12 + 8, true)));
 
-    if (scopeAddSelect.value === "sum") {
-      vecs[2].push(vecs[0][i] + vecs[1][i]);
-    } else if (scopeAddSelect.value === "diff") {
-      vecs[2].push(vecs[0][i] - vecs[1][i]);
+    if (timerElement.checked) {
+      vecs[2][i] = dv.getInt32(28 + i*12, true);
+    } else {
+      if (scopeAddSelect.value === "sum") {
+        vecs[2].push(vecs[0][i] + vecs[1][i]);
+      } else if (scopeAddSelect.value === "diff") {
+        vecs[2].push(vecs[0][i] - vecs[1][i]);
+      }
     }
   }
   function tt(d, i) {
@@ -52,6 +57,9 @@ export function presentScopeData(data) {
   {
     data: vecs[1], color: "blue", width: 2
   }];
+  if (timerElement.checked) {
+    dataConfigs.push({data: vecs[2], color: "red", width: 1});
+  }
   drawMultiScaleChart(canvas, dataConfigs);
 
   if (scopeStatus) {
@@ -96,6 +104,7 @@ function drawMultiScaleChart(canvas, dataConfigs) {
 
   // 2. Draw Dual Y-Axes Labels
   dataConfigs.forEach((config, idx) => {
+    if (idx > 0 && idx < dataConfigs.length - 1) return; // Only labels first and last for simplicity
     ctx.fillStyle = config.color;
     ctx.textAlign = idx === 0 ? "right" : "left";
     const xPos = idx === 0 ? padding - 10 : W - padding + 10;

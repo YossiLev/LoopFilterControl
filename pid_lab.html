@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PID Control Lab</title>
+<style>
+body { font-family: sans-serif; background:#111; color:#eee; }
+canvas { background:#000; display:block; margin:10px 0; }
+.controls { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+label { font-size:12px; }
+input { width:100%; }
+button { padding:8px; }
+</style>
+</head>
+<body>
+
+<h2>PID Control Lab</h2>
+
+<div class="controls">
+<label>Kp<input id="kp" type="range" min="0" max="10" step="0.1" value="15"></label>
+<label>Ki<input id="ki" type="range" min="0" max="10" step="0.1" value="15"></label>
+<label>Kd<input id="kd" type="range" min="0" max="5" step="0.05" value="1.5"></label>
+<label>Freq (Hz)<input id="freq" type="range" min="0.1" max="10" step="0.1" value="1"></label>
+
+<label>Signal
+<select id="signal">
+<option>sine</option>
+<option>square</option>
+<option>ramp</option>
+<option>pulse</option>
+<option>step</option>
+<option>chirp</option>
+</select>
+</label>
+
+<label>Plant
+<select id="plant">
+<option>first</option>
+<option>second</option>
+<option>delay</option>
+</select>
+</label>
+
+<label>Noise<input id="noise" type="range" min="0" max="1" step="0.01" value="0"></label>
+<label>Saturation<input id="sat" type="range" min="0.5" max="15" step="0.1" value="2"></label>
+</div>
+
+<button onclick="toggle()">Play / Pause</button>
+
+<canvas id="time" width="900" height="250"></canvas>
+<canvas id="fft" width="900" height="200"></canvas>
+
+<div id="info"></div>
+
+<script>
+// ===== Simulation parameters =====
+const dt = 0.002;
+let t = 0;
+let running = true;
+
+// PID state
+let integral = 0;
+let prevError = 0;
+let prevD = 0;
+
+// Plant state
+let y = 0;
+let y2 = 0;
+let delayBuffer = [];
+
+// Data buffers
+const N = 1024;
+let inputBuf = new Array(N).fill(0);
+let outputBuf = new Array(N).fill(0);
+let errorBuf = new Array(N).fill(0);
+
+// ===== UI =====
+function val(id){ return parseFloat(document.getElementById(id).value); }
+function sel(id){ return document.getElementById(id).value; }
+
+function toggle(){ running = !running; }
+
+// ===== Signal generator =====
+function signal(t){
+    let f = val("freq");
+    let s = sel("signal");
+
+    if(s==="sine") return Math.sin(2*Math.PI*f*t);
+    if(s==="square") return Math.sign(Math.sin(2*Math.PI*f*t));
+    if(s==="ramp") return (t*f)%1;
+    if(s==="pulse") return ((t*f)%1 < 0.1)?1:0;
+    if(s==="step") return t>1 ? 1 : 0;
+    if(s==="chirp") return Math.sin(2*Math.PI*(0.1 + t)*t);
+}
+
+// ===== Plant =====
+function plant(u){
+    let type = sel("plant");
+
+    if(type==="first"){
+        y += dt * (-2*y + u);
+        return y;
+    }
+
+    if(type==="second"){
+        let w=4, z=0.3;
+        let dy = y2;
+        let ddy = -2*z*w*y2 - w*w*y + u;
+        y += dy*dt;
+        y2 += ddy*dt;
+        return y;
+    }
+
+    if(type==="delay"){
+        delayBuffer.push(u);
+        if(delayBuffer.length > 100) return delayBuffer.shift();
+        return 0;
+    }
+}
+
+// ===== FFT (simple DFT) =====
+function fftMag(buf){
+    let out = [];
+    for(let k=0;k<N/2;k++){
+        let re=0, im=0;
+        for(let n=0;n<N;n++){
+            let w = 0.5*(1-Math.cos(2*Math.PI*n/N)); // Hann
+            let x = buf[n]*w;
+            let ang = 2*Math.PI*k*n/N;
+            re += x*Math.cos(ang);
+            im -= x*Math.sin(ang);
+        }
+        out.push(Math.sqrt(re*re+im*im));
+    }
+    return out;
+}
+
+// ===== Main loop =====
+function step(){
+    if(!running) return;
+
+    let r = signal(t);
+    let noise = (Math.random()-0.5)*val("noise");
+    let y_meas = y + noise;
+
+    let e = r - y_meas;
+
+    // PID
+    let kp = val("kp");
+    let ki = val("ki");
+    let kd = val("kd");
+
+    integral += e * dt;
+    integral = Math.max(Math.min(integral, 5), -5); // anti-windup
+
+    let d = (e - prevError)/dt;
+    d = 0.9*prevD + 0.1*d; // filtered derivative
+
+    let P = kp * e;
+    let I = ki * integral;
+    let D = kd * d;
+
+    let u = P + I + D;
+
+    // saturation
+    let sat = val("sat");
+    u = Math.max(Math.min(u, sat), -sat);
+
+    let out = plant(u);
+
+    prevError = e;
+    prevD = d;
+
+    // shift buffers
+    inputBuf.push(r); inputBuf.shift();
+    outputBuf.push(out); outputBuf.shift();
+    errorBuf.push(e); errorBuf.shift();
+
+    t += dt;
+}
+
+// ===== Draw =====
+function draw(){
+    let ctx = document.getElementById("time").getContext("2d");
+    ctx.clearRect(0,0,900,250);
+    ctx.fillStyle = "#555";
+    ctx.fillRect(0,125,900,1); // zero line
+
+    function plot(buf,color){
+        ctx.beginPath();
+        ctx.strokeStyle=color;
+        for(let i=0;i<N;i++){
+            let x = i/N*900;
+            let y = 125 - buf[i]*80;
+            if(i===0) ctx.moveTo(x,y);
+            else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+    }
+
+    plot(inputBuf,"#0f0");
+    plot(outputBuf,"#0ff");
+    plot(errorBuf,"#f00");
+
+    // FFT
+    let fctx = document.getElementById("fft").getContext("2d");
+    fctx.clearRect(0,0,900,200);
+
+    let inF = fftMag(inputBuf);
+    let outF = fftMag(outputBuf);
+
+    function plotF(buf,color){
+        fctx.beginPath();
+        fctx.strokeStyle=color;
+        for(let i=0;i<buf.length;i++){
+            let x = i/buf.length*900;
+            let y = 180 - Math.log(buf[i]+1)*20;
+            if(i===0) fctx.moveTo(x,y);
+            else fctx.lineTo(x,y);
+        }
+        fctx.stroke();
+    }
+
+    plotF(inF,"#0f0");
+    plotF(outF,"#0ff");
+
+    // PI corner marker
+    let kp = val("kp"), ki = val("ki");
+    if(kp>0){
+        let wi = ki/kp;
+        let fi = wi/(2*Math.PI);
+        let x = fi / (1/dt/2) * 900;
+        fctx.strokeStyle="#ff0";
+        fctx.beginPath();
+        fctx.moveTo(x,0);
+        fctx.lineTo(x,200);
+        fctx.stroke();
+    }
+
+    // info
+    let err = errorBuf.slice(-100);
+    let ss = err.reduce((a,b)=>a+b,0)/err.length;
+
+    document.getElementById("info").innerText =
+        `Steady-state error: ${ss.toFixed(3)}`;
+}
+
+// ===== Loop =====
+function loop(){
+    for(let i=0;i<5;i++) step();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
