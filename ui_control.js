@@ -1,4 +1,4 @@
-import { selectOutputSignal, setGains, setOutputOffsets, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn } from "./api.js";
+import { selectOutputSignal, setGains, setOutputOffsets, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, setDitherSelect } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
@@ -95,8 +95,6 @@ export function initControlUI() {
     }
   }
   setChangeHandlers(handleOrder, "paramOrder");
-  // document.getElementById("paramOrder").onchange = handleOrder;
-  // document.getElementById("paramOrder").oninput = handleOrder;
 
   async function handleOutputOfsets(ev) {
     const valueStr1 = document.getElementById("paramOutputOffset1").value;
@@ -108,10 +106,6 @@ export function initControlUI() {
     console.log(`Output offsets set rc = ${rc}`);
   }
   setChangeHandlers(handleOutputOfsets, "paramOutputOffset1", "paramOutputOffset2");
-  // document.getElementById("paramOutputOffset1").onchange = handleOutputOfsets;
-  // document.getElementById("paramOutputOffset1").oninput = handleOutputOfsets;
-  // document.getElementById("paramOutputOffset2").onchange = handleOutputOfsets;
-  // document.getElementById("paramOutputOffset2").oninput = handleOutputOfsets;
 
   async function handleInputOfsets(ev) {
     const valueStr = ev.target.value;
@@ -121,8 +115,6 @@ export function initControlUI() {
     console.log(`Input offset set rc = ${rc}`);
   }
   setChangeHandlers(handleInputOfsets, "paramInputOffset");
-  //document.getElementById("paramInputOffset").onchange = handleInputOfsets;
-  //document.getElementById("paramInputOffset").oninput = handleInputOfsets;
 
   async function handleAlpha(ev) {
     const valueStr = ev.target.value;
@@ -142,13 +134,37 @@ export function initControlUI() {
     const valueStr4 = document.getElementById("paramAveragingTimer").value;
     console.log(`Gains change to ${valueStr1} ${valueStr2} ${valueStr3} ${valueStr4}`);
     const value1 = parseFloat(valueStr1);
-    const value2 = parseFloat(valueStr2);
+    const value2 = parseFloat(valueStr2) * 1000.0; // Convert from Khz to Hz
     const value3 = parseFloat(valueStr3);
     const value4 = parseFloat(valueStr4);
     const rc = await setGains(value1, value2, value3, value4);
     console.log(`Gains set rc = ${rc}`);
   }
   setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
+
+  async function handleInputSelect(ev) {
+    const value = parseInt(ev.target.value);
+    console.log(`Input select change to ${value}`);
+    const rc = await setInputSelect(value);
+    console.log(`Input select set rc = ${rc}`);
+  }
+  setChangeHandlers(handleInputSelect, "inputSelect");
+
+  async function handleInt2IsOnSelect(ev) {
+    const value = parseInt(ev.target.value);
+    console.log(`Int2IsOn select change to ${value}`);
+    const rc = await setInt2IsOnSelect(value, 3640);
+    console.log(`Int2IsOn select set rc = ${rc}`);
+  }
+  setChangeHandlers(handleInt2IsOnSelect, "Int2IsOnSelect");
+
+  async function handleDitherSelect(ev) {
+    const value = parseInt(ev.target.value);
+    console.log(`Dither select change to ${value}`);
+    const rc = await setDitherSelect(value);
+    console.log(`Dither select set rc = ${rc}`);
+  }
+  setChangeHandlers(handleDitherSelect, "ditherSelect");
 
   document.getElementById("output2Select").onchange = async ev => {
     const value = ev.target.value;

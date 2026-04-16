@@ -80,6 +80,20 @@ export async function setInputOffset(offset) {
   return await sendParameters(11, "i", [offset]);
 }
 
+export async function setInputSelect(value) {
+  // Command 0x0a = set input select
+  return await sendParameters(10, "i", [value]);  
+}
+
+export async function setInt2IsOnSelect(i2Enabled, i2DisabledValue) {
+  // Command 0x16 = set int2 is on select
+  return await sendParameters(22, "ii", [i2Enabled, i2DisabledValue]);
+}
+
+export async function setDitherSelect(ditherEnabled) {
+}
+
+
 export async function setPredictorAlpha(alpha) {
   // Command 0x03 = set predictor alpha
 
@@ -97,7 +111,8 @@ function getIntAndShift(_float) {
   let _i = Math.floor(_f);          // integer part
   
   let _shift = 0;
-  let precision = (_i / (1<< _shift))  / _float;
+  let precision = (_i / (1 << _shift)) / _float;
+  //console.log(`Initial float${_float} int ${_i} shift ${_shift} precision ${precision}`);
 
   //  Try and evaluate best shift and integer values:
   //  >   Precision should be 95%
@@ -105,12 +120,13 @@ function getIntAndShift(_float) {
   //  >   integer value has to be limited as well
   //  >   Small values fix - do not shift too much to 
   //      arrive at low gain precision
-  while (Math.abs(1. - precision)  > 0.05 && _shift < 17 &&  Math.abs(_i) < 0x7fff &&
+  while (Math.abs(1. - precision) > 0.05 && _shift < 17 &&  Math.abs(_i) < 0x7fff &&
           (Math.abs(_i) > 2 || _shift < 8)) {
-      _f     = _f*2;
+      _f     = _f * 2.0;
       _shift = _shift + 1;
       _i     = Math.floor(_f);         // integer part
-      precision = (_i / (1 << _shift))  // _float
+      precision = (_i / (1 << _shift)) / _float;
+      //console.log(`Int ${_i} shift ${_shift} precision ${precision}`);
   }
 
   return [Math.floor(_i), _shift];
@@ -139,15 +155,17 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
   // # Since averaging is achieved by summation, the input signal is essentially amplified by it.
   // #
   let log2_cycles = Math.ceil(Math.log2(averagingTimeCycles));
+  console.log(`Averaging time ${averagingTimeNs} ns, cycles ${averagingTimeCycles}, log2 ${log2_cycles}`);
 
   output_shift+= log2_cycles;
   i0_shift    += log2_cycles;
   i2_shift    += log2_cycles;
 
-  console.log(`Gains ${p_gain} ${i_gain} ${i2_gain} converted to int ${p_gain_int} ${i_gain_int} ${i2_gain_int} with shifts ${output_shift} ${i0_shift} ${i2_shift}`); 
+  console.log(`Gains ${p_gain} ${i_gain} ${i2_gain}`);
+  console.log(`converted to int ${p_gain_int}(${output_shift}) ${i_gain_int}(${i0_shift}) ${i2_gain_int}(${i2_shift})`); 
 
-  //await sendParameters(5, "ddd", [p_gain_int, i_gain_int, i2_gain_int]);
-  //return await sendParameters(9, "ddd", [output_shift, i0_shift, i2_shift]);
+  await sendParameters(9, "iii", [output_shift, i0_shift, i2_shift]);
+  await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
   return 1;
 }
 
