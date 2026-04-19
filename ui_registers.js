@@ -8,7 +8,7 @@ function checkRegFlag(r, f) {
 function convertRegValue(r, v) {
   let tVal = v;
   if (checkRegFlag(r, "S")) {
-    tVal = `${v >> 16} # ${v & 0xffff}`; 
+    tVal = `${v >> 16} # ${((v & 0xffff ) << 16) >> 16}`; 
   }
   if (checkRegFlag(r, "X")) {
     tVal = `${v.toString(16)}`; 
@@ -17,7 +17,7 @@ function convertRegValue(r, v) {
     if (v > 2147483647) {
         v = v - 4294967296;
     }
-    tVal = `${v}`; 
+    tVal = `${v} [${v.toString(16)}]`; 
   }
   return tVal;
 }

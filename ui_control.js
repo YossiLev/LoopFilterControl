@@ -107,14 +107,14 @@ export function initControlUI() {
   }
   setChangeHandlers(handleOutputOfsets, "paramOutputOffset1", "paramOutputOffset2");
 
-  async function handleInputOfsets(ev) {
+  async function handleInputOffset(ev) {
     const valueStr = ev.target.value;
     console.log(`Input offset change to ${valueStr}`);
     const value = parseInt(valueStr);
     const rc = await setInputOffset(value);
     console.log(`Input offset set rc = ${rc}`);
   }
-  setChangeHandlers(handleInputOfsets, "paramInputOffset");
+  setChangeHandlers(handleInputOffset, "paramInputOffset");
 
   async function handleAlpha(ev) {
     const valueStr = ev.target.value;

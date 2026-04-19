@@ -2,6 +2,7 @@ import { sendBinaryBuffer, sendBinaryBufferConsistent, packU32 } from "./transpo
 
 function lFormat(f) {
   switch (f) {
+    case 'I': return 4;
     case 'i': return 4;
     case 'd': return 8;
   }
@@ -16,7 +17,8 @@ function prepareBuffer(cmd, formatStr, parameters) {
   dv.setUint32(0, cmd, true);
   formats.forEach((f, i) => {
     switch (f) {
-      case 'i': dv.setUint32(pNext, parameters[i], true); break;
+      case 'I': dv.setUint32(pNext, parameters[i], true); break;
+      case 'i': dv.setInt32(pNext, parameters[i], true); break;
       case 'd': dv.setFloat64(pNext, parameters[i], true); break;
     }
     pNext += lFormat(f);
@@ -164,8 +166,13 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
   console.log(`Gains ${p_gain} ${i_gain} ${i2_gain}`);
   console.log(`converted to int ${p_gain_int}(${output_shift}) ${i_gain_int}(${i0_shift}) ${i2_gain_int}(${i2_shift})`); 
 
-  await sendParameters(9, "iii", [output_shift, i0_shift, i2_shift]);
-  await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  //await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
+  await sendParameters(5, "iid", [i_gain_int, 0, p_gain_int]);
+  await sleep(3000);
+  //await sendParameters(9, "III", [output_shift, i0_shift, i2_shift]);
+  await sendParameters(9, "III", [output_shift, i0_shift, 0]);
   return 1;
 }
 
@@ -191,23 +198,12 @@ export async function readRegister(index) {
   // Command 0x01 = read register
   const buffer = prepareBuffer(1, "i", [index]);
 
-  // const buffer = new ArrayBuffer(8);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 1, true);
-  // dv.setUint32(4, index, true);
-
   const resp = await sendBinaryBuffer(buffer);
   return new DataView(resp).getUint32(0, true);
 }
 
 export async function writeRegister(index, value) {
   const buffer = prepareBuffer(2, "ii", [index, value]);
-
-  // const buffer = new ArrayBuffer(12);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 2, true);
-  // dv.setUint32(4, index, true);
-  // dv.setUint32(8, value, true);
 
   await sendBinaryBuffer(buffer);
 }
