@@ -73,9 +73,20 @@ export async function setOutputOffsets(offset1, offset2) {
   return await sendParameters(12, "ii", [offset1, offset2]);
 }
 
+let setOutputShiftLast = [- 1, -1, -1];
+export async function setOutputShifts(shift1, shift2, shift3) {
+  // Command 0x09 = set output shifts
+  if (shift1 == setOutputShiftLast[0] && shift2 == setOutputShiftLast[1] && shift3 == setOutputShiftLast[2]) return 0;
+  setOutputShiftLast[0] = shift1;
+  setOutputShiftLast[1] = shift2;
+  setOutputShiftLast[2] = shift3;
+
+  return await sendParameters(9, "iii", [shift1, shift2, shift3]);
+}
+
 let setInputOffsetLast = -9999999;
 export async function setInputOffset(offset) {
-  // Command 0x0b = set output offsets
+  // Command 0x0b = set input offsets
   if (offset == setInputOffsetLast) return 0;
   setInputOffsetLast = offset;
 
@@ -170,7 +181,7 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
 
   //await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
   await sendParameters(5, "iid", [i_gain_int, 0, p_gain_int]);
-  await sleep(3000);
+  await sleep(300);
   //await sendParameters(9, "III", [output_shift, i0_shift, i2_shift]);
   await sendParameters(9, "III", [output_shift, i0_shift, 0]);
   return 1;

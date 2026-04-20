@@ -1,4 +1,4 @@
-import { selectOutputSignal, setGains, setOutputOffsets, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, setDitherSelect } from "./api.js";
+import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, setDitherSelect } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
@@ -96,7 +96,7 @@ export function initControlUI() {
   }
   setChangeHandlers(handleOrder, "paramOrder");
 
-  async function handleOutputOfsets(ev) {
+  async function handleOutputOffsets(ev) {
     const valueStr1 = document.getElementById("paramOutputOffset1").value;
     const valueStr2 = document.getElementById("paramOutputOffset2").value;
     console.log(`Ourput offsets change to ${valueStr1} ${valueStr2}`);
@@ -105,7 +105,20 @@ export function initControlUI() {
     const rc = await setOutputOffsets(value1, value2);
     console.log(`Output offsets set rc = ${rc}`);
   }
-  setChangeHandlers(handleOutputOfsets, "paramOutputOffset1", "paramOutputOffset2");
+  setChangeHandlers(handleOutputOffsets, "paramOutputOffset1", "paramOutputOffset2");
+        
+  async function handleOutputShifts(ev) {
+    const valueStr1 = document.getElementById("paramOutputShift").value;
+    const valueStr2 = document.getElementById("paramIntegratorShift").value;
+    const valueStr3 = document.getElementById("paramIntegrator2Shift").value;
+    console.log(`Ourput shifts change to ${valueStr1} ${valueStr2} ${valueStr3}`);
+    const value1 = parseInt(valueStr1);
+    const value2 = parseInt(valueStr2);
+    const value3 = parseInt(valueStr3);
+    const rc = await setOutputShifts(value1, value2, value3);
+    console.log(`Output shifts set rc = ${rc}`);
+  }
+  setChangeHandlers(handleOutputShifts, "paramOutputShift", "paramIntegratorShift", "paramIntegrator2Shift");
 
   async function handleInputOffset(ev) {
     const valueStr = ev.target.value;
@@ -164,7 +177,7 @@ export function initControlUI() {
     const rc = await setDitherSelect(value);
     console.log(`Dither select set rc = ${rc}`);
   }
-  setChangeHandlers(handleDitherSelect, "ditherSelect");
+  setChangeHandlers(handleDitherSelect, "DitherSelect");
 
   document.getElementById("output2Select").onchange = async ev => {
     const value = ev.target.value;
