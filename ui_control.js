@@ -1,4 +1,4 @@
-import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, setDitherSelect } from "./api.js";
+import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, SetDitheringParameters } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
@@ -86,71 +86,56 @@ export function initControlUI() {
   }
 
   async function handleOrder(ev) {
-    const valueStr = ev.target.value;
-    console.log(`Order change to ${valueStr}`);
-    const value = parseInt(valueStr);
-    if (value >= 1 && value < 9) {
-      const rc = await setPredictorOrder(value);
+    const order = parseInt(ev.target.value);
+    if (order >= 1 && order < 9) {
+      const rc = await setPredictorOrder(order);
       console.log(`order set rc = ${rc}`);
     }
   }
   setChangeHandlers(handleOrder, "paramOrder");
 
   async function handleOutputOffsets(ev) {
-    const valueStr1 = document.getElementById("paramOutputOffset1").value;
-    const valueStr2 = document.getElementById("paramOutputOffset2").value;
-    console.log(`Ourput offsets change to ${valueStr1} ${valueStr2}`);
-    const value1 = parseInt(valueStr1);
-    const value2 = parseInt(valueStr2);
-    const rc = await setOutputOffsets(value1, value2);
+    const outOffset1 = parseInt(document.getElementById("paramOutputOffset1").value);
+    const outOffset2 = parseInt(document.getElementById("paramOutputOffset2").value);
+    const rc = await setOutputOffsets(outOffset1, outOffset2);
     console.log(`Output offsets set rc = ${rc}`);
   }
   setChangeHandlers(handleOutputOffsets, "paramOutputOffset1", "paramOutputOffset2");
         
   async function handleOutputShifts(ev) {
-    const valueStr1 = document.getElementById("paramOutputShift").value;
-    const valueStr2 = document.getElementById("paramIntegratorShift").value;
-    const valueStr3 = document.getElementById("paramIntegrator2Shift").value;
-    console.log(`Ourput shifts change to ${valueStr1} ${valueStr2} ${valueStr3}`);
-    const value1 = parseInt(valueStr1);
-    const value2 = parseInt(valueStr2);
-    const value3 = parseInt(valueStr3);
-    const rc = await setOutputShifts(value1, value2, value3);
+    const outputShift = parseInt(document.getElementById("paramOutputShift").value);
+    const integratorShift = parseInt(document.getElementById("paramIntegratorShift").value);
+    const integrator2Shift = parseInt(document.getElementById("paramIntegrator2Shift").value);
+    const rc = await setOutputShifts(outputShift, integratorShift, integrator2Shift);
     console.log(`Output shifts set rc = ${rc}`);
   }
   setChangeHandlers(handleOutputShifts, "paramOutputShift", "paramIntegratorShift", "paramIntegrator2Shift");
 
   async function handleInputOffset(ev) {
-    const valueStr = ev.target.value;
-    console.log(`Input offset change to ${valueStr}`);
-    const value = parseInt(valueStr);
-    const rc = await setInputOffset(value);
+    const inputOffset = parseInt(ev.target.value);
+    const rc = await setInputOffset(inputOffset );
     console.log(`Input offset set rc = ${rc}`);
   }
   setChangeHandlers(handleInputOffset, "paramInputOffset");
 
   async function handleAlpha(ev) {
-    const valueStr = ev.target.value;
-    console.log(`Alpha change to ${valueStr}`);
-    const value = parseFloat(valueStr);
-    if (value >= 0.999999 && value < 5.0) {
-      const rc = await setPredictorAlpha(value);
+    const alpha = parseFloat(ev.target.value);
+    if (alpha >= 0.999999 && alpha < 5.0) {
+      const rc = await setPredictorAlpha(alpha);
       console.log(`alpha set rc = ${rc}`);
     }
   }
   setChangeHandlers(handleAlpha, "paramAlpha");
 
   async function handleGains(ev) {
-    const valueStr1 = document.getElementById("paramPGain").value;
-    const valueStr2 = document.getElementById("paramPiCorner").value;
     const valueStr3 = document.getElementById("paramIntegrator2Gain").value;
     const valueStr4 = document.getElementById("paramAveragingTimer").value;
-    console.log(`Gains change to ${valueStr1} ${valueStr2} ${valueStr3} ${valueStr4}`);
-    const value1 = parseFloat(valueStr1);
-    const value2 = parseFloat(valueStr2) * 1000.0; // Convert from Khz to Hz
-    const value3 = parseFloat(valueStr3);
-    const value4 = parseFloat(valueStr4);
-    const rc = await setGains(value1, value2, value3, value4);
+    const pGain = parseFloat(document.getElementById("paramPGain").value);
+    const piCorner = parseFloat(document.getElementById("paramPiCorner").value) * 1000.0; // Convert from Khz to Hz
+    const int2Gain = parseFloat(document.getElementById("paramIntegrator2Gain").value);
+    const avgTimer = parseFloat(document.getElementById("paramAveragingTimer").value);
+    console.log(`Gains change to ${pGain} ${piCorner} ${int2Gain} ${avgTimer}`);
+    const rc = await setGains(pGain, piCorner, int2Gain, avgTimer);
     console.log(`Gains set rc = ${rc}`);
   }
   setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
@@ -171,13 +156,15 @@ export function initControlUI() {
   }
   setChangeHandlers(handleInt2IsOnSelect, "Int2IsOnSelect");
 
-  async function handleDitherSelect(ev) {
-    const value = parseInt(ev.target.value);
+  async function handleDitherSelect() {
+    const value = parseInt(document.getElementById("DitherSelect").value);
     console.log(`Dither select change to ${value}`);
-    const rc = await setDitherSelect(value);
+    const ditherAmplitude = parseInt(document.getElementById("paramDitherOutputAmpliture").value); 
+    const ditherInputPhase = parseInt(document.getElementById("paramDitherInputPhase").value); 
+    const rc = await SetDitheringParameters(value, ditherAmplitude, 1, value, ditherInputPhase, 1, 0);
     console.log(`Dither select set rc = ${rc}`);
   }
-  setChangeHandlers(handleDitherSelect, "DitherSelect");
+  setChangeHandlers(handleDitherSelect, "DitherSelect", "paramDitherOutputAmpliture", "paramDitherInputPhase");
 
   document.getElementById("output2Select").onchange = async ev => {
     const value = ev.target.value;
@@ -225,16 +212,7 @@ export function initControlUI() {
       mouseDown = false;
       e.stopPropagation();
   }
-  // const focusItems = [{x: 130.5, y: 59, radius: 14, name: "A", status: "active"},
-  //                     {x: 289, y: 59, radius: 14, name: "B", status: "active"},
-  //                     {x: 599, y: 59, radius: 14, name: "C", status: "active"},
-  //                     {x: 786.5, y: 59, radius: 14, name: "D", status: "active"},
-  //                     {x: 1075, y: 59, radius: 15, name: "E", status: "active"},
-  //                     {x: 374, y: 158, radius: 15, name: "F", status: "active"},
-  //                     {x: 130, y: 185, radius: 15, name: "G", status: "active"},
-  //                     {x: 786, y: 313, radius: 15, name: "H", status: "active"},
-  //                     {x: 1075, y: 313, radius: 15, name: "I", status: "active"},
-  // ];
+
   const focusItems = [
   {x: 130.5, y: 59,  radius: 14, name: "A", status: "active", sampleIndex: 34},
   {x: 289,   y: 59,  radius: 14, name: "B", status: "active", sampleIndex: 0},
@@ -278,8 +256,7 @@ export function initControlUI() {
               ctx.fillText(item.name, item.x, item.y);
           }
       }
-      // ctx.fillStyle = "rgb(74, 114, 6)";
-      // ctx.fillRect(x,y,10,10);
+
   }
   drawSystemCanvas(- 100, -100);
   function onMouseMove(e) {

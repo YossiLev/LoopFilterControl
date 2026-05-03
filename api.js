@@ -103,10 +103,6 @@ export async function setInt2IsOnSelect(i2Enabled, i2DisabledValue) {
   return await sendParameters(22, "ii", [i2Enabled, i2DisabledValue]);
 }
 
-export async function setDitherSelect(ditherEnabled) {
-}
-
-
 export async function setPredictorAlpha(alpha) {
   // Command 0x03 = set predictor alpha
 
@@ -190,14 +186,6 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
 export async function setAveragingTimeInCycles(numCycles=2) {
   // command 0x04 = set averaging time
   return await sendParameters(4, "i", [numCycles]);
-
-  // const buffer = new ArrayBuffer(8);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 4, true);
-  // dv.setUint32(4, numCycles, true);
-
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(0, true);  
 }
 
 export async function setPredictor(on) {
@@ -225,26 +213,10 @@ export async function writeRegister(index, value) {
 
 export async function setScanOn(offset, frequency, amplitude, scanType) {
   return await sendParameters(24, "iiii", [offset, frequency, amplitude, scanType]);
-
-  // const buffer = new ArrayBuffer(20);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 24, true);
-  // dv.setUint32(4, offset, true);
-  // dv.setUint32(8, frequency, true);
-  // dv.setUint32(12, amplitude, true);
-  // dv.setUint32(16, scanType, true);
-
-  // return await sendBinaryBuffer(buffer);
 }
 
 export async function setScanOff() {
   return await sendParameters(25, "", []);
-
-  // const buffer = new ArrayBuffer(4);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 25, true);
-
-  // return await sendBinaryBuffer(buffer);
 }
 
 export async function dumpRegisters() {
@@ -255,27 +227,18 @@ export async function dumpRegisters() {
 export async function getTwoRegisterSamples(r1, r2, n) {
   const buffer = prepareBuffer(19, "iiid", [r1, r2, n, 0.0]);
 
-  // const buffer = new ArrayBuffer(24);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 19, true);
-  // dv.setUint32(4, r1, true);
-  // dv.setUint32(8, r2, true);
-  // dv.setUint32(12, n, true);
-  // dv.setFloat64(16, 0.0, true);
-
   return await sendBinaryBuffer(buffer);
 }
 
 export function getTwoRegisterStream(r1, r2, n, cb) {
   const buffer = prepareBuffer(19, "iiid", [r1, r2, n, 0.0]);
 
-  // const buffer = new ArrayBuffer(24);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 19, true);
-  // dv.setUint32(4, r1, true);
-  // dv.setUint32(8, r2, true);
-  // dv.setUint32(12, n, true);
-  // dv.setFloat64(16, 0.0, true);
-
   sendBinaryBufferConsistent(buffer, cb);
+}
+
+export async function SetDitheringParameters(
+      o, output_amplitude, output_phase1_count, 
+      i, input_phase1_count, input_phase2_count,  
+      input_init_polarity ) {
+  return await sendParameters(14, "iiiiiii", [o, output_amplitude, output_phase1_count, i, input_phase1_count, input_phase2_count, input_init_polarity]);
 }

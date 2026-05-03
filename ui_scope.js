@@ -4,13 +4,17 @@ import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 const triggerElement = document.getElementById("trigger");
 const timerElement = document.getElementById("timer");
 
-function toSigned14Bit(value) {
-    // 1. Mask to 14 bits (0 to 16,383)
-    let val = value;// & 0xFFFF; 
-    
-    // 2. Shift left by 18 (32 - 14) to reach the 32nd bit
-    // 3. Shift right (>>) to sign-extend back to 14 bits
-    return (val << 16) >> 16;
+function toSigned14Bit(iregvalue, value) {
+  if (iregvalue == 11) {
+    //return ((value & 0x3FFF) << 18) >> 18; 
+    return (value & 0x3FFF) - 8192;
+  }
+  // 1. Mask to 14 bits (0 to 16,383)
+  let val = value;// & 0xFFFF; 
+  
+  // 2. Shift left by 18 (32 - 14) to reach the 32nd bit
+  // 3. Shift right (>>) to sign-extend back to 14 bits
+  return (val << 16) >> 16;
 }
 
 export function presentScopeData(data) {
@@ -20,19 +24,23 @@ export function presentScopeData(data) {
   const dv = new DataView(data);
   // console.log(`scope length ${dv.byteLength}`);
   const n  = (dv.byteLength - 28) / 12;
-  // console.log(`Nomber of samples ${n}`);
-  // for (let i = 0; i < 7; i++) {
-  //   console.log(`int ${dv.getInt32(i * 4, true)}`);
+  // console.log(`Number of samples ${n}`);
+  // for (let i = 0; i < 100; i++) {
+  //   console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
   // }
   const lastBatch = dv.getInt32(4, true) == 1;
 
   ctx.fillStyle = "#cac8c8ff";
   ctx.fillRect(0,0,800,300);
+  const reg1 = dv.getUint32(12, true);
+  const reg2 = dv.getUint32(16, true);
+  console.log(`reg1 ${reg1} reg2 ${reg2}`);
 
   let vecs = [[], [], []];
   for(let i=0;i<n;i++){ 
-    vecs[0].push(toSigned14Bit(dv.getInt16(28 + i*12 + 4, true)));
-    vecs[1].push(toSigned14Bit(dv.getInt16(28 + i*12 + 8, true)));
+    vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
+    vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
+    console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
 
     if (timerElement.checked) {
       vecs[2][i] = dv.getInt32(28 + i*12, true);
