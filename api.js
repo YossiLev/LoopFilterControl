@@ -175,11 +175,12 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-  //await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
-  await sendParameters(5, "iid", [i_gain_int, 0, p_gain_int]);
-  await sleep(300);
   //await sendParameters(9, "III", [output_shift, i0_shift, i2_shift]);
   await sendParameters(9, "III", [output_shift, i0_shift, 0]);
+  await sleep(300);
+  //await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
+  await sendParameters(5, "iid", [i_gain_int, 0, p_gain_int]);
+
   return 1;
 }
 

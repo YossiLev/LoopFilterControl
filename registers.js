@@ -98,6 +98,61 @@ export const numRegs = regNames.length;
 export const dumpEntrySize = 8;
 export const expectedDumpBytes = numRegs * dumpEntrySize;
 
+export const friendlyNamesSelectOrder = [
+  'raw input (o_y_input)',
+  'input (o_y_n)',
+  'current sum before rebase',
+  'current sum total low 32bits',
+  'current sum total high 16bits',
+  'output (o_z_n)',
+  '', // separator
+  'dac output',
+  'dac a output',
+  'dac b output',
+  '2nd integration output (o_2nd_output)',
+  '',
+  'y ref (o_y_reference)', 
+  'out ref (o_out_offset)',
+
+  'counter (o_count)',
+  'pid live counter',
+
+  'i0 (o_i0)',
+  'averaging size (o_delay_count)',
+  'averaging counter (o_delay_counter)',
+  'special value (o_magic)',
+  'DACB selection bits (o_dacb_output)',
+  'o_dither_config_1',
+  'o_dither_config_2',
+  'o_dither_config_3',
+  'o_dither_count_1',
+  'o_dither_count_2',
+  'o_dither_count_3',
+  'o_2nd_out_offset',
+  'o_2nd_config',
+  'o_3rd_config',
+
+  '3rd prev input(o_y_n_3)',
+  'o_y_n_4',
+  'o_y_n_5',
+  'o_y_n_6',
+  'o_y_n_7',
+
+  'manual DAC output (o_manual_dac_output)',
+  'debug reg 1',
+  'pre-dither manual value',
+
+  'q0, q4 (o_q0_q4)',
+  'q1, q5 (o_q1_q5)',
+  'q2, q6 (o_q2_q6)',
+  'q3, q7 (o_q3_q7)',
+  'configuration (o_config)',
+
+  'pid magic',
+  'pid version',
+
+];
+
 export const friendlyNames = {
  'pid magic':'pid_magic',
  'pid version':'pid_version',
@@ -164,8 +219,8 @@ export const regType = {
  'o_out_offset': "SI",
  'o_magic': "O",
  'o_dacb_output': "",
- 'o_dither_config_1': "",
- 'o_dither_config_2': "",
+ 'o_dither_config_1': "S",
+ 'o_dither_config_2': "S",
  'o_dither_config_3': "",
  'o_dither_count_1': "SI",
  'o_dither_count_2': "SI",

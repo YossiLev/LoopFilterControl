@@ -1,5 +1,5 @@
 import { dumpRegisters } from "./api.js";
-import { RegisterDump, friendlyNames, regType, regOutput2 } from "./registers.js";
+import { RegisterDump, friendlyNames, friendlyNamesSelectOrder, regType, regOutput2 } from "./registers.js";
 
 
 function checkRegFlag(r, f) {
@@ -116,6 +116,24 @@ function displayConfiguration(config) {
   return output;                                         
 }
 
+function displayDitherConfiguration(config) {
+  let output = "";
+
+
+// struct predictor2_hw_reg_o_dither_config_3_s
+// {
+//     /* Bit [28: 0] */ unsigned int  unused_28_0         :   29   ;
+//     /* Bit [   29] */ unsigned int  input_init_polarity :   1    ;
+//     /* Bit [   30] */ unsigned int  dither_output_enable:   1    ;
+//     /* Bit [   31] */ unsigned int  dither_input_enable :   1    ;
+// };
+  output += `<div>dither_input_enable: ${config & (1 << 31) ? "Enabled" : "Disabled"}</div>`;  
+  output += `<div>dither_output_enable: ${config & (1 << 30) ? "Enabled" : "Disabled"}</div>`;  
+  output += `<div>input_init_polarity: ${config & (1 << 29) ? "1" : "0"}</div>`;
+
+  return output;                                         
+}
+
 function displayAnalysis(predictor) {
   let output = "";
 
@@ -123,6 +141,11 @@ function displayAnalysis(predictor) {
 
   output += `<div style="color: black;"><div><b>Configuration analysis:${config.toString(16)}</b></div>`;
   output += displayConfiguration(config);
+  output += `</div>`;
+
+  let dither3 = predictor["o_dither_config_3"];
+  output += `<div style="color: black;"><div><b>Dither 3 Configuration analysis:${dither3.toString(16)}</b></div>`;
+  output += displayDitherConfiguration(dither3);
   output += `</div>`;
 
   return output;
@@ -144,9 +167,22 @@ export function initRegisterUI() {
   };
 
   const scopeSample1Select = document.getElementById("scopeSample1Select");
-  scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 3 ? "selected" : ""}>${n}</option>`).join("");
+  
+  scopeSample1Select.innerHTML = friendlyNamesSelectOrder.map(val => { 
+    if (val === "") {
+      return '<hr>';//'<option disabled>---</option>';
+    }
+    let index = Object.keys(friendlyNames).findIndex(v => v === val); return `<option value="${index}" ${index === 3 ? "selected" : ""}>${val}</option>`
+  }).join("");
+  //scopeSample1Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 3 ? "selected" : ""}>${n}</option>`).join("");
   const scopeSample2Select = document.getElementById("scopeSample2Select");
-  scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 11 ? "selected" : ""}>${n}</option>`).join("");
+  scopeSample2Select.innerHTML = friendlyNamesSelectOrder.map(val => { 
+    if (val === "") {
+      return '<hr>';//'<option disabled>---</option>';
+    }
+    let index = Object.keys(friendlyNames).findIndex(v => v === val); return `<option value="${index}" ${index === 11 ? "selected" : ""}>${val}</option>`
+  }).join("");
+  //scopeSample2Select.innerHTML = Object.keys(friendlyNames).map((n, i) => `<option value="${i}" ${i === 11 ? "selected" : ""}>${n}</option>`).join("");
   const output2Select = document.getElementById("output2Select");
   output2Select.innerHTML = regOutput2.map((n, i) => `<option value="${i}" ${i === 1 ? "selected" : ""}>${n}</option>`).join("");      
 

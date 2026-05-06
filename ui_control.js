@@ -128,8 +128,6 @@ export function initControlUI() {
   setChangeHandlers(handleAlpha, "paramAlpha");
 
   async function handleGains(ev) {
-    const valueStr3 = document.getElementById("paramIntegrator2Gain").value;
-    const valueStr4 = document.getElementById("paramAveragingTimer").value;
     const pGain = parseFloat(document.getElementById("paramPGain").value);
     const piCorner = parseFloat(document.getElementById("paramPiCorner").value) * 1000.0; // Convert from Khz to Hz
     const int2Gain = parseFloat(document.getElementById("paramIntegrator2Gain").value);
