@@ -22,6 +22,8 @@ function flipZoom(id, z) {
 }
 const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
+const scopeType1Select = document.getElementById("scopeType1Select");
+const scopeType2Select = document.getElementById("scopeType2Select");
 
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");

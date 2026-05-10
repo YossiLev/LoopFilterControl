@@ -3,6 +3,17 @@ import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
 const triggerElement = document.getElementById("trigger");
 const timerElement = document.getElementById("timer");
+const scopeSample1Select = document.getElementById("scopeSample1Select");
+const scopeSample2Select = document.getElementById("scopeSample2Select");
+const scopeType1Select = document.getElementById("scopeType1Select");
+const scopeType2Select = document.getElementById("scopeType2Select");
+
+const canvas = document.getElementById("scopeCanvas");
+canvas.addEventListener("mousemove", handleCanvasMouseMove);
+canvas.addEventListener("mouseenter", handleCanvasMouseEnter);
+canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
+
+let dataConfigs = [];
 
 function toSigned14Bit(iregvalue, value) {
   if (iregvalue == 11) {
@@ -16,9 +27,36 @@ function toSigned14Bit(iregvalue, value) {
   // 3. Shift right (>>) to sign-extend back to 14 bits
   return (val << 16) >> 16;
 }
+function toFixFormat(iregvalue, dv, offset, regType) {
+  //console.log(`toFixFormat iregvalue ${iregvalue} regType ${regType}`); 
+  switch (regType) {
+    case "def": 
+      //console.log(`Raw value: ${toSigned14Bit(iregvalue, dv.getInt16(offset, true))}`);
+      return toSigned14Bit(iregvalue, dv.getInt16(offset, true));
+    case "16S": 
+      //console.log(`Raw value: ${dv.getInt16(offset, true)}`);
+      return dv.getInt16(offset, true);
+    case "16U": 
+      //console.log(`Raw value: ${dv.getUint16(offset, true)}`);
+      return dv.getUint16(offset, true);
+    case "32S": 
+      //console.log(`Raw value: ${dv.getInt32(offset, true)}`);
+      return dv.getInt32(offset, true);
+    case "32U": 
+      //console.log(`Raw value: ${dv.getUint32(offset, true)}`);
+      return dv.getUint32(offset, true);
+    case "DAC": {
+      const raw = dv.getUint32(offset, true);
+      const signed = toSigned14Bit(iregvalue, raw & 0xFFFF);
+      const shift = (raw >> 16) & 0x3F;
+      return signed * (1 << shift);
+    }
+  }
+  return dv.getUint32(offset, true);
+}
 
 export function presentScopeData(data) {
-  const canvas = document.getElementById("scopeCanvas");
+  //const canvas = document.getElementById("scopeCanvas");
   const ctx = canvas.getContext("2d");
 
   const dv = new DataView(data);
@@ -34,13 +72,18 @@ export function presentScopeData(data) {
   ctx.fillRect(0,0,800,300);
   const reg1 = dv.getUint32(12, true);
   const reg2 = dv.getUint32(16, true);
-  console.log(`reg1 ${reg1} reg2 ${reg2}`);
+  const reg1Type = scopeType1Select.value;
+  const reg2Type = scopeType2Select.value;
+  // console.log(`reg1 ${reg1} reg2 ${reg2}`);
+  // console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
 
   let vecs = [[], [], []];
-  for(let i=0;i<n;i++){ 
-    vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
-    vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
-    console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
+  for(let i=0;i<n;i++) { 
+    // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
+    // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
+    vecs[0].push(toFixFormat(reg1, dv, 28 + i*12 + 4, reg1Type));
+    vecs[1].push(toFixFormat(reg2, dv, 28 + i*12 + 8, reg2Type));
+    //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
 
     if (timerElement.checked) {
       vecs[2][i] = dv.getInt32(28 + i*12, true);
@@ -59,7 +102,7 @@ export function presentScopeData(data) {
   //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
   // }
 
-  const dataConfigs = [{
+  dataConfigs = [{
     data: vecs[0], color: "green", width: 2
   }, 
   {
@@ -68,7 +111,7 @@ export function presentScopeData(data) {
   if (timerElement.checked) {
     dataConfigs.push({data: vecs[2], color: "red", width: 1});
   }
-  drawMultiScaleChart(canvas, dataConfigs);
+  drawMultiScaleChart();
 
   if (scopeStatus) {
     setTimeout(getSample, 100);
@@ -77,11 +120,35 @@ export function presentScopeData(data) {
   return lastBatch;
 }
 
+
+let mouseInsideCanvas = false;
+let lastMousePosition = {x: 0, y: 0};
+export function handleCanvasMouseMove(event) {
+  //const canvas = document.getElementById("scopeCanvas");
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  lastMousePosition = {x, y};
+  drawMultiScaleChart();
+}
+
+export function handleCanvasMouseEnter(event) {
+  mouseInsideCanvas = true;
+  //const canvas = document.getElementById("scopeCanvas");
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  lastMousePosition = {x, y};
+}
+
+export function handleCanvasMouseLeave(event) {
+  mouseInsideCanvas = false;
+}
 /**
  * @param {HTMLCanvasElement} canvas
  * @param {Array} dataConfigs - Array of objects: { data: [], color: string, width: number }
  */
-function drawMultiScaleChart(canvas, dataConfigs) {
+function drawMultiScaleChart() {
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
@@ -140,22 +207,33 @@ function drawMultiScaleChart(canvas, dataConfigs) {
     });
     ctx.stroke();
   });
+  if (mouseInsideCanvas) {
+    ctx.fillStyle = "black";
+    ctx.textAlign = "left";
+    ctx.fillText(`${lastMousePosition.y} ${lastMousePosition.x}`, 30, 25);
+    let coordinate = (lastMousePosition.x - padding) * (dataConfigs[0].data.length - 1) / (W - 2.0 * padding);
+    coordinate = Math.round(coordinate);
+    ctx.fillText(`Sample ${coordinate} of ${dataConfigs[0].data.length}`, W / 2, 25);
+    if (coordinate >= 0 && coordinate < dataConfigs[0].data.length) {
+      ctx.fillText(`Value1: ${dataConfigs[0].data[coordinate]}`, 30, 50);
+      ctx.fillText(`Value2: ${dataConfigs[1].data[coordinate]}`, 30, 70);
+    }
+  }
 }
 function demoDraw() {
-    const canvas = document.getElementById("scopeCanvas");
+    //const canvas = document.getElementById("scopeCanvas");
     const data1 = [10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 95];
     const data2 = [-20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, 85]; 
-    const dataConfigs = [{
+    dataConfigs = [{
       data: data1, color: "red", width: 1
     }, 
     {
       data: data2, color: "blue", width: 1
     }];
-    drawMultiScaleChart(canvas, dataConfigs);
+    drawMultiScaleChart();
 }
 
-const scopeSample1Select = document.getElementById("scopeSample1Select");
-const scopeSample2Select = document.getElementById("scopeSample2Select");
+
 
 function getSample() {
   

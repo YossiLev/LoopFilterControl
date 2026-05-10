@@ -55,11 +55,19 @@
             <div class="controls">
                 <div>
                     <label for="scopeSample1Select" style="color:green !important;">Scope 1</label>
-                    <select id="scopeSample1Select"></select>
+                    <select id="scopeSample1Select" style="width: 280px;"></select>
+                </div>
+                <div>
+                    <label for="scopeType1Select" style="color:green !important;">type</label>
+                    <select id="scopeType1Select" style="width: 70px;"></select>
                 </div>
                 <div>
                     <label for="scopeSample2Select" style="color:blue !important;">Scope 2</label>
-                    <select id="scopeSample2Select"></select>
+                    <select id="scopeSample2Select" style="width: 280px;"></select>
+                </div>
+                <div>
+                    <label for="scopeType2Select" style="color:blue !important;">type</label>
+                    <select id="scopeType2Select" style="width: 70px;"></select>
                 </div>
                 <div>
                     <label for="scopeAddSelect" style="color:rgb(48, 47, 47) !important;">Mix</label>
@@ -71,7 +79,7 @@
                 </div>
                 <div>
                     <label for="nSamples">Samples</label>
-                    <input type="number" id="nSamples" value="512" min="10" max="3000" step="1" style="width:100px">
+                    <input type="number" id="nSamples" value="512" min="10" max="3000" step="1" style="width:80px">
                 </div>
                 <div>
                     <label for="trigger" style="color:rgb(48, 47, 47) !important;">Trigger</label>
@@ -83,7 +91,9 @@
                 </div>
             </div>
             <div style="margin-top: 20px;">
-                <canvas id="scopeCanvas" width="800" height="300" style="width: 100%; height: 300px; background:#ecedee; border-radius:8px;"></canvas>
+                <canvas id="scopeCanvas" width="1158" height="300" 
+                style="width: 100%; height: 300px; background:#ecedee; border-radius:8px; cursor: crosshair;"
+                ></canvas>
             </div>
         </div>
         <div class="card">
