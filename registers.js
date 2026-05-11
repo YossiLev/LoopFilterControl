@@ -200,8 +200,8 @@ export const friendlyNames = {
 };
 
 export const regType = {
- 'pid_magic': "O",
- 'pid_version': "O",
+ 'pid_magic': "O X",
+ 'pid_version': "O X",
  'pid_live_counter': "O",
  'o_y_n': "O SI",
  'o_q0_q4': "S",
@@ -226,7 +226,7 @@ export const regType = {
  'o_dither_count_2': "SI",
  'o_dither_count_3': "SI",
  'o_2nd_out_offset': "",
- 'o_2nd_config': "X",
+ 'o_2nd_config': "S",
  'o_3rd_config': "X",
  'o_y_n_4': "O SI",
  'o_y_n_5': "O SI",

@@ -15,6 +15,20 @@ canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 
 let dataConfigs = [];
 
+function drawTextBG(ctx, txt, x, y, color = '#000', font = "8pt Courier") {
+    ctx.save();
+    ctx.font = font;
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#fff';
+    var width = ctx.measureText(txt).width;
+    ctx.beginPath();
+    ctx.roundRect(x, y - 1, width, parseInt(font, 10) + 3, 3);
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.fillText(txt, x, y);
+    ctx.restore();
+}
+
 function toSigned14Bit(iregvalue, value) {
   if (iregvalue == 11) {
     //return ((value & 0x3FFF) << 18) >> 18; 
@@ -108,7 +122,7 @@ export function presentScopeData(data) {
   {
     data: vecs[1], color: "blue", width: 2
   }];
-  if (timerElement.checked) {
+  if (timerElement.checked || scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
     dataConfigs.push({data: vecs[2], color: "red", width: 1});
   }
   drawMultiScaleChart();
@@ -211,13 +225,26 @@ function drawMultiScaleChart() {
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(`${lastMousePosition.y} ${lastMousePosition.x}`, 30, 25);
-    let coordinate = (lastMousePosition.x - padding) * (dataConfigs[0].data.length - 1) / (W - 2.0 * padding);
-    coordinate = Math.round(coordinate);
-    ctx.fillText(`Sample ${coordinate} of ${dataConfigs[0].data.length}`, W / 2, 25);
-    if (coordinate >= 0 && coordinate < dataConfigs[0].data.length) {
-      ctx.fillText(`Value1: ${dataConfigs[0].data[coordinate]}`, 30, 50);
-      ctx.fillText(`Value2: ${dataConfigs[1].data[coordinate]}`, 30, 70);
-    }
+    dataConfigs.forEach((config, idx) => {
+      ctx.fillStyle = config.color;
+
+      let coordinate = (lastMousePosition.x - padding) * (config.data.length - 1) / (W - 2.0 * padding);
+      coordinate = Math.round(coordinate);
+      ctx.fillText(`Sample ${coordinate} of ${config.data.length}`, W / 2, 25);
+      if (coordinate >= 0 && coordinate < config.data.length) {
+        let val = config.data[coordinate];
+
+        drawTextBG(ctx, `${val}`, lastMousePosition.x + 10, lastMousePosition.y + (idx * 20), config.color, "12pt Arial");
+        //ctx.fillText(`${val}`, lastMousePosition.x + 10, lastMousePosition.y + (idx * 20));
+        const x = lastMousePosition.x;
+        const normalizedY = (val - config.min) / (config.max - config.min);
+        const y = (H - paddingY) - normalizedY * (H - 2 * paddingY);
+        ctx.fillStyle = "#ff8800bb";
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    });
   }
 }
 function demoDraw() {
