@@ -91,7 +91,9 @@ export const regNames = [
  'current sum before rebase',
  'current sum total low 32bits',
  'current sum total high 16bits',
- 'dac output'
+ 'dac output',
+ 'test_1',
+ 'test_2'
 ];
 
 export const numRegs = regNames.length;
@@ -113,6 +115,8 @@ export const friendlyNamesSelectOrder = [
   '',
   'y ref (o_y_reference)', 
   'out ref (o_out_offset)',
+  'test_1',
+  'test_2',
 
   'counter (o_count)',
   'pid live counter',
@@ -196,7 +200,9 @@ export const friendlyNames = {
  'current sum before rebase':'o_current_sum_before_rebase',
  'current sum total low 32bits':'o_current_sum_total_low',
  'current sum total high 16bits':'o_current_sum_total_high',
- 'dac output':'o_dac_output'
+ 'dac output':'o_dac_output',
+ 'test_1':'o_test_1',
+ 'test_2':'o_test_2'
 };
 
 export const regType = {
@@ -242,7 +248,9 @@ export const regType = {
  'o_current_sum_before_rebase': "O SI",
  'o_current_sum_total_low': "O SI",
  'o_current_sum_total_high': "O SI",
- 'o_dac_output': "O",  
+ 'o_dac_output': "O",
+ 'o_test_1': "O",
+ 'o_test_2': "O"
 }
 
 export const regInput = {
