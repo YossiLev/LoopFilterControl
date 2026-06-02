@@ -93,7 +93,12 @@ export const regNames = [
  'current sum total high 16bits',
  'dac output',
  'test_1',
- 'test_2'
+ 'test_2',
+ 'test_3',
+ 'test_4',
+ 'test_5',
+ 'test_6'
+  
 ];
 
 export const numRegs = regNames.length;
@@ -117,6 +122,11 @@ export const friendlyNamesSelectOrder = [
   'out ref (o_out_offset)',
   'test_1',
   'test_2',
+  'test_3',
+  'test_4',
+  'test_5',
+  'test_6',
+   
 
   'counter (o_count)',
   'pid live counter',
@@ -202,7 +212,11 @@ export const friendlyNames = {
  'current sum total high 16bits':'o_current_sum_total_high',
  'dac output':'o_dac_output',
  'test_1':'o_test_1',
- 'test_2':'o_test_2'
+ 'test_2':'o_test_2',
+ 'test_3':'o_test_3',
+ 'test_4':'o_test_4',
+ 'test_5':'o_test_5',
+ 'test_6':'o_test_6'
 };
 
 export const regType = {
@@ -250,7 +264,11 @@ export const regType = {
  'o_current_sum_total_high': "O SI",
  'o_dac_output': "O",
  'o_test_1': "O",
- 'o_test_2': "O"
+ 'o_test_2': "O",
+  'o_test_3': "O",
+  'o_test_4': "O",
+  'o_test_5': "O",
+  'o_test_6': "O"
 }
 
 export const regInput = {
