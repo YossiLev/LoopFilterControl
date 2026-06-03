@@ -2,6 +2,7 @@ import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
 
 
 const triggerElement = document.getElementById("trigger");
+const scaleLockElement = document.getElementById("scaleLock");
 const timerElement = document.getElementById("timer");
 const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
@@ -14,6 +15,7 @@ canvas.addEventListener("mouseenter", handleCanvasMouseEnter);
 canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 
 let dataConfigs = [];
+let dataConfigLastScale = [];
 
 function drawTextBG(ctx, txt, x, y, color = '#000', font = "8pt Courier") {
     ctx.save();
@@ -162,6 +164,7 @@ export function handleCanvasMouseLeave(event) {
  * @param {HTMLCanvasElement} canvas
  * @param {Array} dataConfigs - Array of objects: { data: [], color: string, width: number }
  */
+
 function drawMultiScaleChart() {
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
@@ -171,15 +174,28 @@ function drawMultiScaleChart() {
 
   ctx.clearRect(0, 0, W, H);
   
-  // Calculate Min/Max for each dataset
-  dataConfigs.forEach(config => {
-    config.min = Math.min(...config.data);
-    config.max = Math.max(...config.data);
+  const isScaleLock = scaleLockElement.checked;
+  if (!isScaleLock) {
+    dataConfigLastScale = [];
+  }
+  dataConfigs.forEach((config, idx) => {
+    if (isScaleLock) {
+      config.min = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].min : Math.min(...config.data);
+      config.max = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].max : Math.max(...config.data);
+    } else {
+      config.min = Math.min(...config.data);
+      config.max = Math.max(...config.data);
+      dataConfigLastScale.push({min: config.min, max: config.max});
+    }
   });
+  // dataConfigs.forEach((config, idx) => {
+  //     config.min = Math.min(...config.data);
+  //     config.max = Math.max(...config.data);
+  // });
   const trigger = (dataConfigs[0].max + dataConfigs[0].min) / 2;
   const pTrigger = triggerElement.checked ? Math.max(dataConfigs[0].data.findIndex((v, i, a) => i > 0 &&v > trigger && a[i - 1] < trigger), 0): 0;
 
-  const gridSteps = 5;
+  const gridSteps = 6;
 
   // 1. Draw Grid Lines
   ctx.strokeStyle = "#ccc";
