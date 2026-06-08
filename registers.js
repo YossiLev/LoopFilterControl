@@ -97,7 +97,17 @@ export const regNames = [
  'test_3',
  'test_4',
  'test_5',
- 'test_6'
+ 'test_6',
+ 'test_7',
+ 'test_8',
+ 'test_9',
+ 'test_10',
+ 'test_11',  
+ 'test_12',
+ 'test_13',
+ 'test_14',
+ 'test_15',
+ 'test_16'
   
 ];
 
@@ -126,8 +136,18 @@ export const friendlyNamesSelectOrder = [
   'test_4',
   'test_5',
   'test_6',
+  'test_7',
+  'test_8',
+  'test_9',
+  'test_10',
+  'test_11',
+  'test_12',
+  'test_13',
+  'test_14',
+  'test_15',
+  'test_16',
+   '',
    
-
   'counter (o_count)',
   'pid live counter',
 
@@ -216,7 +236,17 @@ export const friendlyNames = {
  'test_3':'o_test_3',
  'test_4':'o_test_4',
  'test_5':'o_test_5',
- 'test_6':'o_test_6'
+ 'test_6':'o_test_6',
+  'test_7':'o_test_7',
+  'test_8':'o_test_8',
+  'test_9':'o_test_9',
+  'test_10':'o_test_10',
+  'test_11':'o_test_11',
+  'test_12':'o_test_12',
+  'test_13':'o_test_13',
+  'test_14':'o_test_14',
+  'test_15':'o_test_15',
+  'test_16':'o_test_16'
 };
 
 export const regType = {
@@ -268,7 +298,17 @@ export const regType = {
   'o_test_3': "O",
   'o_test_4': "O",
   'o_test_5': "O",
-  'o_test_6': "O"
+  'o_test_6': "O",
+  'o_test_7': "O",
+  'o_test_8': "O",
+  'o_test_9': "O",
+  'o_test_10': "O",
+  'o_test_11': "O",
+  'o_test_12': "O",
+  'o_test_13': "O",
+  'o_test_14': "O",
+  'o_test_15': "O",
+  'o_test_16': "O"
 }
 
 export const regInput = {
