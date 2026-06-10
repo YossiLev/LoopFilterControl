@@ -241,5 +241,7 @@ export async function SetDitheringParameters(
       o, output_amplitude, output_phase1_count, 
       i, input_phase1_count, input_phase2_count,  
       input_init_polarity ) {
+  console.log(`Ditheting prameters o ${o}, output_amplitude ${output_amplitude}, output_phase1_count ${output_phase1_count}, input_phase1_count ${input_phase1_count}, input_phase2_count ${input_phase2_count}, input_init_polarity ${input_init_polarity}`);
+
   return await sendParameters(14, "iiiiiii", [o, output_amplitude, output_phase1_count, i, input_phase1_count, input_phase2_count, input_init_polarity]);
 }

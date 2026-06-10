@@ -158,10 +158,17 @@ export function initControlUI() {
 
   async function handleDitherSelect() {
     const value = parseInt(document.getElementById("DitherSelect").value);
+    const ditherInput = value & 0x1;
+    const ditherOutput = (value >> 1) & 0x1;
     console.log(`Dither select change to ${value}`);
     const ditherAmplitude = parseInt(document.getElementById("paramDitherOutputAmpliture").value); 
     const ditherInputPhase = parseInt(document.getElementById("paramDitherInputPhase").value); 
-    const rc = await SetDitheringParameters(value, ditherAmplitude, 1, value, ditherInputPhase, 1, 0);
+    const ditherCount =  parseInt(document.getElementById("paramAveragingTimer").value) / 20;
+    const ditherPhase = Math.floor((ditherInputPhase / 360) * ditherCount);
+    const rc = await SetDitheringParameters(ditherOutput, ditherAmplitude, ditherCount, ditherInput, ditherInputPhase, ditherCount, ditherPhase);
+      // o, output_amplitude, output_phase1_count, 
+      // i, input_phase1_count, input_phase2_count,  
+      // input_init_polarity
     console.log(`Dither select set rc = ${rc}`);
   }
   setChangeHandlers(handleDitherSelect, "DitherSelect", "paramDitherOutputAmpliture", "paramDitherInputPhase");
