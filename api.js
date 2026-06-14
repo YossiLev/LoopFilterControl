@@ -237,6 +237,12 @@ export function getTwoRegisterStream(r1, r2, n, cb) {
   sendBinaryBufferConsistent(buffer, cb);
 }
 
+export function getTwoRegisterQuickStream(r1, r2, interval, cb) {
+  const buffer = prepareBuffer(26, "iii", [r1, r2, interval]);
+
+  sendBinaryBufferConsistent(buffer, cb);
+}
+
 export async function SetDitheringParameters(
       o, output_amplitude, output_phase1_count, 
       i, input_phase1_count, input_phase2_count,  

@@ -1,4 +1,4 @@
-import { getTwoRegisterSamples, getTwoRegisterStream } from "./api.js";
+import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream } from "./api.js";
 
 
 const triggerElement = document.getElementById("trigger");
@@ -136,6 +136,70 @@ export function presentScopeData(data) {
   return lastBatch;
 }
 
+
+export function presentQuickScopeData(data) {
+  const ctx = canvas.getContext("2d");
+
+  const dv = new DataView(data);
+  console.log(`quick scope length ${dv.byteLength}`);
+  const n  = (dv.byteLength - 20) / 8;
+  console.log(`Number of quick samples ${n}`);
+  for (let i = 0; i < 32; i++) {
+    console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
+  }
+  const lastBatch = dv.getInt32(4, true) == 1;
+
+  ctx.fillStyle = "#cac8c8ff";
+  ctx.fillRect(0,0,800,300);
+  const reg1 = dv.getUint32(12, true);
+  const reg2 = dv.getUint32(16, true);
+  const reg1Type = scopeType1Select.value;
+  const reg2Type = scopeType2Select.value;
+  console.log(`reg1 ${reg1} reg2 ${reg2}`);
+  console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
+
+  let vecs = [[], [], []];
+  for(let i=0;i<n;i++) { 
+    // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
+    // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
+    vecs[0].push(toFixFormat(reg1, dv, 20 + i*8 + 0, reg1Type));
+    vecs[1].push(toFixFormat(reg2, dv, 20 + i*8 + 4, reg2Type));
+    //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
+
+    // if (timerElement.checked) {
+    //   vecs[2][i] = dv.getInt32(28 + i*12, true);
+    // } else {
+      if (scopeAddSelect.value === "sum") {
+        vecs[2].push(vecs[0][i] + vecs[1][i]);
+      } else if (scopeAddSelect.value === "diff") {
+        vecs[2].push(vecs[0][i] - vecs[1][i]);
+      }
+    // }
+  }
+  // function tt(d, i) {
+  //   return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
+  // }
+  // for (let i = 0; i < n; i += 8) {
+  //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
+  // }
+
+  dataConfigs = [{
+    data: vecs[0], color: "green", width: 2
+  }, 
+  {
+    data: vecs[1], color: "blue", width: 2
+  }];
+  if (scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
+    dataConfigs.push({data: vecs[2], color: "red", width: 1});
+  }
+  drawMultiScaleChart();
+
+  // if (scopeStatus) {
+  //   setTimeout(getQuickSample, 100);
+  // }
+
+  return lastBatch;
+}
 
 let mouseInsideCanvas = false;
 let lastMousePosition = {x: 0, y: 0};
@@ -276,8 +340,6 @@ function demoDraw() {
     drawMultiScaleChart();
 }
 
-
-
 function getSample() {
   
     const r1 = parseInt(scopeSample1Select.value);
@@ -286,11 +348,23 @@ function getSample() {
 
     getTwoRegisterStream(r1, r2, n, presentScopeData);
 }
+
+function getQuickSample() {
+  
+    const r1 = parseInt(scopeSample1Select.value);
+    const r2 = parseInt(scopeSample2Select.value);
+    const interval = 4;
+
+    getTwoRegisterQuickStream(r1, r2, interval, presentQuickScopeData);
+}
+
+
 let scopeStatus = false;
 export function setScopeOn() {
     scopeStatus = true;
 
-    getSample();
+    //getSample();
+    getQuickSample();
 }
 export function setScopeOff() {
   scopeStatus = false;

@@ -107,7 +107,13 @@ export const regNames = [
  'test_13',
  'test_14',
  'test_15',
- 'test_16'
+ 'test_16',
+ 'recorder_i3_cs',
+ 'recorder_i3_write',
+ 'recorder_i3_read',
+ 'recorder_i3_data_in',
+ 'recorder_o3_data_out',
+ 'recorder_o3_status'
   
 ];
 
@@ -246,7 +252,13 @@ export const friendlyNames = {
   'test_13':'o_test_13',
   'test_14':'o_test_14',
   'test_15':'o_test_15',
-  'test_16':'o_test_16'
+  'test_16':'o_test_16',
+ 'recorder_i3_cs': 'recorder_i3_cs',
+ 'recorder_i3_write': 'recorder_i3_write',
+ 'recorder_i3_read': 'recorder_i3_read',
+ 'recorder_i3_data_in': 'recorder_i3_data_in',
+ 'recorder_o3_data_out': 'recorder_o3_data_out',
+ 'recorder_o3_status': 'recorder_o3_status'  
 };
 
 export const regType = {
@@ -308,7 +320,13 @@ export const regType = {
   'o_test_13': "O",
   'o_test_14': "O",
   'o_test_15': "O",
-  'o_test_16': "O"
+  'o_test_16': "O",
+  'recorder_i3_cs': "O X",
+  'recorder_i3_write': "O X",
+  'recorder_i3_read': "O X",
+  'recorder_i3_data_in': "O X",
+  'recorder_o3_data_out': "O X",
+  'recorder_o3_status': "O X"  
 }
 
 export const regInput = {
