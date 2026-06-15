@@ -175,6 +175,9 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+  await sendParameters(4, "i", [averagingTimeCycles]);
+  await sleep(300);
+
   //await sendParameters(9, "III", [output_shift, i0_shift, i2_shift]);
   await sendParameters(9, "III", [output_shift, i0_shift, 0]);
   await sleep(300);
@@ -244,10 +247,10 @@ export function getTwoRegisterQuickStream(r1, r2, interval, cb) {
 }
 
 export async function SetDitheringParameters(
-      o, output_amplitude, output_phase1_count, 
-      i, input_phase1_count, input_phase2_count,  
+      o, output_amplitude, output_dither_count, 
+      i, input_phase_count, input_dither_count,  
       input_init_polarity ) {
-  console.log(`Ditheting prameters o ${o}, output_amplitude ${output_amplitude}, output_phase1_count ${output_phase1_count}, input_phase1_count ${input_phase1_count}, input_phase2_count ${input_phase2_count}, input_init_polarity ${input_init_polarity}`);
+  console.log(`Ditheting prameters o ${o}, output_amplitude ${output_amplitude}, output_dither_count ${output_dither_count}, input_phase1_count ${input_phase_count}, input_phase2_count ${input_phase2_count}, input_init_polarity ${input_init_polarity}`);
 
-  return await sendParameters(14, "iiiiiii", [o, output_amplitude, output_phase1_count, i, input_phase1_count, input_phase2_count, input_init_polarity]);
+  return await sendParameters(14, "iiiiiii", [o, output_amplitude, output_dither_count, i, input_phase_count, input_dither_count, input_init_polarity]);
 }
