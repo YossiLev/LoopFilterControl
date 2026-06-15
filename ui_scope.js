@@ -8,6 +8,7 @@ const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
 const scopeType1Select = document.getElementById("scopeType1Select");
 const scopeType2Select = document.getElementById("scopeType2Select");
+const nScanIntervalElement = document.getElementById("nScanInterval");
 
 const canvas = document.getElementById("scopeCanvas");
 canvas.addEventListener("mousemove", handleCanvasMouseMove);
@@ -141,12 +142,8 @@ export function presentQuickScopeData(data) {
   const ctx = canvas.getContext("2d");
 
   const dv = new DataView(data);
-  console.log(`quick scope length ${dv.byteLength}`);
   const n  = (dv.byteLength - 20) / 8;
-  console.log(`Number of quick samples ${n}`);
-  for (let i = 0; i < 32; i++) {
-    console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
-  }
+
   const lastBatch = dv.getInt32(4, true) == 1;
 
   ctx.fillStyle = "#cac8c8ff";
@@ -156,7 +153,6 @@ export function presentQuickScopeData(data) {
   const reg1Type = scopeType1Select.value;
   const reg2Type = scopeType2Select.value;
   console.log(`reg1 ${reg1} reg2 ${reg2}`);
-  console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
 
   let vecs = [[], [], []];
   for(let i=0;i<n;i++) { 
@@ -194,9 +190,9 @@ export function presentQuickScopeData(data) {
   }
   drawMultiScaleChart();
 
-  // if (scopeStatus) {
-  //   setTimeout(getQuickSample, 100);
-  // }
+  if (scopeStatus) {
+    setTimeout(getQuickSample, 100);
+  }
 
   return lastBatch;
 }
@@ -353,7 +349,7 @@ function getQuickSample() {
   
     const r1 = parseInt(scopeSample1Select.value);
     const r2 = parseInt(scopeSample2Select.value);
-    const interval = 4;
+    const interval = parseInt(nScanIntervalElement.value);
 
     getTwoRegisterQuickStream(r1, r2, interval, presentQuickScopeData);
 }
