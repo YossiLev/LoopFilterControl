@@ -3,6 +3,7 @@ import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream 
 
 const triggerElement = document.getElementById("trigger");
 const scaleLockElement = document.getElementById("scaleLock");
+const scaleChaseElement = document.getElementById("scaleChase");
 const timerElement = document.getElementById("timer");
 const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
@@ -229,17 +230,30 @@ function drawMultiScaleChart() {
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
-  const padding = 80; // Extra space for dual labels
+  const padding = 67; // Extra space for dual labels
   const paddingY = 20;
 
   ctx.clearRect(0, 0, W, H);
   
   const isScaleLock = scaleLockElement.checked;
-  if (!isScaleLock) {
+  const isScaleChase = scaleChaseElement.checked;
+  if (!isScaleLock && !isScaleChase) {
     dataConfigLastScale = [];
   }
   dataConfigs.forEach((config, idx) => {
-    if (isScaleLock) {
+    if (isScaleChase) {
+      config.min = Math.min(...config.data);
+      config.max = Math.max(...config.data);
+      if (dataConfigLastScale.length > idx) {
+        if (config.min > dataConfigLastScale[idx].min) {
+          config.min = dataConfigLastScale[idx].min
+        }
+        if (config.max < dataConfigLastScale[idx].max) {
+          config.max = dataConfigLastScale[idx].max
+        }
+      }
+      dataConfigLastScale.push({min: config.min, max: config.max});
+    } else if (isScaleLock) {
       config.min = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].min : Math.min(...config.data);
       config.max = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].max : Math.max(...config.data);
     } else {

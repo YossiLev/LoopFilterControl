@@ -55,3 +55,4 @@ input[type=checkbox]:checked::after {
         option { padding: 8px; color:#020617}
         option:hover { background: #e0e0e0; }
         .zoomedFrame { transform: translate(-460px, -15px) scale(0.25); margin-top:-42px; margin-left: 10px; height: 160px;}
+        .chData { display: inline-block; width: 120px; background-color: whitesmoke; margin: 0 5px; border: px solid black; text-align: right; }
