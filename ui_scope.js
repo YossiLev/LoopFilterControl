@@ -250,6 +250,9 @@ function drawMultiScaleChart() {
   if (!isScaleLock && !isScaleChase) {
     dataConfigLastScale = [];
   }
+  console.log(`scales lock ${isScaleLock}, chase ${isScaleChase} len ${dataConfigLastScale.length}`);
+
+  let dataConfigLastScaleNew = [];
   dataConfigs.forEach((config, idx) => {
     if (isScaleChase) {
       config.min = Math.min(...config.data);
@@ -262,16 +265,17 @@ function drawMultiScaleChart() {
           config.max = dataConfigLastScale[idx].max
         }
       }
-      dataConfigLastScale.push({min: config.min, max: config.max});
     } else if (isScaleLock) {
       config.min = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].min : Math.min(...config.data);
       config.max = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].max : Math.max(...config.data);
     } else {
       config.min = Math.min(...config.data);
       config.max = Math.max(...config.data);
-      dataConfigLastScale.push({min: config.min, max: config.max});
     }
+    dataConfigLastScaleNew.push({min: config.min, max: config.max});
   });
+  dataConfigLastScale = [...dataConfigLastScaleNew];
+   
   // dataConfigs.forEach((config, idx) => {
   //     config.min = Math.min(...config.data);
   //     config.max = Math.max(...config.data);
