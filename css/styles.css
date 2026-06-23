@@ -3,7 +3,7 @@
 
         .grid { display: grid; gap: 12px; margin-bottom: 10px;}
         .card { width:1200px; background: #dddddd; border: 1px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 4px; padding: 3px; border-radius: 4px;}
         input[type=range] { width: 100%; margin: 8px 0; accent-color: #38bdf8; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 11px; table-layout: fixed; }
         td { border: 1px solid #334155; padding: 6px 2px; text-align: left; color: #38bdf8; overflow: hidden; }
