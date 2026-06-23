@@ -240,8 +240,8 @@ export function getTwoRegisterStream(r1, r2, n, cb) {
   sendBinaryBufferConsistent(buffer, cb);
 }
 
-export function getTwoRegisterQuickStream(r1, r2, interval, cb) {
-  const buffer = prepareBuffer(26, "iii", [r1, r2, interval]);
+export function getTwoRegisterQuickStream(r1, r2, r3, r4, interval, cb) {
+  const buffer = prepareBuffer(26, "iiiii", [r1, r2, r3, r4, interval]);
 
   sendBinaryBufferConsistent(buffer, cb);
 }

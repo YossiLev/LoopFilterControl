@@ -9,6 +9,10 @@ const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
 const scopeType1Select = document.getElementById("scopeType1Select");
 const scopeType2Select = document.getElementById("scopeType2Select");
+const scopeSample3Select = document.getElementById("scopeSample3Select");
+const scopeSample4Select = document.getElementById("scopeSample4Select");
+const scopeType3Select = document.getElementById("scopeType3Select");
+const scopeType4Select = document.getElementById("scopeType4Select");
 const nScanIntervalElement = document.getElementById("nScanInterval");
 
 const canvas = document.getElementById("scopeCanvas");
@@ -73,103 +77,108 @@ function toFixFormat(iregvalue, dv, offset, regType) {
   return dv.getUint32(offset, true);
 }
 
-export function presentScopeData(data) {
-  //const canvas = document.getElementById("scopeCanvas");
-  const ctx = canvas.getContext("2d");
+// export function presentScopeData(data) {
+//   //const canvas = document.getElementById("scopeCanvas");
+//   const ctx = canvas.getContext("2d");
 
-  const dv = new DataView(data);
-  // console.log(`scope length ${dv.byteLength}`);
-  const n  = (dv.byteLength - 28) / 12;
-  // console.log(`Number of samples ${n}`);
-  // for (let i = 0; i < 100; i++) {
-  //   console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
-  // }
-  const lastBatch = dv.getInt32(4, true) == 1;
+//   const dv = new DataView(data);
+//   // console.log(`scope length ${dv.byteLength}`);
+//   const n  = (dv.byteLength - 28) / 12;
+//   // console.log(`Number of samples ${n}`);
+//   // for (let i = 0; i < 100; i++) {
+//   //   console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
+//   // }
+//   const lastBatch = dv.getInt32(4, true) == 1;
 
-  ctx.fillStyle = "#cac8c8ff";
-  ctx.fillRect(0,0,800,300);
-  const reg1 = dv.getUint32(12, true);
-  const reg2 = dv.getUint32(16, true);
-  const reg1Type = scopeType1Select.value;
-  const reg2Type = scopeType2Select.value;
-  // console.log(`reg1 ${reg1} reg2 ${reg2}`);
-  // console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
+//   ctx.fillStyle = "#cac8c8ff";
+//   ctx.fillRect(0,0,800,300);
+//   const reg1 = dv.getUint32(12, true);
+//   const reg2 = dv.getUint32(16, true);
+//   const reg1Type = scopeType1Select.value;
+//   const reg2Type = scopeType2Select.value;
+//   // console.log(`reg1 ${reg1} reg2 ${reg2}`);
+//   // console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
 
-  let vecs = [[], [], []];
-  for(let i=0;i<n;i++) { 
-    // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
-    // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
-    vecs[0].push(toFixFormat(reg1, dv, 28 + i*12 + 4, reg1Type));
-    vecs[1].push(toFixFormat(reg2, dv, 28 + i*12 + 8, reg2Type));
-    //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
+//   let vecs = [[], [], []];
+//   for(let i=0;i<n;i++) { 
+//     // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
+//     // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
+//     vecs[0].push(toFixFormat(reg1, dv, 28 + i*12 + 4, reg1Type));
+//     vecs[1].push(toFixFormat(reg2, dv, 28 + i*12 + 8, reg2Type));
+//     //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
 
-    if (timerElement.checked) {
-      vecs[2][i] = dv.getInt32(28 + i*12, true);
-    } else {
-      if (scopeAddSelect.value === "sum") {
-        vecs[2].push(vecs[0][i] + vecs[1][i]);
-      } else if (scopeAddSelect.value === "diff") {
-        vecs[2].push(vecs[0][i] - vecs[1][i]);
-      }
-    }
-  }
-  function tt(d, i) {
-    return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
-  }
-  // for (let i = 0; i < n; i += 8) {
-  //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
-  // }
+//     if (timerElement.checked) {
+//       vecs[2][i] = dv.getInt32(28 + i*12, true);
+//     } else {
+//       if (scopeAddSelect.value === "sum") {
+//         vecs[2].push(vecs[0][i] + vecs[1][i]);
+//       } else if (scopeAddSelect.value === "diff") {
+//         vecs[2].push(vecs[0][i] - vecs[1][i]);
+//       }
+//     }
+//   }
+//   function tt(d, i) {
+//     return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
+//   }
+//   // for (let i = 0; i < n; i += 8) {
+//   //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
+//   // }
 
-  dataConfigs = [{
-    data: vecs[0], color: "green", width: 2
-  }, 
-  {
-    data: vecs[1], color: "blue", width: 2
-  }];
-  if (timerElement.checked || scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
-    dataConfigs.push({data: vecs[2], color: "red", width: 1});
-  }
-  drawMultiScaleChart();
+//   dataConfigs = [{
+//     data: vecs[0], color: "green", width: 2
+//   }, 
+//   {
+//     data: vecs[1], color: "blue", width: 2
+//   }];
+//   if (timerElement.checked || scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
+//     dataConfigs.push({data: vecs[2], color: "red", width: 1});
+//   }
+//   drawMultiScaleChart();
 
-  if (scopeStatus) {
-    setTimeout(getSample, 100);
-  }
+//   if (scopeStatus) {
+//     setTimeout(getSample, 100);
+//   }
 
-  return lastBatch;
-}
+//   return lastBatch;
+// }
 
 
 export function presentQuickScopeData(data) {
   const ctx = canvas.getContext("2d");
-
+  const nRegs = 4;
+  const lDescription = 12 + nRegs * 4; 
   const dv = new DataView(data);
-  const n  = (dv.byteLength - 20) / 8;
+  const n  = (dv.byteLength - lDescription) / (nRegs * 4);
+  console.log(`Quick regs length ${dv.byteLength} nsamples ${n}`);
 
   const lastBatch = dv.getInt32(4, true) == 1;
 
   ctx.fillStyle = "#cac8c8ff";
   ctx.fillRect(0,0,800,300);
-  const reg1 = dv.getUint32(12, true);
-  const reg2 = dv.getUint32(16, true);
-  const reg1Type = scopeType1Select.value;
-  const reg2Type = scopeType2Select.value;
-  console.log(`reg1 ${reg1} reg2 ${reg2}`);
+  const regs = [];
+  for (let iReg = 0; iReg < nRegs; iReg++) {
+    regs.push(dv.getUint32(12 + iReg * 4, true))
+  }
 
-  let vecs = [[], [], []];
+  const regTypes = [scopeType1Select.value, scopeType2Select.value, scopeType3Select.value, scopeType4Select.value];
+  console.log(`reg1 ${regs[0]} reg2 ${regs[1]} reg3 ${regs[2]} reg4 ${regs[3]}`);
+  const regColor = ["green", "blue", "red", "orange"];
+
+  let vecs = [[], [], [], [], []];
   for(let i=0;i<n;i++) { 
-    // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
-    // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
-    vecs[0].push(toFixFormat(reg1, dv, 20 + i*8 + 0, reg1Type));
-    vecs[1].push(toFixFormat(reg2, dv, 20 + i*8 + 4, reg2Type));
-    //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
+    for (let iReg = 0; iReg < nRegs; iReg++) {
+      if (regTypes[iReg] != "off") {
+        vecs[iReg].push(toFixFormat(regs[iReg], dv, lDescription + i * (nRegs * 4) + iReg * 4, regTypes[iReg]));
+      }
+    }
 
     // if (timerElement.checked) {
     //   vecs[2][i] = dv.getInt32(28 + i*12, true);
     // } else {
       if (scopeAddSelect.value === "sum") {
-        vecs[2].push(vecs[0][i] + vecs[1][i]);
+        vecs[4].push(vecs[0][i] + vecs[1][i]);
       } else if (scopeAddSelect.value === "diff") {
-        vecs[2].push(vecs[0][i] - vecs[1][i]);
+        vecs[4].push(vecs[0][i] - vecs[1][i]);
       }
     // }
   }
@@ -180,14 +189,15 @@ export function presentQuickScopeData(data) {
   //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
   // }
 
-  dataConfigs = [{
-    data: vecs[0], color: "green", width: 2
-  }, 
-  {
-    data: vecs[1], color: "blue", width: 2
-  }];
+  dataConfigs = [];
+  for (let iReg = 0; iReg < nRegs; iReg++) {
+    if (vecs[iReg].length > 1000) {
+      dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+    }
+  }
+
   if (scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
-    dataConfigs.push({data: vecs[2], color: "red", width: 1});
+    dataConfigs.push({data: vecs[4], color: "purple", width: 1});
   }
   drawMultiScaleChart();
 
@@ -350,22 +360,24 @@ function demoDraw() {
     drawMultiScaleChart();
 }
 
-function getSample() {
+// function getSample() {
   
-    const r1 = parseInt(scopeSample1Select.value);
-    const r2 = parseInt(scopeSample2Select.value);
-    const n  = parseInt(document.getElementById("nSamples").value);
+//     const r1 = parseInt(scopeSample1Select.value);
+//     const r2 = parseInt(scopeSample2Select.value);
+//     const n  = parseInt(document.getElementById("nSamples").value);
 
-    getTwoRegisterStream(r1, r2, n, presentScopeData);
-}
+//     getTwoRegisterStream(r1, r2, n, presentScopeData);
+// }
 
 function getQuickSample() {
   
     const r1 = parseInt(scopeSample1Select.value);
     const r2 = parseInt(scopeSample2Select.value);
+    const r3 = parseInt(scopeSample3Select.value);
+    const r4 = parseInt(scopeSample4Select.value);
     const interval = parseInt(nScanIntervalElement.value);
 
-    getTwoRegisterQuickStream(r1, r2, interval, presentQuickScopeData);
+    getTwoRegisterQuickStream(r1, r2, r3, r4, interval, presentQuickScopeData);
 }
 
 

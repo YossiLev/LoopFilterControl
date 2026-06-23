@@ -166,27 +166,19 @@ export function initRegisterUI() {
     prevDump = dump.predictor;
   };
 
-  const regFormats = ["def", "16S", "16U", "32S", "32U", "DAC"];
-  const scopeSample1Select = document.getElementById("scopeSample1Select");
-  scopeSample1Select.innerHTML = friendlyNamesSelectOrder.map(val => { 
-    if (val === "") {
-      return '<hr>';//'<option disabled>---</option>';
-    }
-    let index = Object.keys(friendlyNames).findIndex(v => v === val); return `<option value="${index}" ${index === 3 ? "selected" : ""}>${val}</option>`
-  }).join("");
-  const scopeType1Select = document.getElementById("scopeType1Select");
-  scopeType1Select.innerHTML = regFormats.map((n, i) => `<option value="${n}" ${i === 0 ? "selected" : ""}>${n}</option>`).join("");
-
-  const scopeSample2Select = document.getElementById("scopeSample2Select");
-  scopeSample2Select.innerHTML = friendlyNamesSelectOrder.map(val => { 
-    if (val === "") {
-      return '<hr>';//'<option disabled>---</option>';
-    }
-    let index = Object.keys(friendlyNames).findIndex(v => v === val); return `<option value="${index}" ${index === 11 ? "selected" : ""}>${val}</option>`
-  }).join("");
-  const scopeType2Select = document.getElementById("scopeType2Select");
-  scopeType2Select.innerHTML = regFormats.map((n, i) => `<option value="${n}" ${i === 0 ? "selected" : ""}>${n}</option>`).join("");
-
+  const regFormats = ["off", "def", "16S", "16U", "32S", "32U", "DAC"];
+  const regsInit = [3, 11, 3, 11]
+  for (let iReg = 0; iReg < 4; iReg++) {
+    const scopeSampleSelect = document.getElementById(`scopeSample${iReg + 1}Select`);
+    scopeSampleSelect.innerHTML = friendlyNamesSelectOrder.map(val => { 
+      if (val === "") {
+        return '<hr>';
+      }
+      let index = Object.keys(friendlyNames).findIndex(v => v === val); return `<option value="${index}" ${index === regsInit[iReg] ? "selected" : ""}>${val}</option>`
+    }).join("");
+    const scopeTypeSelect = document.getElementById(`scopeType${iReg + 1}Select`);
+    scopeTypeSelect.innerHTML = regFormats.map((n, i) => `<option value="${n}" ${i === (iReg < 2 ? 4 : 0)  ? "selected" : ""}>${n}</option>`).join("");
+  }
   const output2Select = document.getElementById("output2Select");
   output2Select.innerHTML = regOutput2.map((n, i) => `<option value="${i}" ${i === 1 ? "selected" : ""}>${n}</option>`).join("");      
 
