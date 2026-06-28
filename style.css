@@ -12,8 +12,9 @@ td {
 }
 
 .custom-checkbox {
-  width: 140px;
+  width: 85px;
   height: 30px;
+  display: inline-block;
   input.status-input {
     display: none;
     outline: none; 
