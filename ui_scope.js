@@ -23,6 +23,12 @@ canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 let dataConfigs = [];
 let dataConfigLastScale = [];
 
+function meanAndStd(data) {
+    const mean = data.reduce((sum, x) => sum + x, 0.0) / data.length;
+    const variance = data.reduce((sum, x) => sum + x ** 2, 0.0) / data.length - (mean ** 2);
+    return [mean, Math.sqrt(variance)];
+}
+
 function drawTextBG(ctx, txt, x, y, color = '#000', font = "8pt Courier") {
     ctx.save();
     ctx.font = font;
@@ -142,7 +148,6 @@ function toFixFormat(iregvalue, dv, offset, regType) {
 //   return lastBatch;
 // }
 
-
 export function presentQuickScopeData(data) {
   const ctx = canvas.getContext("2d");
   const nRegs = 4;
@@ -254,6 +259,7 @@ function drawMultiScaleChart() {
 
   let dataConfigLastScaleNew = [];
   dataConfigs.forEach((config, idx) => {
+    [config.mean, config.std] = meanAndStd(config.data);
     if (isScaleChase) {
       config.min = Math.min(...config.data);
       config.max = Math.max(...config.data);
