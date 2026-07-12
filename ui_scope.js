@@ -1,8 +1,10 @@
 import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream } from "./api.js";
+import { isScopeEnabled } from "./ui_control.js";
 
 
 const triggerElement = document.getElementById("trigger");
 const scaleLockElement = document.getElementById("scaleLock");
+const unifiedLockElement = document.getElementById("unifiedLock");
 const scaleChaseElement = document.getElementById("scaleChase");
 const timerElement = document.getElementById("timer");
 const scopeSample1Select = document.getElementById("scopeSample1Select");
@@ -148,13 +150,24 @@ function toFixFormat(iregvalue, dv, offset, regType) {
 //   return lastBatch;
 // }
 
+function  setRegData(iReg, vec) {
+  const chPtp = document.getElementById(`ch${iReg}Ptp`);
+  const chMean = document.getElementById(`ch${iReg}Mean`);
+  if (chPtp) {
+    chPtp.textContent = vec.length > 0 ? Math.max(...vec) - Math.min(...vec) : 0;
+  }
+  if (chMean) {
+    chMean.textContent = (vec.length > 0 ? vec.reduce((a, b) => a + b, 0) / vec.length : 0).toFixed(2);
+  }
+}
+
 export function presentQuickScopeData(data) {
   const ctx = canvas.getContext("2d");
   const nRegs = 4;
   const lDescription = 12 + nRegs * 4; 
   const dv = new DataView(data);
   const n  = (dv.byteLength - lDescription) / (nRegs * 4);
-  console.log(`Quick regs length ${dv.byteLength} nsamples ${n}`);
+  // console.log(`Quick regs length ${dv.byteLength} nsamples ${n}`);
 
   const lastBatch = dv.getInt32(4, true) == 1;
 
@@ -166,13 +179,13 @@ export function presentQuickScopeData(data) {
   }
 
   const regTypes = [scopeType1Select.value, scopeType2Select.value, scopeType3Select.value, scopeType4Select.value];
-  console.log(`reg1 ${regs[0]} reg2 ${regs[1]} reg3 ${regs[2]} reg4 ${regs[3]}`);
+  // console.log(`reg1 ${regs[0]} reg2 ${regs[1]} reg3 ${regs[2]} reg4 ${regs[3]}`);
   const regColor = ["green", "blue", "red", "orange"];
 
   let vecs = [[], [], [], [], []];
   for(let i=0;i<n;i++) { 
     for (let iReg = 0; iReg < nRegs; iReg++) {
-      if (regTypes[iReg] != "off") {
+      if (isScopeEnabled(iReg + 1)) {
         vecs[iReg].push(toFixFormat(regs[iReg], dv, lDescription + i * (nRegs * 4) + iReg * 4, regTypes[iReg]));
       }
     }
@@ -198,6 +211,7 @@ export function presentQuickScopeData(data) {
   for (let iReg = 0; iReg < nRegs; iReg++) {
     if (vecs[iReg].length > 1000) {
       dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+      setRegData(iReg + 1, vecs[iReg]);
     }
   }
 
@@ -251,11 +265,12 @@ function drawMultiScaleChart() {
   ctx.clearRect(0, 0, W, H);
   
   const isScaleLock = scaleLockElement.checked;
+  const isUnifiedLock = unifiedLockElement.checked;
   const isScaleChase = scaleChaseElement.checked;
-  if (!isScaleLock && !isScaleChase) {
+  if (!isScaleLock && !isScaleChase && !isUnifiedLock) {
     dataConfigLastScale = [];
   }
-  console.log(`scales lock ${isScaleLock}, chase ${isScaleChase} len ${dataConfigLastScale.length}`);
+  // console.log(`scales lock ${isScaleLock}, chase ${isScaleChase}, unified ${isUnifiedLock} len ${dataConfigLastScale.length}`);
 
   let dataConfigLastScaleNew = [];
   dataConfigs.forEach((config, idx) => {
@@ -271,7 +286,7 @@ function drawMultiScaleChart() {
           config.max = dataConfigLastScale[idx].max
         }
       }
-    } else if (isScaleLock) {
+    } else if (isScaleLock || isUnifiedLock) {
       config.min = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].min : Math.min(...config.data);
       config.max = dataConfigLastScale.length > idx ? dataConfigLastScale[idx].max : Math.max(...config.data);
     } else {
@@ -280,6 +295,14 @@ function drawMultiScaleChart() {
     }
     dataConfigLastScaleNew.push({min: config.min, max: config.max});
   });
+  if (isUnifiedLock) {
+    const unifiedMin = Math.min(...dataConfigLastScaleNew.map(c => c.min));
+    const unifiedMax = Math.max(...dataConfigLastScaleNew.map(c => c.max));
+    dataConfigLastScaleNew.forEach((c, idx) => {
+      c.min = unifiedMin;
+      c.max = unifiedMax;
+    });
+  }
   dataConfigLastScale = [...dataConfigLastScaleNew];
    
   // dataConfigs.forEach((config, idx) => {

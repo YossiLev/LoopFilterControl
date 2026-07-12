@@ -272,7 +272,7 @@ export const regType = {
  'o_q3_q7': "S",
  'o_config': "X",
  'o_y_reference': "SI",
- 'o_i0': "",
+ 'o_i0': "SI",
  'o_z_n': "O SI",
  'o_count': "O",
  'o_y_n_3': "O SI",

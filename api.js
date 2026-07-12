@@ -129,8 +129,8 @@ function getIntAndShift(_float) {
   //  >   integer value has to be limited as well
   //  >   Small values fix - do not shift too much to 
   //      arrive at low gain precision
-  while (Math.abs(1. - precision) > 0.05 && _shift < 17 &&  Math.abs(_i) < 0x7fff &&
-          (Math.abs(_i) > 2 || _shift < 8)) {
+  while (Math.abs(1. - precision) > 0.05 && _shift < 25 &&  Math.abs(_i) < 0x7fff &&
+          (Math.abs(_i) > 2 || _shift < 25)) {
       _f     = _f * 2.0;
       _shift = _shift + 1;
       _i     = Math.floor(_f);         // integer part
@@ -143,35 +143,51 @@ function getIntAndShift(_float) {
 
 export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
   // Command 0x03 = set predictor alpha
-  const i_gain = 2 * Math.PI * pi_corner_hz * p_gain;
-  let averagingTimeCycles = Math.ceil(averagingTimeNs / 20);
 
+  const i_gain = 2 * Math.PI * pi_corner_hz * p_gain * 20e-9; // 1e-9 is to convert from Hz to ns
+  let averagingTimeCycles = Math.ceil(averagingTimeNs / 20);
+  // #
+  // # Now consider averaging.
+  // # Since averaging is achieved by summation, the input signal is essentially amplified by it.
+  // #
+  let log2_cycles = Math.ceil(Math.log2(averagingTimeCycles));
+
+  console.log(`===========\nAveraging time ${averagingTimeNs} ns, cycles ${averagingTimeCycles}, log2 ${log2_cycles}`);
+
+  console.log(`Gains GAIN ${p_gain} I_GAIN ${i_gain} I2_GAIN ${i2_gain}`);
   let [p_gain_int, int_p_shift] = getIntAndShift(p_gain);
   let [i_gain_int, int_i_shift] = getIntAndShift(i_gain);
   let [i2_gain_int, int_i2_shift] = getIntAndShift(i2_gain);
+  console.log(`original gains: GAIN ${p_gain_int}(${int_p_shift}) I_GAIN ${i_gain_int}(${int_i_shift}) I2_GAIN${i2_gain_int}(${int_i2_shift})`); 
+
 
   let output_shift = int_p_shift               
   let i0_shift     = int_i_shift  - int_p_shift
   let i2_shift     = int_i2_shift - int_p_shift 
+  console.log(`Fixed gains: GAIN ${p_gain_int}(${output_shift}) I_GAIN ${i_gain_int}(${i0_shift}) I2_GAIN${i2_gain_int}(${i2_shift})`); 
+
   if (i0_shift < 0) {
       i0_shift = 0;
   }
   if (i2_shift < 0) {
       i2_shift = 0;
   }
-  // #
-  // # Now consider averaging.
-  // # Since averaging is achieved by summation, the input signal is essentially amplified by it.
-  // #
-  let log2_cycles = Math.ceil(Math.log2(averagingTimeCycles));
-  console.log(`Averaging time ${averagingTimeNs} ns, cycles ${averagingTimeCycles}, log2 ${log2_cycles}`);
+  console.log(`Fixed2 gains: GAIN ${p_gain_int}(${output_shift}) I_GAIN ${i_gain_int}(${i0_shift}) I2_GAIN${i2_gain_int}(${i2_shift})`); 
 
   output_shift+= log2_cycles;
   i0_shift    += log2_cycles;
   i2_shift    += log2_cycles;
+  console.log(`Cycles gains: GAIN ${p_gain_int}(${output_shift}) I_GAIN ${i_gain_int}(${i0_shift}) I2_GAIN${i2_gain_int}(${i2_shift}) after log2_cycles ${log2_cycles}`); 
 
-  console.log(`Gains ${p_gain} ${i_gain} ${i2_gain}`);
+
+  console.log(`Gains GAIN ${p_gain} I_GAIN ${i_gain} I2_GAIN ${i2_gain}`);
   console.log(`converted to int ${p_gain_int}(${output_shift}) ${i_gain_int}(${i0_shift}) ${i2_gain_int}(${i2_shift})`); 
+
+  let computed_p_gain = (p_gain_int + 0.0) / (1 << output_shift);
+  let computed_i_gain = (i_gain_int + 0.0) / (1 << (i0_shift + output_shift));
+  let computed_i2_gain = (i2_gain_int + 0.0) / (1 << (i2_shift + output_shift));
+  console.log(`Computed  Gains: GAIN ${computed_p_gain} I_GAIN ${computed_i_gain} I2_GAIN ${computed_i2_gain}`);
+  console.log(`Requasted Gains: GAIN ${p_gain} I_GAIN ${i_gain} I2_GAIN ${i2_gain}`);
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 

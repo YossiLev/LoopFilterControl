@@ -57,4 +57,4 @@ option { padding: 8px; color:#020617}
 option:hover { background: #e0e0e0; }
 .zoomedFrame { transform: translate(440px, -90px) scale(0.25); margin-top:-42px; margin-left: 10px; height: 160px; position: fixed;}
 .zoomedFrame #zBut { transform: translate(69px, -98px) scale(4.0);}
-.chData { display: inline-block; width: 120px; background-color: whitesmoke; margin: 0 5px; border: px solid black; text-align: right; }
+.chData { display: inline-block; width: 80px; background-color: whitesmoke; margin: 0 5px; border: px solid black; text-align: right; }

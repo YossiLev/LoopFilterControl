@@ -2,6 +2,27 @@ import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInp
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
 import { setScopeOn, setScopeOff} from "./ui_scope.js";
 
+function changeScopeState(scopeNum) {
+  const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
+  const scopeState = document.getElementById(`scope${scopeNum}State`);
+  if (scopeSelect.disabled) {
+    scopeSelect.disabled = false;
+    scopeState.innerHTML = "&#9632;"; // filled square
+  } else {
+    scopeSelect.disabled = true;
+    scopeState.innerHTML = "&#9633;"; // empty square
+  }
+}
+
+document.getElementById("scope1State").onclick = () => changeScopeState(1);
+document.getElementById("scope2State").onclick = () => changeScopeState(2);
+document.getElementById("scope3State").onclick = () => changeScopeState(3);
+document.getElementById("scope4State").onclick = () => changeScopeState(4);
+
+export function isScopeEnabled(scopeNum) {
+  const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
+  return !scopeSelect.disabled;
+}
 
 function setChangeHandlers(handler, ...controls) {
   controls.forEach(c => {
@@ -24,6 +45,7 @@ const scopeSample1Select = document.getElementById("scopeSample1Select");
 const scopeSample2Select = document.getElementById("scopeSample2Select");
 const scopeType1Select = document.getElementById("scopeType1Select");
 const scopeType2Select = document.getElementById("scopeType2Select");
+
 
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");

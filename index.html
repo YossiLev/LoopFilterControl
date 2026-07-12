@@ -48,7 +48,8 @@
         <div class="card">
             <div class="controls">
                 <div>
-                    <label for="scopeSample1Select" style="color:green !important;">Scope 1</label>
+                    <label for="scopeSample1Select" style="color:green !important;">
+                        Scope 1<span id="scope1State" style="font-size: 32px; line-height: 12px;;">&#9632;</span></label>
                     <select id="scopeSample1Select" style="width: 260px;"></select>
                 </div>
                 <div>
@@ -56,7 +57,8 @@
                     <select id="scopeType1Select" style="width: 70px;"></select>
                 </div>
                 <div>
-                    <label for="scopeSample2Select" style="color:blue !important;">Scope 2</label>
+                    <label for="scopeSample2Select" style="color:blue !important;">
+                        Scope 2<span id="scope2State" style="font-size: 32px; line-height: 12px;;">&#9632;</span></label>
                     <select id="scopeSample2Select" style="width: 260px;"></select>
                 </div>
                 <div>
@@ -80,32 +82,18 @@
                     <input type="number" id="nScanInterval" value="1" min="1" max="100" step="1" style="width:80px">
                 </div>
                 <div>
-                    <label for="trigger" style="color:rgb(48, 47, 47) !important;">Trigger</label>
-                    <input type="checkbox" id="trigger">
-                </div>
-                <div>
-                    <label for="scaleLock" style="color:rgb(48, 47, 47) !important;">SLock</label>
-                    <input type="checkbox" id="scaleLock">
-                </div>
-                <div>
-                    <label for="scaleChase" style="color:rgb(48, 47, 47) !important;">Chase</label>
-                    <input type="checkbox" id="scaleChase">
-                </div>
-                <div style="display:none;">
-                    <label for="timer" style="color:rgb(48, 47, 47) !important;">Timer</label>
-                    <input type="checkbox" id="timer">
-                </div>
-                <div>
-                    <label for="scopeSample3Select" style="color:red !important;">Scope 3</label>
-                    <select id="scopeSample3Select" style="width: 260px;"></select>
+                    <label for="scopeSample3Select" style="color:red !important;">
+                        Scope 3<span id="scope3State" style="font-size: 32px; line-height: 12px;;">&#9633;</span></label>
+                    <select id="scopeSample3Select" style="width: 260px; " disabled></select>
                 </div>
                 <div>
                     <label for="scopeType3Select" style="color:red !important;">type</label>
                     <select id="scopeType3Select" style="width: 70px;"></select>
                 </div>
                 <div>
-                    <label for="scopeSample4Select" style="color:orange !important;">Scope 4</label>
-                    <select id="scopeSample4Select" style="width: 260px;"></select>
+                    <label for="scopeSample4Select" style="color:orange !important;">
+                        Scope 4<span id="scope4State" style="font-size: 32px; line-height: 12px;;">&#9633;</span></label>
+                    <select id="scopeSample4Select" style="width: 260px;" disabled></select>
                 </div>
                 <div>
                     <label for="scopeType4Select" style="color:orange !important;">type</label>
@@ -115,6 +103,26 @@
                     <input id="scope" class="status-input" type="checkbox" name="scope" tabindex="-1">
                     <label for="scope"><div class="status-switch" data-unchecked="Off" data-checked="On"></div></label> 
                 </div>               
+                <div>
+                    <label for="trigger" style="color:rgb(48, 47, 47) !important;">Trigger</label>
+                    <input type="checkbox" id="trigger">
+                </div>
+                <div>
+                    <label for="scaleLock" style="color:rgb(48, 47, 47) !important;">SLock</label>
+                    <input type="checkbox" id="scaleLock">
+                </div>
+                <div>
+                    <label for="unifiedLock" style="color:rgb(48, 47, 47) !important;">ULock</label>
+                    <input type="checkbox" id="unifiedLock">
+                </div>
+                <div>
+                    <label for="scaleChase" style="color:rgb(48, 47, 47) !important;">Chase</label>
+                    <input type="checkbox" id="scaleChase">
+                </div>
+                <div style="display:none;">
+                    <label for="timer" style="color:rgb(48, 47, 47) !important;">Timer</label>
+                    <input type="checkbox" id="timer">
+                </div>
             </div>
             <div style="margin-top: 20px;">
                 <canvas id="scopeCanvas" width="1158" height="300" 
@@ -122,17 +130,15 @@
                 ></canvas>
             </div>
             <div>
-                <div id="ch1Diff" class="chData">0</div>
-                <div id="ch1Diff10" class="chData">0</div>
-                <div id="ch1Diff100" class="chData">0</div>
-                <div id="ch2Diff100" class="chData">0</div>
-                <div id="ch2Diff10" class="chData">0</div>
-                <div id="ch2Diff" class="chData">0</div>
+                <div id="ch1Ptp" class="chData">0</div><div id="ch1Mean" class="chData">0</div>
+                <div id="ch2Ptp" class="chData">0</div><div id="ch2Mean" class="chData">0</div>
+                <div id="ch3Ptp" class="chData">0</div><div id="ch3Mean" class="chData">0</div>
+                <div id="ch4Ptp" class="chData">0</div><div id="ch4Mean" class="chData">0</div>
             </div>
         </div>
         <div class="card">
             <div class="controls" style="display:inline-flex">
-                <div><label for="paramOrder">Order</label><input type="number" id="paramOrder" value="2" min="2" step="1"></div>
+                <div><label for="paramOrder">Order</label><input type="number" id="paramOrder" value="2" min="1" step="1"></div>
                 <div><label for="paramAlpha">&alpha; (0-5)</label><input type="number" id="paramAlpha" value="0.0" min="0" step="0.5"></div>
                 <div><label for="paramPGain">P Gain</label><input type="number" id="paramPGain" value="1.0" min="-100.0" step="0.25" style="width: 100px;"></div>
                 <div><label for="paramPiCorner">PI corner (KHz)</label><input type="number" id="paramPiCorner" value="0.0" min="0.0" step="0.0000001" style="width: 120px;"></div>
