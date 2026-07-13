@@ -14,10 +14,26 @@ function changeScopeState(scopeNum) {
   }
 }
 
+export function isScopeSignPositive(scopeNum) {
+  const scopeSign = document.getElementById(`scope${scopeNum}Sign`);
+  return scopeSign.innerHTML === "+";
+}
+function changeScopeSign(scopeNum) {
+  const scopeSign = document.getElementById(`scope${scopeNum}Sign`);
+  if (scopeSign.innerHTML === "+") {
+    scopeSign.innerHTML = "-";
+  } else {
+    scopeSign.innerHTML = "+";
+  }
+}
 document.getElementById("scope1State").onclick = () => changeScopeState(1);
 document.getElementById("scope2State").onclick = () => changeScopeState(2);
 document.getElementById("scope3State").onclick = () => changeScopeState(3);
 document.getElementById("scope4State").onclick = () => changeScopeState(4);
+document.getElementById("scope1Sign").onclick = () => changeScopeSign(1);
+document.getElementById("scope2Sign").onclick = () => changeScopeSign(2);
+document.getElementById("scope3Sign").onclick = () => changeScopeSign(3);
+document.getElementById("scope4Sign").onclick = () => changeScopeSign(4);
 
 export function isScopeEnabled(scopeNum) {
   const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);

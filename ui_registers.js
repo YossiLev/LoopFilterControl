@@ -47,6 +47,49 @@ function displayDiff([key, value]) {
   return "";
 }
 
+function fixSigned16(b16) {
+  b16 == b16 & 0xfff;
+  if (b16 > 32767) {
+    b16 = b16 - 65536;
+  }
+  return b16;
+}
+function displayPidParameters(predictor) {
+  let output = "";
+  let config = predictor["o_config"];
+
+
+  let coeffs = [];
+  let o_q0_q4 = predictor["o_q0_q4"];
+  let o_q1_q5 = predictor["o_q1_q5"];
+  let o_q2_q6 = predictor["o_q2_q6"];
+  let o_q3_q7 = predictor["o_q3_q7"]; 
+  coeffs.push(fixSigned16(o_q0_q4));
+  coeffs.push(fixSigned16(o_q1_q5));
+  coeffs.push(fixSigned16(o_q2_q6));
+  coeffs.push(fixSigned16(o_q3_q7));
+  coeffs.push(fixSigned16(o_q0_q4 >> 16));
+  coeffs.push(fixSigned16(o_q1_q5 >> 16));
+
+  let outputShift = (config >> 16) & 0x3f;
+  output += `<div style="color: black;">coeffs: ${coeffs.join(", ")}</div>`;
+  output += `<div>output_shift: ${(config >> 16) & 0x3f}</div>`;
+  for (let i = 0; i < coeffs.length; i++) {
+    coeffs[i] = coeffs[i] / (1 << outputShift);
+  }
+  output += `<div style="color: black;">coeffs: ${coeffs.join(", ")}</div>`;
+
+  let o_i0 = predictor["o_i0"];
+  let o_2nd_config = predictor["o_2nd_config"];
+  if (o_i0 > 2147483647) {
+    o_i0 = o_i0 - 4294967296;
+  }
+  let i0_shift = o_2nd_config >> 16;
+  output += `<div style="color: black;">Intergrator: ${o_i0} (${i0_shift} + ${outputShift}) =  ${o_i0 / (1 << (outputShift + i0_shift))}</div>`;
+
+  return output;
+}
+
 function displayConfiguration(config) {
   let output = "";
 
@@ -137,12 +180,15 @@ function displayDitherConfiguration(config) {
 function displayAnalysis(predictor) {
   let output = "";
 
-  
+  output += `<div style="color: black;"><div><b>PID analysis</b></div>`;
+  output += displayPidParameters(predictor);
+  output += `</div></br>`
+
   let config = predictor["o_config"];
 
   output += `<div style="color: black;"><div><b>Configuration analysis:${config.toString(16)}</b></div>`;
   output += displayConfiguration(config);
-  output += `</div>`;
+  output += `</div></br>`;
 
   let dither3 = predictor["o_dither_config_3"];
   output += `<div style="color: black;"><div><b>Dither 3 Configuration analysis:${dither3.toString(16)}</b></div>`;

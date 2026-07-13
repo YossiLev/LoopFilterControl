@@ -1,5 +1,5 @@
 import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream } from "./api.js";
-import { isScopeEnabled } from "./ui_control.js";
+import { isScopeEnabled, isScopeSignPositive } from "./ui_control.js";
 
 
 const triggerElement = document.getElementById("trigger");
@@ -210,7 +210,12 @@ export function presentQuickScopeData(data) {
   dataConfigs = [];
   for (let iReg = 0; iReg < nRegs; iReg++) {
     if (vecs[iReg].length > 1000) {
-      dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+      if (isScopeSignPositive(iReg + 1)) {
+        dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+      } else {
+        const invertedVec = vecs[iReg].map(v => -v);
+        dataConfigs.push({data: invertedVec, color: regColor[iReg], width: 1});
+      }
       setRegData(iReg + 1, vecs[iReg]);
     }
   }
