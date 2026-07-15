@@ -1,7 +1,6 @@
 import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream } from "./api.js";
 import { isScopeEnabled, isScopeSignPositive } from "./ui_control.js";
 
-
 const triggerElement = document.getElementById("trigger");
 const scaleLockElement = document.getElementById("scaleLock");
 const unifiedLockElement = document.getElementById("unifiedLock");
@@ -24,6 +23,17 @@ canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 
 let dataConfigs = [];
 let dataConfigLastScale = [];
+
+function evalExpr(expr, values) {
+    const vars = "abcdefghijklmnopqrstuvwxyz".split("");
+
+    const scope = {};
+    for (let i = 0; i < values.length && i < vars.length; i++)
+        scope[vars[i]] = values[i];
+
+    return Function(...Object.keys(scope), `return ${expr};`)
+           (...Object.values(scope));
+}
 
 function meanAndStd(data) {
     const mean = data.reduce((sum, x) => sum + x, 0.0) / data.length;

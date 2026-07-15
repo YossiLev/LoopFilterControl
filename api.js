@@ -167,9 +167,11 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
   console.log(`Fixed gains: GAIN ${p_gain_int}(${output_shift}) I_GAIN ${i_gain_int}(${i0_shift}) I2_GAIN${i2_gain_int}(${i2_shift})`); 
 
   if (i0_shift < 0) {
+      i_gain_int = i_gain_int << (-i0_shift);
       i0_shift = 0;
   }
   if (i2_shift < 0) {
+      i2_gain_int = i2_gain_int << (-i2_shift);
       i2_shift = 0;
   }
   console.log(`Fixed2 gains: GAIN ${p_gain_int}(${output_shift}) I_GAIN ${i_gain_int}(${i0_shift}) I2_GAIN${i2_gain_int}(${i2_shift})`); 
