@@ -23,6 +23,8 @@ canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 
 let dataConfigs = [];
 let dataConfigLastScale = [];
+let triggerValue = 0;
+let triggerIndex = -1;
 
 function evalExpr(expr, values) {
     const vars = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -282,6 +284,7 @@ function drawMultiScaleChart() {
   const isScaleLock = scaleLockElement.checked;
   const isUnifiedLock = unifiedLockElement.checked;
   const isScaleChase = scaleChaseElement.checked;
+  const isTrigger = triggerElement.checked;
   if (!isScaleLock && !isScaleChase && !isUnifiedLock) {
     dataConfigLastScale = [];
   }
@@ -324,8 +327,21 @@ function drawMultiScaleChart() {
   //     config.min = Math.min(...config.data);
   //     config.max = Math.max(...config.data);
   // });
-  const trigger = (dataConfigs[0].max + dataConfigs[0].min) / 2;
-  const pTrigger = triggerElement.checked ? Math.max(dataConfigs[0].data.findIndex((v, i, a) => i > 0 &&v > trigger && a[i - 1] < trigger), 0): 0;
+  if (isTrigger) {
+    triggerIndex = 0;
+  } else {
+    triggerIndex = -1;
+  }
+  let pTrigger = 0;
+  if (triggerIndex >= 0 && triggerIndex < dataConfigs.length) {
+    if (triggerValue > dataConfigs[triggerIndex].min && triggerValue < dataConfigs[triggerIndex].max) {
+      pTrigger = Math.max(dataConfigs[triggerIndex].data.findIndex((v, i, a) => i > 0 &&v > triggerValue && a[i - 1] < triggerValue), 0);
+    } else {
+      triggerValue = 0.5 * (dataConfigs[triggerIndex].min + dataConfigs[triggerIndex].max);
+      pTrigger = Math.max(dataConfigs[triggerIndex].data.findIndex((v, i, a) => i > 0 &&v > triggerValue && a[i - 1] < triggerValue), 0);
+    }
+
+  }
 
   const gridSteps = 6;
 
@@ -369,6 +385,32 @@ function drawMultiScaleChart() {
     });
     ctx.stroke();
   });
+
+  // 4. Draw Trigger Line and 
+  if (triggerIndex >= 0 && triggerIndex < dataConfigs.length) {
+    if (triggerValue > dataConfigs[triggerIndex].min && triggerValue < dataConfigs[triggerIndex].max) {
+      const normalizedY = (triggerValue - dataConfigs[triggerIndex].min) / (dataConfigs[triggerIndex].max - dataConfigs[triggerIndex].min);
+      const y = (H - paddingY) - normalizedY * (H - 2 * paddingY);
+
+      ctx.strokeStyle = dataConfigs[triggerIndex].color;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(W - padding, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = dataConfigs[triggerIndex].color;
+      ctx.strokeStyle = dataConfigs[triggerIndex].color;
+      ctx.beginPath();
+      ctx.moveTo(10, y);
+      ctx.lineTo(0, y - 5);
+      ctx.lineTo(0, y + 5);
+      ctx.lineTo(10, y);
+      ctx.fill();
+    }
+
+  }
+
   if (mouseInsideCanvas) {
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
@@ -377,7 +419,7 @@ function drawMultiScaleChart() {
       ctx.fillStyle = config.color;
 
       let coordinate = (lastMousePosition.x - padding) * (config.data.length - 1) / (W - 2.0 * padding);
-      coordinate = Math.round(coordinate);
+      coordinate = Math.round(coordinate) + pTrigger;
       ctx.fillText(`Sample ${coordinate} of ${config.data.length}`, W / 2, 25);
       if (coordinate >= 0 && coordinate < config.data.length) {
         let val = config.data[coordinate];
