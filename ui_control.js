@@ -175,6 +175,7 @@ export function initControlUI() {
     console.log(`Gains change to ${pGain} ${piCorner} ${int2Gain} ${avgTimer}`);
     const rc = await setGains(pGain, piCorner, int2Gain, avgTimer);
     console.log(`Gains set rc = ${rc}`);
+    handleDitherSelect();
   }
   setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
 
