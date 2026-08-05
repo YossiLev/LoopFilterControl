@@ -180,12 +180,14 @@ export function initControlUI() {
   setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
 
   async function handleInputSelect(ev) {
-    const value = parseInt(ev.target.value);
-    console.log(`Input select change to ${value}`);
-    const rc = await setInputSelect(value);
+    const valueInput = parseInt(document.getElementById("inputSelect").value);
+    const valueFunction = parseInt(document.getElementById("inputFunctionSelect").value);
+
+    console.log(`Input select change to ${valueInput}, Function: ${valueFunction}`);
+    const rc = await setInputSelect(valueInput, valueFunction);
     console.log(`Input select set rc = ${rc}`);
   }
-  setChangeHandlers(handleInputSelect, "inputSelect");
+  setChangeHandlers(handleInputSelect, "inputSelect", "inputFunctionSelect");
 
   async function handleInt2IsOnSelect(ev) {
     const value = parseInt(ev.target.value);
