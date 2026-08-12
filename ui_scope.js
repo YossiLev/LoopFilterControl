@@ -20,6 +20,8 @@ const canvas = document.getElementById("scopeCanvas");
 canvas.addEventListener("mousemove", handleCanvasMouseMove);
 canvas.addEventListener("mouseenter", handleCanvasMouseEnter);
 canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
+canvas.addEventListener("mousedown", handleCanvasMouseDown);
+canvas.addEventListener("mouseup", handleCanvasMouseUp);
 
 let dataConfigs = [];
 let dataConfigLastScale = [];
@@ -246,8 +248,28 @@ export function presentQuickScopeData(data) {
 
 let mouseInsideCanvas = false;
 let lastMousePosition = {x: 0, y: 0};
+let isMouseDown = false;
+let mouseDownPosition = {x: 0, y: 0};
+
 export function handleCanvasMouseMove(event) {
-  //const canvas = document.getElementById("scopeCanvas");
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  lastMousePosition = {x, y};
+  drawMultiScaleChart();
+}
+
+export function handleCanvasMouseDown(event) {
+  isMouseDown = true;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  lastMousePosition = {x, y};
+  mouseDownPosition = {x, y};
+}
+
+export function handleCanvasMouseUp(event) {
+  isMouseDown = false;
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
@@ -265,6 +287,8 @@ export function handleCanvasMouseEnter(event) {
 }
 
 export function handleCanvasMouseLeave(event) {
+  isMouseDown = false;
+  drawMultiScaleChart();
   mouseInsideCanvas = false;
 }
 /**
@@ -435,7 +459,20 @@ function drawMultiScaleChart() {
         ctx.fill();
       }
     });
+    if (isMouseDown) {
+      ctx.fillStyle = "#000000bb";
+      const wPixels = lastMousePosition.x - mouseDownPosition.x;
+      ctx.fillRect(mouseDownPosition.x, 0, wPixels, canvas.height);
+      ctx.fillStyle = "#ffc400ff";
+      const center = mouseDownPosition.x + 10;
+      ctx.fillText(`width ${wPixels} pixels`, center, 25);
+      const interval = parseInt(nScanIntervalElement.value);
+      ctx.fillText(`time ${wPixels * interval} ns`, center, 45);
+    }
+
   }
+
+  
 }
 function demoDraw() {
     //const canvas = document.getElementById("scopeCanvas");
