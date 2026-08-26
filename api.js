@@ -93,9 +93,9 @@ export async function setInputOffset(offset) {
   return await sendParameters(11, "i", [offset]);
 }
 
-export async function setInputSelect(inputOption, inputSquare) {
+export async function setInputSelect(inputOption, inputSpecial) {
   // Command 0x0a = set input select
-  return await sendParameters(10, "ii", [inputOption, inputSquare]);  
+  return await sendParameters(10, "ii", [inputOption, inputSpecial]);  
 }
 
 export async function setInt2IsOnSelect(i2Enabled, i2DisabledValue) {

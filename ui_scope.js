@@ -1,5 +1,6 @@
 import { getTwoRegisterSamples, getTwoRegisterStream, getTwoRegisterQuickStream } from "./api.js";
-import { isScopeEnabled, isScopeSignPositive } from "./ui_control.js";
+import { isScopeEnabled, isScopeSignPositive, isScopeDomainTime, isScopeAbsEnabled } from "./ui_control.js";
+import {simpleRealFFT} from "./fourier.js";
 
 const triggerElement = document.getElementById("trigger");
 const scaleLockElement = document.getElementById("scaleLock");
@@ -224,11 +225,19 @@ export function presentQuickScopeData(data) {
   dataConfigs = [];
   for (let iReg = 0; iReg < nRegs; iReg++) {
     if (vecs[iReg].length > 1000) {
-      if (isScopeSignPositive(iReg + 1)) {
-        dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+      if (isScopeDomainTime(iReg + 1)) {
+        if (isScopeAbsEnabled(iReg + 1)) {
+           dataConfigs.push({data: vecs[iReg].map(v => v < 0 ? -v : v), color: regColor[iReg], width: 1});
+        } else if (isScopeSignPositive(iReg + 1)) {
+          dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+        } else {
+          const invertedVec = vecs[iReg].map(v => -v);
+          dataConfigs.push({data: invertedVec, color: regColor[iReg], width: 1});
+        }
       } else {
-        const invertedVec = vecs[iReg].map(v => -v);
-        dataConfigs.push({data: invertedVec, color: regColor[iReg], width: 1});
+          const fftVec = simpleRealFFT(vecs[iReg]);
+          fftVec[512] = 0; // Remove DC component
+          dataConfigs.push({data: fftVec.map(v => Math.log10(v+1)), color: regColor[iReg], width: 1});
       }
       setRegData(iReg + 1, vecs[iReg]);
     }
@@ -467,7 +476,13 @@ function drawMultiScaleChart() {
       const center = mouseDownPosition.x + 10;
       ctx.fillText(`width ${wPixels} pixels`, center, 25);
       const interval = parseInt(nScanIntervalElement.value);
-      ctx.fillText(`time ${wPixels * interval} ns`, center, 45);
+      const time = wPixels * interval * 10;
+      ctx.fillText(`time ${time} ns`, center, 45);
+      let frequency = 1e9 / time;
+      const units = frequency < 1e3 ? "Hz" : frequency < 1e6 ? "kHz" : "MHz"; 
+      if (frequency >= 1e3) frequency /= 1e3;
+      if (frequency >= 1e3) frequency /= 1e3;
+      ctx.fillText(`frequency ${frequency.toFixed(2)} ${units}`, center, 65);
     }
 
   }

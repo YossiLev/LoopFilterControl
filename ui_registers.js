@@ -111,13 +111,13 @@ function displayConfiguration(config) {
   //                                              :   5   ;    // # of bits in high precision PWM DAC shaper
   //                                                           // (essentially, the fractional # of bits to consider)
   output += `<div>output_precision_size: ${(config >> 4) & 0x1f}</div>`;
-  // t* Bit [    9] *t unsigned int  input_square (prev adc_align_enable)
+  // t* Bit [    9] *t unsigned int  input_special (prev adc_align_enable)
   //                                              :   1   ;    // "1"   ==> (prev) input is taken from aligned ADC logic
   //                                                           // "0"   ==> (perv) input is taken straight from module input (the previous default).
-  //                                              :   1   ;    // "1"   ==> input is squared (x^2) before being sent to predictor.
+  //                                              :   1   ;    // "1"   ==> input is manipulated before being sent to predictor.
   //                                                           // "0"   ==> input is taken as is.
   //output += `<div>adc_align_enable: ${config & 512 ? "Aligned" : "Straight"}</div>`;
-  output += `<div>input_square: ${config & 512 ? "x^2" : "x"}</div>`;
+  output += `<div>input_special: ${config & 512 ? "Abs" : "Normal"}</div>`;
   // t* Bit [   10] *t unsigned int  do_delay     :   1   ;    // "1"   ==> do delay after predictor finished calculating its output.
   //                                                           //           the actual delay is delay_count*2 cycles of 200MHz.
   //                                                           //           See below the definition of the register.

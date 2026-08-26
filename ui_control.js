@@ -18,12 +18,36 @@ export function isScopeSignPositive(scopeNum) {
   const scopeSign = document.getElementById(`scope${scopeNum}Sign`);
   return scopeSign.innerHTML === "+";
 }
+export function isScopeDomainTime(scopeNum) {
+  const scopeDomain = document.getElementById(`scope${scopeNum}Domain`);
+  return scopeDomain.innerHTML === "T";
+}
+export function isScopeAbsEnabled(scopeNum) {
+  const scopeAbs = document.getElementById(`scope${scopeNum}Abs`);
+  return scopeAbs.innerHTML === "|X|";
+}
 function changeScopeSign(scopeNum) {
   const scopeSign = document.getElementById(`scope${scopeNum}Sign`);
   if (scopeSign.innerHTML === "+") {
     scopeSign.innerHTML = "-";
   } else {
     scopeSign.innerHTML = "+";
+  }
+}
+function changeScopeDomain(scopeNum) {
+  const scopeDomain = document.getElementById(`scope${scopeNum}Domain`);
+  if (scopeDomain.innerHTML === "T") {
+    scopeDomain.innerHTML = "F";
+  } else {
+    scopeDomain.innerHTML = "T";
+  }
+}
+function changeScopeToggleAbs(scopeNum) {
+  const scopeAbs = document.getElementById(`scope${scopeNum}Abs`);
+  if (scopeAbs.innerHTML === "X") {
+    scopeAbs.innerHTML = "|X|";
+  } else {
+    scopeAbs.innerHTML = "X";
   }
 }
 document.getElementById("scope1State").onclick = () => changeScopeState(1);
@@ -34,6 +58,14 @@ document.getElementById("scope1Sign").onclick = () => changeScopeSign(1);
 document.getElementById("scope2Sign").onclick = () => changeScopeSign(2);
 document.getElementById("scope3Sign").onclick = () => changeScopeSign(3);
 document.getElementById("scope4Sign").onclick = () => changeScopeSign(4);
+document.getElementById("scope1Domain").onclick = () => changeScopeDomain(1);
+document.getElementById("scope2Domain").onclick = () => changeScopeDomain(2);
+document.getElementById("scope3Domain").onclick = () => changeScopeDomain(3);
+document.getElementById("scope4Domain").onclick = () => changeScopeDomain(4);
+document.getElementById("scope1Abs").onclick = () => changeScopeToggleAbs(1);
+document.getElementById("scope2Abs").onclick = () => changeScopeToggleAbs(2);
+document.getElementById("scope3Abs").onclick = () => changeScopeToggleAbs(3);
+document.getElementById("scope4Abs").onclick = () => changeScopeAbs(4);
 
 export function isScopeEnabled(scopeNum) {
   const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
@@ -104,14 +136,21 @@ export function initControlUI() {
     status.textContent = `CONNECTED - PREDICTOR ${ev.target.checked ? "ON": "OFF"}`;
   }
 
-  document.getElementById("scan").onchange = async ev => {
-    if (ev.target.checked) {
-        //await setScanOn(offset, frequency, amplitude, scanType)
-        await setScanOn(0, 10, 8192, 1);
+  async function handleScan(ev) {
+    const scanState = document.getElementById("scan").checked;
+    if (scanState) {
+        const frequency = parseInt(document.getElementById("paramScanFrequency").value);
+        const amplitude = parseInt(document.getElementById("paramScanAmplitude").value);
+        const offset = parseInt(document.getElementById("paramScanOffset").value);
+        const scanType = parseInt(document.getElementById("paramScanType").value);
+        console.log(`Scan on: offset ${offset}, frequency ${frequency}, amplitude ${amplitude}, scanType ${scanType}`);
+        await setScanOn(offset, frequency, amplitude, scanType)
     } else {
         await setScanOff();
     }
   }
+  setChangeHandlers(handleScan, "scan", "paramScanFrequency", "paramScanAmplitude", "paramScanOffset", "paramScanType");
+
 
   document.getElementById("scope").onchange = async ev => {
     if (ev.target.checked) {
@@ -160,7 +199,7 @@ export function initControlUI() {
 
   async function handleAlpha(ev) {
     const alpha = parseFloat(ev.target.value);
-    if (alpha >= 0.999999 && alpha < 5.0) {
+    if (alpha >= 0.0 && alpha < 5.0) {
       const rc = await setPredictorAlpha(alpha);
       console.log(`alpha set rc = ${rc}`);
     }
