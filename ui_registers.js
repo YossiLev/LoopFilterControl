@@ -216,7 +216,7 @@ export function initRegisterUI() {
     prevDump = dump.predictor;
   };
 
-  const regFormats = ["def", "16S", "16U", "32S", "32U", "DAC"];
+  const regFormats = ["def", "16S", "16U", "32S", "32U", "DAC", "16MS", "16MU"];
   const regsInit = [3, 11, 3, 11]
   for (let iReg = 0; iReg < 4; iReg++) {
     const scopeSampleSelect = document.getElementById(`scopeSample${iReg + 1}Select`);

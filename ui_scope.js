@@ -24,6 +24,11 @@ canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 canvas.addEventListener("mousedown", handleCanvasMouseDown);
 canvas.addEventListener("mouseup", handleCanvasMouseUp);
 
+dataDisplayBtn.addEventListener("click", () => {  
+  document.getElementById("popupInfo").innerHTML = getDataInfo();
+  document.getElementById("cover").style.display = "flex";
+});
+
 let dataConfigs = [];
 let dataConfigLastScale = [];
 let triggerValue = 0;
@@ -90,6 +95,12 @@ function toFixFormat(iregvalue, dv, offset, regType) {
     case "32U": 
       //console.log(`Raw value: ${dv.getUint32(offset, true)}`);
       return dv.getUint32(offset, true);
+    case "16MS": 
+      //console.log(`Raw value: ${dv.getInt16(offset, true)}`);
+      return dv.getInt32(offset, true) >> 16;
+    case "16MU": 
+      //console.log(`Raw value: ${dv.getUint16(offset, true)}`);
+      return dv.getUint32(offset, true) >> 16;
     case "DAC": {
       const raw = dv.getUint32(offset, true);
       const signed = toSigned14Bit(iregvalue, raw & 0xFFFF);
@@ -304,6 +315,29 @@ export function handleCanvasMouseLeave(event) {
  * @param {HTMLCanvasElement} canvas
  * @param {Array} dataConfigs - Array of objects: { data: [], color: string, width: number }
  */
+
+function getDataInfo() {
+  if (dataConfigs.length === 0) {
+    return "No data available.";
+  }
+  let textData = "<table border='1' cellpadding='5' cellspacing='0'>";
+  const maxLength = Math.min(2000, Math.max(...dataConfigs.map(config => config.data.length)));
+  for (let i=0; i < maxLength; i++) {
+    textData += `<tr><td>Sample ${i}: </td>`;
+
+    dataConfigs.forEach(config => {
+      if (i < config.data.length) {
+        textData += `<td style="color:${config.color}">${config.data[i]}</td>`;
+      } else {
+        textData += `<td style="color:${config.color}">N/A</td>`;
+      }
+    });
+    textData += "</tr>";
+  }
+  textData += "</table>";
+
+  return textData;
+}
 
 function drawMultiScaleChart() {
   const ctx = canvas.getContext('2d');
