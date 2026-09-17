@@ -28,11 +28,44 @@ dataDisplayBtn.addEventListener("click", () => {
   document.getElementById("popupInfo").innerHTML = getDataInfo();
   document.getElementById("cover").style.display = "flex";
 });
+displayPrevBtn.addEventListener("click", () => {
+  retoreDataConfig(currentDisplayPrev + 1);
+});
+displayNextBtn.addEventListener("click", () => {
+  retoreDataConfig(currentDisplayPrev - 1);
+});
+
+const nDataConfigStorage = 10;
+let dataConfigsStorage = new Array(nDataConfigStorage).fill(null);
+let lastDataConfigIndex = -1;
+let currentDisplayPrev = 0;
 
 let dataConfigs = [];
 let dataConfigLastScale = [];
 let triggerValue = 0;
 let triggerIndex = -1;
+
+function saveDataConfig() {
+  dataConfigsStorage[(lastDataConfigIndex + 1) % nDataConfigStorage] = dataConfigs;
+  lastDataConfigIndex = (lastDataConfigIndex + 1) % nDataConfigStorage;
+  currentDisplayPrev = 0;
+  console.log(`Saved data config lastDataConfigIndex ${lastDataConfigIndex}`);
+}
+function retoreDataConfig(prevCount) {
+  if (prevCount < 0 || prevCount >= nDataConfigStorage) {
+    return 0;
+  }
+  const index = (lastDataConfigIndex - 1 - prevCount + 2 * nDataConfigStorage) % nDataConfigStorage;
+  if (dataConfigsStorage[index] !== null) {
+    dataConfigs = dataConfigsStorage[index];
+    drawMultiScaleChart();
+    currentDisplayPrev = prevCount;
+    console.log(`Restored data config from ${prevCount} steps back lastDataConfigIndex ${lastDataConfigIndex} index ${index}`);
+    return 1;
+  }
+  return 0;
+}
+
 
 function evalExpr(expr, values) {
     const vars = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -257,6 +290,7 @@ export function presentQuickScopeData(data) {
   if (scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
     dataConfigs.push({data: vecs[4], color: "purple", width: 1});
   }
+  saveDataConfig();
   drawMultiScaleChart();
 
   if (scopeStatus) {

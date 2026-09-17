@@ -44,7 +44,7 @@ input[type=checkbox]:checked::after {
 .out-val { color: #4ade80; font-weight: bold; font-family: monospace; height: 24px; }
 h2 { margin: 0 0 16px 0; font-weight: 500; white-space: nowrap;}
 h1 { text-align: center; color: #2c3e50; }
-.controls { display: flex; flex-wrap: wrap; gap: 20px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
+.controls { display: flex; flex-wrap: wrap; gap: 18px; background: #ecf0f1; padding: 20px; border-radius: 8px; }
 .panel { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
 select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #bdc3c7; width: 100%; cursor: pointer; }
 button { background: #3498db; color: white; border: none; transition: 0.3s; }
