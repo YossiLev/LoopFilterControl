@@ -245,10 +245,11 @@ export function initControlUI() {
     const ditherAmplitude = parseInt(document.getElementById("paramDitherOutputAmpliture").value); 
     let ditherInputPhase = parseInt(document.getElementById("paramDitherInputPhase").value) % widthAverage;
     let ditherPolarity = parseInt(document.getElementById("paramDitherInputPolarity").value);
-    if (ditherInputPhase > ditherCount) {
+    if (ditherInputPhase >= ditherCount) {
       ditherInputPhase -= ditherCount;
-      ditherPolarity = 1 -  ditherPolarity;
+      ditherPolarity = 1 - ditherPolarity;
     }
+    ditherInputPhase += 1; // make phase (switch point) start from 1 instead of 0
     const rc = await SetDitheringParameters(ditherOutputEnabled, ditherAmplitude, ditherCount, ditherInputEnabled, ditherInputPhase, ditherCount, ditherPolarity);
       // o, output_amplitude, output_phase1_count, 
       // i, input_phase1_count, input_phase2_count,  
