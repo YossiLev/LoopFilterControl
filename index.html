@@ -15,7 +15,6 @@
 <div class="cover" id="cover" style="display: none;" onclick="document.getElementById('cover').style.display = 'none';">
     <div class="popup" onclick="event.stopPropagation()">
         <div class="popup-content">
-            <h2>Charts Data</h2>
             <div id="popupInfo" style="max-height:600px; overflow-y: auto; margin-bottom: 20px;"></div>
             <button id="closePopupBtn" class="button" onclick="document.getElementById('cover').style.display = 'none';">Close</button>
         </div>
@@ -54,12 +53,13 @@
         <div class="card">
             <div class="controls">
                 <div>
-                    <label for="scopeSample1Select" style="color:green !important;">
+                    <label id="scope1Label" for="scopeSample1Select" style="color:green !important;">
                         <span style="flex: 3;">Scope 1</span>
-                        <span id="scope1Abs" style="font-size: 20px; line-height: 12px;;">X</span>
-                        <span id="scope1Domain" style="font-size: 20px; line-height: 12px;;">T</span>
-                        <span id="scope1Sign" style="font-size: 32px; line-height: 12px;;">+</span>
-                        <span id="scope1State" style="font-size: 32px; line-height: 12px;;">&#9632;</span></label>
+                        <span id="scope1Abs" style="font-size: 20px; line-height: 12px;">X</span>
+                        <span id="scope1Domain" style="font-size: 20px; line-height: 12px;">T</span>
+                        <span id="scope1Sign" style="font-size: 32px; line-height: 12px;">+</span>
+                        <span id="scope1Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
+                        <span id="scope1State" style="font-size: 32px; line-height: 12px;">&#9632;</span></label>
                     <select id="scopeSample1Select" style="width: 260px;"></select>
                 </div>
                 <div>
@@ -67,12 +67,14 @@
                     <select id="scopeType1Select" style="width: 70px;"></select>
                 </div>
                 <div>
-                    <label for="scopeSample2Select" style="color:blue !important;">
+                    <label  id="scope2Label" for="scopeSample2Select" style="color:blue !important;">
                         <span style="flex: 3;">Scope 2</span>
-                        <span id="scope2Abs" style="font-size: 20px; line-height: 12px;;">X</span>
-                        <span id="scope2Domain" style="font-size: 20px; line-height: 12px;;">T</span>
-                        <span id="scope2Sign" style="font-size: 32px; line-height: 12px;;">+</span>
-                        <span id="scope2State" style="font-size: 32px; line-height: 12px;;">&#9632;</span></label>
+
+                        <span id="scope2Abs" style="font-size: 20px; line-height: 12px;">X</span>
+                        <span id="scope2Domain" style="font-size: 20px; line-height: 12px;">T</span>
+                        <span id="scope2Sign" style="font-size: 32px; line-height: 12px;">+</span>
+                        <span id="scope2Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
+                            <span id="scope2State" style="font-size: 32px; line-height: 12px;">&#9632;</span></label>
                     <select id="scopeSample2Select" style="width: 260px;"></select>
                 </div>
                 <div>
@@ -101,12 +103,13 @@
                 <button id="displayPrevBtn" title="Previous" class="button" style="max-width: 40px;">P</button>
                 <button id="displayNextBtn" title="Next" class="button" style="max-width: 40px;">N</button>
                 <div>
-                    <label for="scopeSample3Select" style="color:red !important;">
+                    <label id="scope3Label" for="scopeSample3Select" style="color:red !important;">
                         <span style="flex: 3;">Scope 3</span>
-                        <span id="scope3Abs" style="font-size: 20px; line-height: 12px;;">X</span>
-                        <span id="scope3Domain" style="font-size: 20px; line-height: 12px;;">T</span>
-                        <span id="scope3Sign" style="font-size: 32px; line-height: 12px;;">+</span>
-                        <span id="scope3State" style="font-size: 32px; line-height: 12px;;">&#9633;</span></label>
+                        <span id="scope3Abs" style="font-size: 20px; line-height: 12px;">X</span>
+                        <span id="scope3Domain" style="font-size: 20px; line-height: 12px;">T</span>
+                        <span id="scope3Sign" style="font-size: 32px; line-height: 12px;">+</span>
+                        <span id="scope3Color" style="font-size: 26px; line-height: 12px;">&#9776;</span>
+                        <span id="scope3State" style="font-size: 32px; line-height: 12px;">&#9633;</span></label>
                     <select id="scopeSample3Select" style="width: 260px; " disabled></select>
                 </div>
                 <div>
@@ -114,12 +117,13 @@
                     <select id="scopeType3Select" style="width: 70px;"></select>
                 </div>
                 <div>
-                    <label for="scopeSample4Select" style="color:orange !important;">
+                    <label id="scope4Label" for="scopeSample4Select" style="color:orange !important;">
                         <span style="flex: 3;">Scope 4</span>
-                        <span id="scope4Abs" style="font-size: 20px; line-height: 12px;;">X</span>
-                        <span id="scope4Domain" style="font-size: 20px; line-height: 12px;;">T</span>
-                        <span id="scope4Sign" style="font-size: 32px; line-height: 12px;;">+</span>
-                        <span id="scope4State" style="font-size: 32px; line-height: 12px;;">&#9633;</span></label>  
+                        <span id="scope4Abs" style="font-size: 20px; line-height: 12px;">X</span>
+                        <span id="scope4Domain" style="font-size: 20px; line-height: 12px;">T</span>
+                        <span id="scope4Sign" style="font-size: 32px; line-height: 12px;">+</span>
+                        <span id="scope4Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
+                        <span id="scope4State" style="font-size: 32px; line-height: 12px;">&#9633;</span></label>  
                     <select id="scopeSample4Select" style="width: 260px;" disabled></select>
                 </div>
                 <div>
@@ -240,6 +244,7 @@
 </div>
 
 <script type="module" src="main.js"></script>
+<script type="module" src="ui_scope.js"></script>
 
 </body>
 </html>

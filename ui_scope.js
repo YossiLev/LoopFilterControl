@@ -23,17 +23,52 @@ canvas.addEventListener("mouseenter", handleCanvasMouseEnter);
 canvas.addEventListener("mouseleave", handleCanvasMouseLeave);
 canvas.addEventListener("mousedown", handleCanvasMouseDown);
 canvas.addEventListener("mouseup", handleCanvasMouseUp);
+canvas.addEventListener("resize", drawMultiScaleChart);
 
 dataDisplayBtn.addEventListener("click", () => {  
   document.getElementById("popupInfo").innerHTML = getDataInfo();
   document.getElementById("cover").style.display = "flex";
 });
 displayPrevBtn.addEventListener("click", () => {
+  //canvas.style.height = `${canvas.clientHeight - 100}px`;
   retoreDataConfig(currentDisplayPrev + 1);
 });
 displayNextBtn.addEventListener("click", () => {
+  //canvas.style.height = `${canvas.clientHeight + 100}px`;
   retoreDataConfig(currentDisplayPrev - 1);
 });
+unifiedLockElement.addEventListener("change", () => {
+
+  drawMultiScaleChart();
+});
+
+  // 2. The correction function to sync attributes with CSS display size
+  function resizeCanvas() {
+    // Get the actual bounding box size in pixels
+    const rect = canvas.getBoundingClientRect();
+    
+    // Support High-DPI / Retina displays to prevent blurriness
+    const dpr = window.devicePixelRatio || 1;
+
+    // Update the logical drawing canvas size
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    // Scale the context so your drawing coordinates match CSS pixels
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // 3. Redraw immediately after sizing
+    drawMultiScaleChart();
+  }
+
+  // 4. Use ResizeObserver to watch for element size changes efficiently
+  const resizeObserver = new ResizeObserver(() => {
+    resizeCanvas();
+  });
+  
+  resizeObserver.observe(canvas);
+
 
 const nDataConfigStorage = 10;
 let dataConfigsStorage = new Array(nDataConfigStorage).fill(null);
@@ -65,7 +100,6 @@ function retoreDataConfig(prevCount) {
   }
   return 0;
 }
-
 
 function evalExpr(expr, values) {
     const vars = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -144,71 +178,6 @@ function toFixFormat(iregvalue, dv, offset, regType) {
   return dv.getUint32(offset, true);
 }
 
-// export function presentScopeData(data) {
-//   //const canvas = document.getElementById("scopeCanvas");
-//   const ctx = canvas.getContext("2d");
-
-//   const dv = new DataView(data);
-//   // console.log(`scope length ${dv.byteLength}`);
-//   const n  = (dv.byteLength - 28) / 12;
-//   // console.log(`Number of samples ${n}`);
-//   // for (let i = 0; i < 100; i++) {
-//   //   console.log(`int ${i}: ${dv.getUint32(i * 4, true).toString(16).padStart(8, '0')}`);
-//   // }
-//   const lastBatch = dv.getInt32(4, true) == 1;
-
-//   ctx.fillStyle = "#cac8c8ff";
-//   ctx.fillRect(0,0,800,300);
-//   const reg1 = dv.getUint32(12, true);
-//   const reg2 = dv.getUint32(16, true);
-//   const reg1Type = scopeType1Select.value;
-//   const reg2Type = scopeType2Select.value;
-//   // console.log(`reg1 ${reg1} reg2 ${reg2}`);
-//   // console.log(`regType1 ${reg1Type} regType2 ${reg2Type}`);
-
-//   let vecs = [[], [], []];
-//   for(let i=0;i<n;i++) { 
-//     // vecs[0].push(toSigned14Bit(reg1, dv.getInt16(28 + i*12 + 4, true)));
-//     // vecs[1].push(toSigned14Bit(reg2, dv.getInt16(28 + i*12 + 8, true)));
-//     vecs[0].push(toFixFormat(reg1, dv, 28 + i*12 + 4, reg1Type));
-//     vecs[1].push(toFixFormat(reg2, dv, 28 + i*12 + 8, reg2Type));
-//     //console.log(`Sample ${i}: ${vecs[0][i]} ${vecs[1][i]}   regs[${reg1}, ${reg2}] `);
-
-//     if (timerElement.checked) {
-//       vecs[2][i] = dv.getInt32(28 + i*12, true);
-//     } else {
-//       if (scopeAddSelect.value === "sum") {
-//         vecs[2].push(vecs[0][i] + vecs[1][i]);
-//       } else if (scopeAddSelect.value === "diff") {
-//         vecs[2].push(vecs[0][i] - vecs[1][i]);
-//       }
-//     }
-//   }
-//   function tt(d, i) {
-//     return d.getUint32(28 + i*12 + 8, true).toString().padStart(11, ' ');
-//   }
-//   // for (let i = 0; i < n; i += 8) {
-//   //   console.log(`${tt(dv, i)} ${tt(dv, i + 1)} ${tt(dv, i + 2)} ${tt(dv, i + 3)} ${tt(dv, i + 4)} ${tt(dv, i + 5)} ${tt(dv, i + 6)} ${tt(dv, i + 7)}`);
-//   // }
-
-//   dataConfigs = [{
-//     data: vecs[0], color: "green", width: 2
-//   }, 
-//   {
-//     data: vecs[1], color: "blue", width: 2
-//   }];
-//   if (timerElement.checked || scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
-//     dataConfigs.push({data: vecs[2], color: "red", width: 1});
-//   }
-//   drawMultiScaleChart();
-
-//   if (scopeStatus) {
-//     setTimeout(getSample, 100);
-//   }
-
-//   return lastBatch;
-// }
-
 function  setRegData(iReg, vec) {
   const chPtp = document.getElementById(`ch${iReg}Ptp`);
   const chMean = document.getElementById(`ch${iReg}Mean`);
@@ -239,7 +208,7 @@ export function presentQuickScopeData(data) {
 
   const regTypes = [scopeType1Select.value, scopeType2Select.value, scopeType3Select.value, scopeType4Select.value];
   // console.log(`reg1 ${regs[0]} reg2 ${regs[1]} reg3 ${regs[2]} reg4 ${regs[3]}`);
-  const regColor = ["green", "blue", "red", "orange"];
+
 
   let vecs = [[], [], [], [], []];
   for(let i=0;i<n;i++) { 
@@ -271,24 +240,24 @@ export function presentQuickScopeData(data) {
     if (vecs[iReg].length > 1000) {
       if (isScopeDomainTime(iReg + 1)) {
         if (isScopeAbsEnabled(iReg + 1)) {
-           dataConfigs.push({data: vecs[iReg].map(v => v < 0 ? -v : v), color: regColor[iReg], width: 1});
+           dataConfigs.push({index: iReg, data: vecs[iReg].map(v => v < 0 ? -v : v), color: regColor[iReg], width: 1});
         } else if (isScopeSignPositive(iReg + 1)) {
-          dataConfigs.push({data: vecs[iReg], color: regColor[iReg], width: 1});
+          dataConfigs.push({index: iReg, data: vecs[iReg], color: regColor[iReg], width: 1});
         } else {
           const invertedVec = vecs[iReg].map(v => -v);
-          dataConfigs.push({data: invertedVec, color: regColor[iReg], width: 1});
+          dataConfigs.push({index: iReg, data: invertedVec, color: regColor[iReg], width: 1});
         }
       } else {
           const fftVec = simpleRealFFT(vecs[iReg]);
           fftVec[512] = 0; // Remove DC component
-          dataConfigs.push({data: fftVec.map(v => Math.log10(v+1)), color: regColor[iReg], width: 1});
+          dataConfigs.push({index: iReg, data: fftVec.map(v => Math.log10(v+1)), color: regColor[iReg], width: 1});
       }
       setRegData(iReg + 1, vecs[iReg]);
     }
   }
 
   if (scopeAddSelect.value === "sum" || scopeAddSelect.value === "diff") {
-    dataConfigs.push({data: vecs[4], color: "purple", width: 1});
+    dataConfigs.push({index: 4, data: vecs[4], color: "purple", width: 1});
   }
   saveDataConfig();
   drawMultiScaleChart();
@@ -305,6 +274,20 @@ let lastMousePosition = {x: 0, y: 0};
 let isMouseDown = false;
 let mouseDownPosition = {x: 0, y: 0};
 
+const regColor = ["green", "blue", "red", "orange"];
+
+export function getScopeColor(iScope) {
+  return regColor[iScope - 1];
+}
+export function setScopeColor(iScope, color) {
+  regColor[iScope - 1] = color;
+  refreshScopeColors();
+  const scopeLabel = document.getElementById(`scope${iScope}Label`);
+  if (scopeLabel) {
+    scopeLabel.style.color = color;
+  }  
+  drawMultiScaleChart();
+}
 export function handleCanvasMouseMove(event) {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
@@ -354,7 +337,7 @@ function getDataInfo() {
   if (dataConfigs.length === 0) {
     return "No data available.";
   }
-  let textData = "<table border='1' cellpadding='5' cellspacing='0'>";
+  let textData = "<h2>Charts Data</h2><table border='1' cellpadding='5' cellspacing='0'>";
   const maxLength = Math.min(2000, Math.max(...dataConfigs.map(config => config.data.length)));
   for (let i=0; i < maxLength; i++) {
     textData += `<tr><td>Sample ${i}: </td>`;
@@ -424,6 +407,10 @@ function drawMultiScaleChart() {
   }
   dataConfigLastScale = [...dataConfigLastScaleNew];
    
+  dataConfigs.forEach((config, idx) => {
+    config.min = dataConfigLastScale[idx].min;
+    config.max = dataConfigLastScale[idx].max;
+  });
   // dataConfigs.forEach((config, idx) => {
   //     config.min = Math.min(...config.data);
   //     config.max = Math.max(...config.data);
@@ -559,13 +546,13 @@ function drawMultiScaleChart() {
 }
 function demoDraw() {
     //const canvas = document.getElementById("scopeCanvas");
-    const data1 = [10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 10, 45, 30, 80, 60, 95];
-    const data2 = [-20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, -20, -25, 50, -43, 70, 85]; 
+    const data1 = Array.from({length: 1024}, (_, i) => Math.sin(i * 0.1) * 20 + 90 + 0.05 * i);
+    const data2 = Array.from({length: 1024}, (_, i) => Math.cos(i * 0.13) * 50 + 50 - 0.02 * i);
     dataConfigs = [{
-      data: data1, color: "red", width: 1
+      index: 1, data: data1, color: regColor[0], width: 1
     }, 
     {
-      data: data2, color: "blue", width: 1
+      index: 2, data: data2, color: regColor[1], width: 1
     }];
     drawMultiScaleChart();
 }
@@ -578,6 +565,13 @@ function demoDraw() {
 
 //     getTwoRegisterStream(r1, r2, n, presentScopeData);
 // }
+
+function refreshScopeColors() {
+  dataConfigs.forEach(config => {
+    config.color = regColor[config.index - 1];
+  });
+
+}
 
 function getQuickSample() {
   

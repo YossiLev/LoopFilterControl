@@ -1,6 +1,6 @@
 import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, SetDitheringParameters } from "./api.js";
 import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
-import { setScopeOn, setScopeOff} from "./ui_scope.js";
+import { setScopeOn, setScopeOff, setScopeColor, getScopeColor} from "./ui_scope.js";
 
 function changeScopeState(scopeNum) {
   const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
@@ -34,6 +34,72 @@ function changeScopeSign(scopeNum) {
     scopeSign.innerHTML = "+";
   }
 }
+function changeScopeColor(scopeNum, e) {
+  console.log(`Viewport: X=${e.clientX}, Y=${e.clientY}`);
+
+  // 1. Create the native color input element dynamically
+  const dynamicPicker = document.createElement('input');
+  dynamicPicker.type = 'color';
+  dynamicPicker.value = getScopeColor(scopeNum);
+  
+  // 2. Hide it cleanly while maintaining a 1x1 layout box
+  dynamicPicker.style.position = 'absolute';
+  // Use pageX/pageY so it includes scrolling offsets perfectly
+  dynamicPicker.style.left = `${e.pageX}px`;
+  dynamicPicker.style.top = `${e.pageY}px`;
+  
+  dynamicPicker.style.width = '1px';
+  dynamicPicker.style.height = '1px';
+  dynamicPicker.style.padding = '0';
+  dynamicPicker.style.border = 'none';
+  dynamicPicker.style.opacity = '0';
+  dynamicPicker.style.pointerEvents = 'none';
+
+  // 3. Append it to the body (required by some browsers to function)
+  document.body.appendChild(dynamicPicker);
+
+  // 4. CRITICAL FIX: Wait 1 rendering frame so the browser calculates layout bounds
+  requestAnimationFrame(() => {
+    try {
+      dynamicPicker.showPicker();
+    } catch (err) {
+      console.error("Failed to show native picker:", err);
+    }
+  });
+
+  // 5. Handle the color selection
+  dynamicPicker.addEventListener('change', (event) => {
+    const selectedColor = event.target.value;
+    console.log('User chose color:', selectedColor);
+    
+    // Update the button background as an example
+    setScopeColor(scopeNum, selectedColor);
+
+    // 6. Clean up: remove the element from the DOM when done
+    dynamicPicker.remove();
+  });
+
+  // Optional: Clean up if the user cancels or clicks away without picking a color
+  dynamicPicker.addEventListener('blur', () => {
+    // Small timeout ensures the change event fires first if they did select something
+    setTimeout(() => dynamicPicker.remove(), 100);
+  });
+
+
+  // document.getElementById("popupInfo").innerHTML = 
+  //   "<input type='color' id='nativeColorPicker'>";
+  //   const nativeColorPicker = document.getElementById('nativeColorPicker');
+  //   document.getElementById("cover").style.display = "flex";
+
+  //   nativeColorPicker.click();
+
+  //   nativeColorPicker.addEventListener('input', (event) => {
+  //     const selectedColor = event.target.value; // Returns a hex code like #ff0000
+  //     scopeSample3Select
+  //     setScopeColor(scopeNum, selectedColor);
+  //   });
+}
+
 function changeScopeDomain(scopeNum) {
   const scopeDomain = document.getElementById(`scope${scopeNum}Domain`);
   if (scopeDomain.innerHTML === "T") {
@@ -58,6 +124,10 @@ document.getElementById("scope1Sign").onclick = () => changeScopeSign(1);
 document.getElementById("scope2Sign").onclick = () => changeScopeSign(2);
 document.getElementById("scope3Sign").onclick = () => changeScopeSign(3);
 document.getElementById("scope4Sign").onclick = () => changeScopeSign(4);
+document.getElementById("scope1Color").onclick = (e) => changeScopeColor(1, e);
+document.getElementById("scope2Color").onclick = (e) => changeScopeColor(2, e);
+document.getElementById("scope3Color").onclick = (e) => changeScopeColor(3, e);
+document.getElementById("scope4Color").onclick = (e) => changeScopeColor(4, e);
 document.getElementById("scope1Domain").onclick = () => changeScopeDomain(1);
 document.getElementById("scope2Domain").onclick = () => changeScopeDomain(2);
 document.getElementById("scope3Domain").onclick = () => changeScopeDomain(3);
