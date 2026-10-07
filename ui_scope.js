@@ -80,11 +80,12 @@ let dataConfigLastScale = [];
 let triggerValue = 0;
 let triggerIndex = -1;
 
+
 function saveDataConfig() {
   dataConfigsStorage[(lastDataConfigIndex + 1) % nDataConfigStorage] = dataConfigs;
   lastDataConfigIndex = (lastDataConfigIndex + 1) % nDataConfigStorage;
   currentDisplayPrev = 0;
-  console.log(`Saved data config lastDataConfigIndex ${lastDataConfigIndex}`);
+  //console.log(`Saved data config lastDataConfigIndex ${lastDataConfigIndex}`);
 }
 function retoreDataConfig(prevCount) {
   if (prevCount < 0 || prevCount >= nDataConfigStorage) {
@@ -95,7 +96,7 @@ function retoreDataConfig(prevCount) {
     dataConfigs = dataConfigsStorage[index];
     drawMultiScaleChart();
     currentDisplayPrev = prevCount;
-    console.log(`Restored data config from ${prevCount} steps back lastDataConfigIndex ${lastDataConfigIndex} index ${index}`);
+    //console.log(`Restored data config from ${prevCount} steps back lastDataConfigIndex ${lastDataConfigIndex} index ${index}`);
     return 1;
   }
   return 0;
@@ -275,6 +276,15 @@ let isMouseDown = false;
 let mouseDownPosition = {x: 0, y: 0};
 
 const regColor = ["green", "blue", "red", "orange"];
+
+function changeClassColor(className, newColor) {
+  const style = document.createElement('style');
+  style.textContent = `.${className} { color: ${newColor} !important; }`;
+  document.head.appendChild(style);
+}
+
+
+refreshScopeColors();
 
 export function getScopeColor(iScope) {
   return regColor[iScope - 1];
@@ -567,10 +577,13 @@ function demoDraw() {
 // }
 
 function refreshScopeColors() {
+  regColor.forEach((color, index) => {
+    changeClassColor(`chData${index + 1}`, color);
+  });
+
   dataConfigs.forEach(config => {
     config.color = regColor[config.index - 1];
   });
-
 }
 
 function getQuickSample() {

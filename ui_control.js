@@ -164,13 +164,26 @@ const scopeSample2Select = document.getElementById("scopeSample2Select");
 const scopeType1Select = document.getElementById("scopeType1Select");
 const scopeType2Select = document.getElementById("scopeType2Select");
 
+function setTuneState() {
+  scopeSample1Select.value = 42;
+  scopeSample2Select.value = 48;
+  document.getElementById("paramScanAmplitude").value = 16000;
+  document.getElementById("paramScanOffset").value = 12;
+  document.getElementById("paramScanType").value = "1";
+  document.getElementById("paramScanFrequency").value = "100";
+  document.getElementById("nScanInterval").value = "3000";
+
+}
 
 export function initControlUI() {
   const status = document.getElementById("connectionStatus");
 
   document.getElementById("rebootBtn").onclick = async () => {
       await sendBinaryBuffer(packU32(99));
-  };  
+  };
+  document.getElementById("tuneBtn").onclick = async () => {
+      setTuneState();
+  };
 
   document.getElementById("getVersionBtn").onclick = async () => {
       console.log("Getting version...");
