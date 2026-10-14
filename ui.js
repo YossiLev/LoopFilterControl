@@ -1,19 +1,19 @@
-import { connect, disconnect, sendBinaryBuffer, packU32} from "./transport.js";
-import { RegisterDump, friendlyNames, encode } from "./registers.js";
+// import { connect, disconnect, sendBinaryBuffer, packU32} from "./transport.js";
+// import { RegisterDump, friendlyNames, encode } from "./registers.js";
 
-export const log = s => {
-    const d = document.getElementById("log");
-    d.textContent += s + "\n";
-    d.scrollTop = d.scrollHeight;
-};
+// export const log = s => {
+//     const d = document.getElementById("log");
+//     d.textContent += s + "\n";
+//     d.scrollTop = d.scrollHeight;
+// };
 
-document.getElementById("getVersionBtn").onclick = async () => {
-    console.log("Getting version...");
-    const r = await sendBinaryBuffer(packU32(0));
-    console.log("Got version response:", r);
-    log("VERSION: " + new TextDecoder().decode(r));
-};
+// document.getElementById("getVersionBtn").onclick = async () => {
+//     console.log("Getting version...");
+//     const r = await sendBinaryBuffer(packU32(0));
+//     console.log("Got version response:", r);
+//     log("VERSION: " + new TextDecoder().decode(r));
+// };
 
-document.getElementById("rebootBtn").onclick = async () => {
-    const r = await sendBinaryBuffer(packU32(99));
-};
+// document.getElementById("rebootBtn").onclick = async () => {
+//     const r = await sendBinaryBuffer(packU32(99));
+// };
