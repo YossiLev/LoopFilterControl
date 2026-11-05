@@ -202,6 +202,12 @@ export async function setGains(p_gain, pi_corner_hz, i2_gain, averagingTimeNs) {
   //await sendParameters(5, "iid", [i_gain_int, i2_gain_int, p_gain_int]);
   await sendParameters(5, "iid", [i_gain_int, 0, p_gain_int]);
 
+  let info = `P Gain = (${p_gain.toFixed(4)}, ${p_gain_int}/${1 << output_shift}(${output_shift}), ${computed_p_gain}) ` +
+             `I Gain = (${i_gain.toFixed(8)}, ${i_gain_int}/${1 << i0_shift}(${i0_shift+output_shift}), ${computed_i_gain.toFixed(8)}) ` +
+             `Averaging time = ${averagingTimeNs} ns, cycles = ${averagingTimeCycles}, log2_cycles = ${log2_cycles}`;
+  console.log(info);
+  document.getElementById("infoGain").value = info;
+
   return 1;
 }
 

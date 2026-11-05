@@ -180,7 +180,7 @@
             </div>
             <div style="display:inline-block;height:20px; width:10px;"></div>
 
-            <div class="controls" style="display:inline-flex; width:580px">
+            <div class="controls" style="display:inline-flex; width:580px;">
                 <div class="custom-checkbox" style="padding-top:3px;"><div>Scan</div>
                     <input id="scan" class="status-input" type="checkbox" name="scan" tabindex="-1">
                     <label for="scan"><div class="status-switch" data-unchecked="Off" data-checked="On"></div></label> 
@@ -191,7 +191,14 @@
                 <div>
                     <label for="paramScanType">Type</label>
                     <select id="paramScanType"><option value="2">Triangle</option><option value="1">Saw Tooth</option><option value="0">None</option></select>
-                </div>            </div>
+                </div>
+            </div>
+            <div class="controls" style="display:inline-flex; vertical-align:top;">
+                <div>
+                    <input type="text" id="infoGain" readonly style="width: 1100px; background-color: #f0f0f0; border: 1px solid #ccc; padding: 5px;">
+                </div>
+            </div>
+            <div style="display:inline-block;height:20px; width:10px;"></div>
             <div style="height:20px;"></div>
             <div class="controls" style="display:inline-flex; width:450px;">
                 <div><label for="paramInputOffset">In offset</label><input type="number" id="paramInputOffset" value="0" min="-10000" step="20" style="width: 100px;"></div>
