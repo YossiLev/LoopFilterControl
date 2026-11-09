@@ -2,9 +2,27 @@ import { WS_URL, TIMEOUT_MS } from "./config.js";
 
 let ws = null;
 let seq = 1;
-let pending = new Map();
 let conSeq = 1;
-let conPending = new Map();
+const pending = new Map();
+const conPending = new Map();
+const connectionListeners = new Set();
+let cancelConnection = null;
+
+export function onConnectionStateChange(listener) {
+  connectionListeners.add(listener);
+  return () => connectionListeners.delete(listener);
+}
+
+function notifyConnection(state, error) {
+  for (const listener of connectionListeners) {
+    try { listener(state, error); }
+    catch (err) { console.error("Connection listener failed", err); }
+  }
+}
+
+export function isConnected() {
+  return ws !== null && ws.readyState === WebSocket.OPEN;
+}
 
 export function packU32(x) {
   const b = new ArrayBuffer(4);
@@ -12,153 +30,146 @@ export function packU32(x) {
   return b;
 }
 
-function log(a, clear=false) {
-    const d = document.getElementById("log");
-    if (d) {
-        if (clear) d.innerHTML = "";
-        d.innerHTML += a + "</br>";
-        d.scrollTop = d.scrollHeight;
-    }
+function log(message, clear = false) {
+  const element = document.getElementById("log");
+  if (!element) return;
+  if (clear) element.textContent = "";
+  element.append(document.createTextNode(message), document.createElement("br"));
+  element.scrollTop = element.scrollHeight;
 }
 
-async function sendWithHeader(pkt) {
-  // Header format: 4 bytes magic (outof which last two will be stammed with a sequence number), 4 bytes message type, 4 bytes length
-  const l = pkt.length;
-  const h = [0x78, 0x56, 0x34, 0x12, 1, 0, 0, 0, l & 0xff, l >> 8 & 0xff, l >> 16 & 0xff, l >> 24 & 0xff, ];
-  const r = await sendPacket(new Uint8Array([...h, ...pkt]));
-  //console.log(r);
-  return r;
+function hex(bytes) {
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join(" ");
 }
 
-function sendWithHeaderConsistent(pkt, cb) {
-  // Header format: 4 bytes magic (outof which last two will be stammed with a sequence number), 4 bytes message type, 4 bytes length
-  const l = pkt.length;
-  const h = [0x78, 0x56, 0x34, 0x12, 1, 0, 0, 0, l & 0xff, l >> 8 & 0xff, l >> 16 & 0xff, l >> 24 & 0xff, ];
-  sendPacketConsistent(new Uint8Array([...h, ...pkt]), cb);
+function makePacket(buffer, sequence, stream = false) {
+  const packet = new Uint8Array(12 + buffer.byteLength);
+  const header = new DataView(packet.buffer);
+  header.setUint16(0, 0x5678, true);
+  header.setUint16(2, sequence | (stream ? 0x8000 : 0), true);
+  header.setUint32(4, 1, true);
+  header.setUint32(8, buffer.byteLength, true);
+  packet.set(new Uint8Array(buffer), 12);
+  return packet;
 }
 
-
-function uint8ArrayToHexString(uint8Array) {
-  let hexString = "";
-  for (const byte of uint8Array) {
-    // Convert the byte to a hex string and pad with a leading zero if necessary
-    hexString += byte.toString(16).padStart(2, "0") + " ";
+function nextSequence(map, stream = false) {
+  for (let i = 0; i < 0x8000; i++) {
+    const value = (stream ? conSeq++ : seq++) & 0x7fff;
+    if (!map.has(value)) return value;
   }
-  return hexString;
+  throw new Error("Too many pending requests");
 }
 
-export async function connect() {
-    return new Promise((resolve, reject) => {
-        ws = new WebSocket(WS_URL);
-        ws.binaryType = "arraybuffer";
-        ws.onopen = resolve;
-        ws.onerror = reject;
-        ws.onmessage = ev => {
-            const data = new Uint8Array(ev.data);
-            //console.log("Response ", uint8ArrayToHexString(data));
-            log(`Rx: ${uint8ArrayToHexString(data.slice(0, 40))}`);
-            const s = (data[3] << 8) | data[2];
-            // console.log(`Returned s ${s}`);
-            if ((s & 0x8000) == 0) {
-                // console.log(`Loooking for ${s} in pending`);
+function requireSocket() {
+  if (!isConnected()) throw new Error("Not connected to the FPGA bridge");
+  return ws;
+}
 
-                if (pending.has(s)) {
-                    const dat = Array.from(data);
-                    dat.splice(0, 12); // Remove header
-                    pending.get(s)(dat);
-                    pending.delete(s);
-                } else {
-                    console.log("* * * * Not found in pending")
-                }
-            } else {
-                // console.log(`Loooking for ${s & 0x7FFF} in consistent pending`);
+export function connect() {
+  disconnect();
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(WS_URL);
+    ws = socket;
+    socket.binaryType = "arraybuffer";
+    let opened = false;
+    const timer = setTimeout(() => finish(new Error("Connection timed out")), TIMEOUT_MS);
 
-                if (conPending.has(s & 0x7FFF)) {
-                    // console.log(`Found in consistent pending`);
-                    const dat = Array.from(data);
-                    // console.log(`data ${dat[0]} ${dat[1]} ${dat[2]} ${dat[3]} ${dat[4]} ${dat[5]} ${dat[6]} ${dat[7]} ${dat[8]} ${dat[9]} ${dat[10]} ${dat[11]} `)
-
-                    dat.splice(0, 12); // Remove header
-                    if (conPending.get(s & 0x7FFF)(new Uint8Array(dat).buffer)) {
-                        // an end-data message reported
-                        // console.log(`deleting ${s & 0x7FFF} in consistent pending`);
-
-                        conPending.delete(s & 0x7FFF);
-                    }
-                } else {
-                    console.log("* * * * Not found in consistent pending")
-                }                
-            }
-        };
-    });
+    // Both explicit disconnect and socket failures use this cleanup path.
+    function finish(error) {
+      if (ws !== socket) return;
+      ws = null;
+      cancelConnection = null;
+      clearTimeout(timer);
+      socket.onopen = socket.onmessage = socket.onerror = socket.onclose = null;
+      for (const request of pending.values()) {
+        clearTimeout(request.timer);
+        request.reject(error);
+      }
+      pending.clear();
+      conPending.clear();
+      if (!opened) reject(error);
+      if (socket.readyState !== WebSocket.CLOSED) socket.close();
+      notifyConnection("disconnected", error);
+    }
+    cancelConnection = finish;
+    socket.onopen = () => {
+      if (ws !== socket) return;
+      clearTimeout(timer);
+      opened = true;
+      notifyConnection("connected");
+      resolve();
+    };
+    socket.onerror = () => finish(new Error("WebSocket connection failed"));
+    socket.onclose = event => finish(new Error(`Connection closed (${event.code})`));
+    socket.onmessage = event => {
+      if (ws !== socket) return;
+      try {
+        const data = new Uint8Array(event.data);
+        if (data.byteLength < 12) throw new Error("Truncated response header");
+        const header = new DataView(event.data);
+        log(`Rx: ${hex(data.slice(0, 40))}`);
+        const sequence = header.getUint16(2, true);
+        const body = event.data.slice(12);
+        if (sequence & 0x8000) {
+          const id = sequence & 0x7fff;
+          const callback = conPending.get(id);
+          if (callback && callback(body)) conPending.delete(id);
+        } else {
+          const request = pending.get(sequence);
+          if (!request) return;
+          clearTimeout(request.timer);
+          pending.delete(sequence);
+          request.resolve(body);
+        }
+      } catch (error) {
+        finish(error);
+      }
+    };
+  });
 }
 
 export function disconnect() {
-  if (ws) ws.close();
-  ws = null;
-}
-
-export async function sendValue(setCode, value) {
-    // const b = new ArrayBuffer(8);
-    // const v = new DataView(b);
-    // v.setFloat64(0, value, true);
-    // const pkt = new Uint8Array(4 + 8);
-    // pkt[0] = setCode & 0xFF;
-    // pkt[1] = (setCode >> 8) & 0xFF;
-    // pkt[2] = (setCode >> 16) & 0xFF;
-    // pkt[3] = (setCode >> 24) & 0xFF;
-    // pkt.set(new Uint8Array(b), 4);
-    // await sendWithHeader(pkt);
-}
-
-export function sendBinaryBufferConsistent(buffer, cb) {
-    sendWithHeaderConsistent(new Uint8Array(buffer), cb);
+  if (cancelConnection) cancelConnection(new Error("Disconnected"));
 }
 
 export async function sendBinaryBuffer(buffer) {
-    const a = await sendWithHeader(new Uint8Array(buffer));
-    return new Uint8Array(a).buffer;
+  const socket = requireSocket();
+  const sequence = nextSequence(pending);
+  const packet = makePacket(buffer, sequence);
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pending.delete(sequence);
+      reject(new Error("Request timed out"));
+    }, TIMEOUT_MS);
+    pending.set(sequence, { resolve, reject, timer });
+    try {
+      log(`Tx: ${hex(packet)}`, true);
+      socket.send(packet);
+    } catch (error) {
+      clearTimeout(timer);
+      pending.delete(sequence);
+      reject(error);
+      cancelConnection?.(error);
+    }
+  });
 }
 
-async function sendPacket(pkt) {
-
-    return new Promise((resolve, reject) => {
-        // stamp every outgoing message with a sequence number, and add it to the pending map with the resolve function. 
-        // When we get a response, look up the sequence number and call the resolve function with the response data.
-        const s = seq++ & 0x7FFF;
-        pkt[2] = s & 0xFF;
-        pkt[3] = (s >> 8) & 0xFF;
-        // console.log(`Putting ${s} input pending`)
-        pending.set(s, resolve);
-
-        //console.log(uint8ArrayToHexString(pkt));
-        log(`Tx: ${uint8ArrayToHexString(pkt)}`, true);
-
-        ws.send(pkt);
-
-        // Set a timeout to reject the promise if we don't get a response in time. Also remove from pending to avoid memory leak.
-        setTimeout(() => {
-             if (pending.has(s)) {
-                 pending.delete(s);
-                 reject("Timeout");
-                 console.log(`* * * * Timeout on ${s}`)
-             }
-        }, TIMEOUT_MS);
-    });
+// Returns a local cancellation function; no server-side stop command is assumed.
+export function sendBinaryBufferConsistent(buffer, callback) {
+  const socket = requireSocket();
+  const sequence = nextSequence(conPending, true);
+  const packet = makePacket(buffer, sequence, true);
+  conPending.set(sequence, callback);
+  try {
+    log(`Tx: ${hex(packet)}`, true);
+    socket.send(packet);
+  } catch (error) {
+    conPending.delete(sequence);
+    cancelConnection?.(error);
+    throw error;
+  }
+  return () => {
+    if (conPending.get(sequence) === callback) conPending.delete(sequence);
+  };
 }
-
-function sendPacketConsistent(pkt, cb) {
-    // stamp every consistent outgoing message with a sequence number, and add it to the pending map with the resolve function. 
-    // When we get a response, look up the sequence number and call the resolve function with the response data.
-    const s = conSeq++ & 0x7FFF;
-    pkt[2] = s & 0xFF;
-    pkt[3] = ((s >> 8) & 0xFF) | 0x80; // the marker 0x80 for consistent message
-    //console.log(`Putting consistent ${s} input pending`)
-    conPending.set(s, cb);
-
-    //console.log(uint8ArrayToHexString(pkt));
-    log(`Tx: ${uint8ArrayToHexString(pkt)}`, true);
-
-    ws.send(pkt);
-}
-

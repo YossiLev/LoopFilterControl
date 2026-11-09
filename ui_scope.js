@@ -37,10 +37,8 @@ displayNextBtn.addEventListener("click", () => {
   //canvas.style.height = `${canvas.clientHeight + 100}px`;
   retoreDataConfig(currentDisplayPrev - 1);
 });
-unifiedLockElement.addEventListener("change", () => {
-
-  drawMultiScaleChart();
-});
+unifiedLockElement.addEventListener("change", drawMultiScaleChart);
+scaleChaseElement.addEventListener("change", drawMultiScaleChart);
 
   // 2. The correction function to sync attributes with CSS display size
   function resizeCanvas() {
@@ -70,6 +68,22 @@ unifiedLockElement.addEventListener("change", () => {
   resizeObserver.observe(canvas);
 
 
+// Display calibration belongs to the channel, not to an acquired sample batch.
+const scopeDisplaySettings = Array.from({ length: 4 }, () => ({ gain: 1, offset: 0 }));
+
+export function getScopeDisplaySettings(channel) {
+  return { ...scopeDisplaySettings[channel - 1] };
+}
+
+export function setScopeDisplaySettings(channel, { gain, offset }) {
+  if (!Number.isInteger(channel) || channel < 1 || channel > 4 ||
+      !Number.isFinite(gain) || gain <= 0 || !Number.isFinite(offset)) {
+    throw new RangeError("Invalid scope display settings");
+  }
+  scopeDisplaySettings[channel - 1] = { gain, offset };
+  drawMultiScaleChart();
+}
+
 const nDataConfigStorage = 10;
 let dataConfigsStorage = new Array(nDataConfigStorage).fill(null);
 let lastDataConfigIndex = -1;
@@ -77,6 +91,7 @@ let currentDisplayPrev = 0;
 
 let dataConfigs = [];
 let dataConfigLastScale = [];
+let unifiedDisplayScale = null;
 let triggerValue = 0;
 let triggerIndex = -1;
 
@@ -263,8 +278,9 @@ export function presentQuickScopeData(data) {
   saveDataConfig();
   drawMultiScaleChart();
 
-  if (scopeStatus) {
-    setTimeout(getQuickSample, 100);
+  if (scopeStatus && lastBatch) {
+    clearTimeout(scopeTimer);
+    scopeTimer = setTimeout(getQuickSample, 100);
   }
 
   return lastBatch;
@@ -275,7 +291,7 @@ let lastMousePosition = {x: 0, y: 0};
 let isMouseDown = false;
 let mouseDownPosition = {x: 0, y: 0};
 
-const regColor = ["green", "blue", "red", "orange"];
+const regColor = ["#008000", "#0000ff", "#ff0000", "#ffa500"];
 
 function changeClassColor(className, newColor) {
   const style = document.createElement('style');
@@ -379,6 +395,7 @@ function drawMultiScaleChart() {
   const isUnifiedLock = unifiedLockElement.checked;
   const isScaleChase = scaleChaseElement.checked;
   const isTrigger = triggerElement.checked;
+  if (!isUnifiedLock) unifiedDisplayScale = null;
   if (!isScaleLock && !isScaleChase && !isUnifiedLock) {
     dataConfigLastScale = [];
   }
@@ -407,14 +424,6 @@ function drawMultiScaleChart() {
     }
     dataConfigLastScaleNew.push({min: config.min, max: config.max});
   });
-  if (isUnifiedLock) {
-    const unifiedMin = Math.min(...dataConfigLastScaleNew.map(c => c.min));
-    const unifiedMax = Math.max(...dataConfigLastScaleNew.map(c => c.max));
-    dataConfigLastScaleNew.forEach((c, idx) => {
-      c.min = unifiedMin;
-      c.max = unifiedMax;
-    });
-  }
   dataConfigLastScale = [...dataConfigLastScaleNew];
    
   dataConfigs.forEach((config, idx) => {
@@ -441,6 +450,35 @@ function drawMultiScaleChart() {
 
   }
 
+  const chartConfigs = dataConfigs.map(config => {
+    const { gain, offset } = scopeDisplaySettings[config.index] ?? { gain: 1, offset: 0 };
+    const min = config.min * gain + offset;
+    const max = config.max * gain + offset;
+    // Constant signals also need a nonzero drawing range.
+    const margin = min === max ? Math.max(Math.abs(min) * 0.01, 1) : 0;
+    return {
+      ...config,
+      data: config.data.map(value => value * gain + offset),
+      min: min - margin,
+      max: max + margin,
+      displayTrigger: triggerValue * gain + offset,
+    };
+  });
+  if (isUnifiedLock && chartConfigs.length) {
+    // Freeze the displayed axis, rather than raw limits that gain/offset would
+    // transform again. Chase allows this common range to be recalculated.
+    if (!unifiedDisplayScale || isScaleChase) {
+      unifiedDisplayScale = {
+        min: Math.min(...chartConfigs.map(config => config.min)),
+        max: Math.max(...chartConfigs.map(config => config.max)),
+      };
+    }
+    chartConfigs.forEach(config => {
+      config.min = unifiedDisplayScale.min;
+      config.max = unifiedDisplayScale.max;
+    });
+  }
+
   const gridSteps = 6;
 
   // 1. Draw Grid Lines
@@ -454,8 +492,8 @@ function drawMultiScaleChart() {
   }
 
   // 2. Draw Dual Y-Axes Labels
-  dataConfigs.forEach((config, idx) => {
-    if (idx > 0 && idx < dataConfigs.length - 1) return; // Only labels first and last for simplicity
+  chartConfigs.forEach((config, idx) => {
+    if (idx > 0 && idx < chartConfigs.length - 1) return; // Only labels first and last for simplicity
     ctx.fillStyle = config.color;
     ctx.textAlign = idx === 0 ? "right" : "left";
     const xPos = idx === 0 ? padding - 10 : W - padding + 10;
@@ -467,8 +505,12 @@ function drawMultiScaleChart() {
     }
   });
 
-  // 3. Draw Data Lines
-  dataConfigs.forEach(config => {
+  // 3. Draw Data Lines. Locked scales may put adjusted samples outside the plot.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(padding, paddingY, W - 2 * padding, H - 2 * paddingY);
+  ctx.clip();
+  chartConfigs.forEach(config => {
     ctx.beginPath();
     ctx.strokeStyle = config.color;
     ctx.lineWidth = config.width || 2;
@@ -484,21 +526,24 @@ function drawMultiScaleChart() {
     ctx.stroke();
   });
 
+  ctx.restore();
+
   // 4. Draw Trigger Line and 
-  if (triggerIndex >= 0 && triggerIndex < dataConfigs.length) {
-    if (triggerValue > dataConfigs[triggerIndex].min && triggerValue < dataConfigs[triggerIndex].max) {
-      const normalizedY = (triggerValue - dataConfigs[triggerIndex].min) / (dataConfigs[triggerIndex].max - dataConfigs[triggerIndex].min);
+  if (triggerIndex >= 0 && triggerIndex < chartConfigs.length) {
+    const displayTrigger = chartConfigs[triggerIndex].displayTrigger;
+    if (displayTrigger > chartConfigs[triggerIndex].min && displayTrigger < chartConfigs[triggerIndex].max) {
+      const normalizedY = (displayTrigger - chartConfigs[triggerIndex].min) / (chartConfigs[triggerIndex].max - chartConfigs[triggerIndex].min);
       const y = (H - paddingY) - normalizedY * (H - 2 * paddingY);
 
-      ctx.strokeStyle = dataConfigs[triggerIndex].color;
+      ctx.strokeStyle = chartConfigs[triggerIndex].color;
       ctx.setLineDash([2, 2]);
       ctx.beginPath();
       ctx.moveTo(padding, y);
       ctx.lineTo(W - padding, y);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = dataConfigs[triggerIndex].color;
-      ctx.strokeStyle = dataConfigs[triggerIndex].color;
+      ctx.fillStyle = chartConfigs[triggerIndex].color;
+      ctx.strokeStyle = chartConfigs[triggerIndex].color;
       ctx.beginPath();
       ctx.moveTo(10, y);
       ctx.lineTo(0, y - 5);
@@ -513,7 +558,7 @@ function drawMultiScaleChart() {
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(`${lastMousePosition.y} ${lastMousePosition.x}`, 30, 25);
-    dataConfigs.forEach((config, idx) => {
+    chartConfigs.forEach((config, idx) => {
       ctx.fillStyle = config.color;
 
       let coordinate = (lastMousePosition.x - padding) * (config.data.length - 1) / (W - 2.0 * padding);
@@ -559,10 +604,10 @@ function demoDraw() {
     const data1 = Array.from({length: 1024}, (_, i) => Math.sin(i * 0.1) * 20 + 90 + 0.05 * i);
     const data2 = Array.from({length: 1024}, (_, i) => Math.cos(i * 0.13) * 50 + 50 - 0.02 * i);
     dataConfigs = [{
-      index: 1, data: data1, color: regColor[0], width: 1
+      index: 0, data: data1, color: regColor[0], width: 1
     }, 
     {
-      index: 2, data: data2, color: regColor[1], width: 1
+      index: 1, data: data2, color: regColor[1], width: 1
     }];
     drawMultiScaleChart();
 }
@@ -582,11 +627,12 @@ function refreshScopeColors() {
   });
 
   dataConfigs.forEach(config => {
-    config.color = regColor[config.index - 1];
+    config.color = regColor[config.index] ?? config.color;
   });
 }
 
 function getQuickSample() {
+    if (!scopeStatus) return;
   
     const r1 = parseInt(scopeSample1Select.value);
     const r2 = parseInt(scopeSample2Select.value);
@@ -594,12 +640,24 @@ function getQuickSample() {
     const r4 = parseInt(scopeSample4Select.value);
     const interval = parseInt(nScanIntervalElement.value);
 
-    getTwoRegisterQuickStream(r1, r2, r3, r4, interval, presentQuickScopeData);
+    try {
+      cancelScopeStream = getTwoRegisterQuickStream(r1, r2, r3, r4, interval, data => {
+        if (!scopeStatus) return true;
+        return presentQuickScopeData(data);
+      });
+    } catch (error) {
+      setScopeOff();
+      document.getElementById("scope").checked = false;
+      document.getElementById("connectionStatus").textContent = `SCOPE ERROR: ${error.message}`;
+    }
 }
 
 
 let scopeStatus = false;
+let scopeTimer = null;
+let cancelScopeStream = null;
 export function setScopeOn() {
+    if (scopeStatus) return;
     scopeStatus = true;
 
     //getSample();
@@ -607,6 +665,10 @@ export function setScopeOn() {
 }
 export function setScopeOff() {
   scopeStatus = false;
+  clearTimeout(scopeTimer);
+  scopeTimer = null;
+  cancelScopeStream?.();
+  cancelScopeStream = null;
 }
 
 demoDraw();

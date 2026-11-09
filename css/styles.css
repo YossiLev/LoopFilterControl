@@ -58,3 +58,63 @@ option:hover { background: #e0e0e0; }
 .zoomedFrame { transform: translate(440px, -90px) scale(0.25); margin-top:-42px; margin-left: 340px; height: 160px; position: fixed;}
 .zoomedFrame #zBut { transform: translate(69px, -98px) scale(4.0);}
 .chData { display: inline-block; width: 80px; background-color: whitesmoke; margin: 0 5px; border: 1px solid black; border-radius:3px; padding: 1px 3px; text-align: right; }
+
+/* Scope tools stay beside their channel without moving the control layout. */
+.scope-channel { position: relative; }
+.scope-menu-button,
+.scope-menu-close {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 16px;
+    line-height: 1;
+}
+.scope-menu-button:hover,
+.scope-menu-button[aria-expanded="true"],
+.scope-menu-close:hover { background: #d5dfe5; }
+.scope-menu-button:focus-visible,
+.scope-menu-close:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.scope-tools {
+    position: absolute;
+    top: 32px;
+    right: 0;
+    z-index: 250;
+    width: 240px;
+    max-width: calc(100vw - 32px);
+    padding: 12px;
+    background: #fff;
+    color: #263445;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px #0003;
+    font-size: 13px;
+}
+.scope-tools[hidden] { display: none; }
+.scope-tools-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.scope-tools-body { margin-top: 12px; }
+.scope-color-control { align-items: center; gap: 16px; margin: 0; color: #263445; font-size: 13px; }
+.scope-color-control input[type="color"] {
+    width: 40px;
+    height: 28px;
+    padding: 2px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+.scope-slider-label {
+    color: #263445;
+    font-size: 13px;
+    margin: 6px 0 0;
+    padding: 0;
+    align-items: center;
+}
+.scope-slider-label output { font-variant-numeric: tabular-nums; font-weight: 400; }
+.scope-tools-body input[type="range"] { display: block; margin: 6px 0 14px; }

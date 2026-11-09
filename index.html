@@ -55,29 +55,79 @@
     <div class="grid">
         <div class="card">
             <div class="controls">
-                <div>
+                <div class="scope-channel">
                     <label id="scope1Label" for="scopeSample1Select" style="color:green !important;">
                         <span style="flex: 3;">Scope 1</span>
                         <span id="scope1Abs" style="font-size: 20px; line-height: 12px;">X</span>
                         <span id="scope1Domain" style="font-size: 20px; line-height: 12px;">T</span>
                         <span id="scope1Sign" style="font-size: 32px; line-height: 12px;">+</span>
-                        <span id="scope1Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
+                        <button id="scope1MenuButton" class="scope-menu-button" type="button"
+                            aria-label="Scope 1 tools" aria-haspopup="dialog" aria-expanded="false"
+                            aria-controls="scope1Menu" title="Scope 1 tools">&#9776;</button>
                         <span id="scope1State" style="font-size: 32px; line-height: 12px;">&#9632;</span></label>
+                    <div id="scope1Menu" class="scope-tools" role="dialog"
+                         aria-labelledby="scope1MenuTitle" hidden>
+                        <div class="scope-tools-header">
+                            <strong id="scope1MenuTitle">Scope 1 tools</strong>
+                            <button id="scope1MenuClose" class="scope-menu-close" type="button"
+                                    aria-label="Close Scope 1 tools">&times;</button>
+                        </div>
+                        <div class="scope-tools-body">
+                            <label class="scope-slider-label" for="scope1Gain">
+                                Gain <output id="scope1GainValue" for="scope1Gain">1.0×</output>
+                            </label>
+                            <input id="scope1Gain" type="range" min="0.1" max="10" step="0.1" value="1">
+                            <label class="scope-slider-label" for="scope1Offset">
+                                Offset <output id="scope1OffsetValue" for="scope1Offset">0</output>
+                            </label>
+                            <input id="scope1Offset" type="range" min="-16384" max="16384" step="1" value="0">
+
+                            <label class="scope-color-control" for="scope1Color">
+                                Change color
+                                <input id="scope1Color" type="color" aria-label="Scope 1 color">
+                            </label>
+                        </div>
+                    </div>
                     <select id="scopeSample1Select" style="width: 260px;"></select>
                 </div>
                 <div>
                     <label for="scopeType1Select" style="color:green !important;">type</label>
                     <select id="scopeType1Select" style="width: 70px;"></select>
                 </div>
-                <div>
+                <div class="scope-channel">
                     <label  id="scope2Label" for="scopeSample2Select" style="color:blue !important;">
                         <span style="flex: 3;">Scope 2</span>
 
                         <span id="scope2Abs" style="font-size: 20px; line-height: 12px;">X</span>
                         <span id="scope2Domain" style="font-size: 20px; line-height: 12px;">T</span>
                         <span id="scope2Sign" style="font-size: 32px; line-height: 12px;">+</span>
-                        <span id="scope2Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
+                        <button id="scope2MenuButton" class="scope-menu-button" type="button"
+                            aria-label="Scope 2 tools" aria-haspopup="dialog" aria-expanded="false"
+                            aria-controls="scope2Menu" title="Scope 2 tools">&#9776;</button>
                             <span id="scope2State" style="font-size: 32px; line-height: 12px;">&#9632;</span></label>
+                    <div id="scope2Menu" class="scope-tools" role="dialog"
+                         aria-labelledby="scope2MenuTitle" hidden>
+                        <div class="scope-tools-header">
+                            <strong id="scope2MenuTitle">Scope 2 tools</strong>
+                            <button id="scope2MenuClose" class="scope-menu-close" type="button"
+                                    aria-label="Close Scope 2 tools">&times;</button>
+                        </div>
+                        <div class="scope-tools-body">
+                            <label class="scope-slider-label" for="scope2Gain">
+                                Gain <output id="scope2GainValue" for="scope2Gain">1.0×</output>
+                            </label>
+                            <input id="scope2Gain" type="range" min="0.1" max="10" step="0.1" value="1">
+                            <label class="scope-slider-label" for="scope2Offset">
+                                Offset <output id="scope2OffsetValue" for="scope2Offset">0</output>
+                            </label>
+                            <input id="scope2Offset" type="range" min="-16384" max="16384" step="1" value="0">
+
+                            <label class="scope-color-control" for="scope2Color">
+                                Change color
+                                <input id="scope2Color" type="color" aria-label="Scope 2 color">
+                            </label>
+                        </div>
+                    </div>
                     <select id="scopeSample2Select" style="width: 260px;"></select>
                 </div>
                 <div>
@@ -105,28 +155,78 @@
                 </button>
                 <button id="displayPrevBtn" title="Previous" class="button" style="max-width: 40px;">P</button>
                 <button id="displayNextBtn" title="Next" class="button" style="max-width: 40px;">N</button>
-                <div>
+                <div class="scope-channel">
                     <label id="scope3Label" for="scopeSample3Select" style="color:red !important;">
                         <span style="flex: 3;">Scope 3</span>
                         <span id="scope3Abs" style="font-size: 20px; line-height: 12px;">X</span>
                         <span id="scope3Domain" style="font-size: 20px; line-height: 12px;">T</span>
                         <span id="scope3Sign" style="font-size: 32px; line-height: 12px;">+</span>
-                        <span id="scope3Color" style="font-size: 26px; line-height: 12px;">&#9776;</span>
+                        <button id="scope3MenuButton" class="scope-menu-button" type="button"
+                            aria-label="Scope 3 tools" aria-haspopup="dialog" aria-expanded="false"
+                            aria-controls="scope3Menu" title="Scope 3 tools">&#9776;</button>
                         <span id="scope3State" style="font-size: 32px; line-height: 12px;">&#9633;</span></label>
+                    <div id="scope3Menu" class="scope-tools" role="dialog"
+                         aria-labelledby="scope3MenuTitle" hidden>
+                        <div class="scope-tools-header">
+                            <strong id="scope3MenuTitle">Scope 3 tools</strong>
+                            <button id="scope3MenuClose" class="scope-menu-close" type="button"
+                                    aria-label="Close Scope 3 tools">&times;</button>
+                        </div>
+                        <div class="scope-tools-body">
+                            <label class="scope-slider-label" for="scope3Gain">
+                                Gain <output id="scope3GainValue" for="scope3Gain">1.0×</output>
+                            </label>
+                            <input id="scope3Gain" type="range" min="0.1" max="10" step="0.1" value="1">
+                            <label class="scope-slider-label" for="scope3Offset">
+                                Offset <output id="scope3OffsetValue" for="scope3Offset">0</output>
+                            </label>
+                            <input id="scope3Offset" type="range" min="-16384" max="16384" step="1" value="0">
+
+                            <label class="scope-color-control" for="scope3Color">
+                                Change color
+                                <input id="scope3Color" type="color" aria-label="Scope 3 color">
+                            </label>
+                        </div>
+                    </div>
                     <select id="scopeSample3Select" style="width: 260px; " disabled></select>
                 </div>
                 <div>
                     <label for="scopeType3Select" style="color:red !important;">type</label>
                     <select id="scopeType3Select" style="width: 70px;"></select>
                 </div>
-                <div>
+                <div class="scope-channel">
                     <label id="scope4Label" for="scopeSample4Select" style="color:orange !important;">
                         <span style="flex: 3;">Scope 4</span>
                         <span id="scope4Abs" style="font-size: 20px; line-height: 12px;">X</span>
                         <span id="scope4Domain" style="font-size: 20px; line-height: 12px;">T</span>
                         <span id="scope4Sign" style="font-size: 32px; line-height: 12px;">+</span>
-                        <span id="scope4Color" style="font-size: 16px; line-height: 12px;">&#x1F58C;</span>
-                        <span id="scope4State" style="font-size: 32px; line-height: 12px;">&#9633;</span></label>  
+                        <button id="scope4MenuButton" class="scope-menu-button" type="button"
+                            aria-label="Scope 4 tools" aria-haspopup="dialog" aria-expanded="false"
+                            aria-controls="scope4Menu" title="Scope 4 tools">&#9776;</button>
+                        <span id="scope4State" style="font-size: 32px; line-height: 12px;">&#9633;</span></label>
+                    <div id="scope4Menu" class="scope-tools" role="dialog"
+                         aria-labelledby="scope4MenuTitle" hidden>
+                        <div class="scope-tools-header">
+                            <strong id="scope4MenuTitle">Scope 4 tools</strong>
+                            <button id="scope4MenuClose" class="scope-menu-close" type="button"
+                                    aria-label="Close Scope 4 tools">&times;</button>
+                        </div>
+                        <div class="scope-tools-body">
+                            <label class="scope-slider-label" for="scope4Gain">
+                                Gain <output id="scope4GainValue" for="scope4Gain">1.0×</output>
+                            </label>
+                            <input id="scope4Gain" type="range" min="0.1" max="10" step="0.1" value="1">
+                            <label class="scope-slider-label" for="scope4Offset">
+                                Offset <output id="scope4OffsetValue" for="scope4Offset">0</output>
+                            </label>
+                            <input id="scope4Offset" type="range" min="-16384" max="16384" step="1" value="0">
+
+                            <label class="scope-color-control" for="scope4Color">
+                                Change color
+                                <input id="scope4Color" type="color" aria-label="Scope 4 color">
+                            </label>
+                        </div>
+                    </div>
                     <select id="scopeSample4Select" style="width: 260px;" disabled></select>
                 </div>
                 <div>

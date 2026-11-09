@@ -1,3 +1,4 @@
+import { handleUIAction } from "./ui.js";
 import { dumpRegisters } from "./api.js";
 import { RegisterDump, friendlyNames, friendlyNamesSelectOrder, regType, regOutput2 } from "./registers.js";
 
@@ -204,7 +205,7 @@ function displayAnalysis(predictor) {
 
 export function initRegisterUI() {
 
-  document.getElementById("dumpBtn").onclick = async () => {
+  document.getElementById("dumpBtn").onclick = handleUIAction(async () => {
     const data = await dumpRegisters();
     const dump = new RegisterDump(data);
 
@@ -214,7 +215,7 @@ export function initRegisterUI() {
 
     // Update prevDump after displaying, so that the first time we show all values as new, and next times we show only changes.
     prevDump = dump.predictor;
-  };
+  });
 
   const regFormats = ["def", "16S", "16U", "32S", "32U", "DAC", "16MS", "16MU"];
   const regsInit = [3, 11, 3, 11]

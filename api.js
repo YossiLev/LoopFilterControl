@@ -1,4 +1,4 @@
-import { sendBinaryBuffer, sendBinaryBufferConsistent, packU32 } from "./transport.js";
+import { sendBinaryBuffer, sendBinaryBufferConsistent, packU32, onConnectionStateChange } from "./transport.js";
 
 function lFormat(f) {
   switch (f) {
@@ -26,71 +26,55 @@ function prepareBuffer(cmd, formatStr, parameters) {
   return buffer;
 }
 
-async function sendParameters(cmd, formatStr, parameters) {
+// Only confirmed values from the current connection can suppress a write.
+// Replacing the map also prevents an old response from repopulating the cache.
+let parameterCache = new Map();
+onConnectionStateChange(() => { parameterCache = new Map(); });
+
+async function sendParameters(cmd, formatStr, parameters, cacheValue = false) {
+  const cache = parameterCache;
+  const previous = cache.get(cmd);
+  if (cacheValue && previous?.confirmed && previous.format === formatStr &&
+      previous.values.length === parameters.length &&
+      previous.values.every((value, index) => value === parameters[index])) {
+    return 0;
+  }
+
   const buffer = prepareBuffer(cmd, formatStr, parameters);
-  const resp = await sendBinaryBuffer(buffer);
-  return new DataView(resp).getUint32(4, true);
+  const entry = { format: formatStr, values: [...parameters], confirmed: false };
+  // Invalidate the previous value before sending, including writes from helpers
+  // such as setGains(), which also change the output-shift command.
+  cache.set(cmd, entry);
+  try {
+    const resp = await sendBinaryBuffer(buffer);
+    const result = new DataView(resp).getUint32(4, true);
+    if (cacheValue) entry.confirmed = true;
+    else if (cache.get(cmd) === entry) cache.delete(cmd);
+    return result;
+  } catch (error) {
+    if (cache.get(cmd) === entry) cache.delete(cmd);
+    throw error;
+  }
 }
 
-let setOutputSignalLast = 1;
 export async function selectOutputSignal(index) {
-  // Command 0x15 = select output signal
-  if (index == setOutputSignalLast) return 0;
-  setOutputSignalLast = index;
-  return await sendParameters(21, "i", [index]);
-
-  // const buffer = new ArrayBuffer(8);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 21, true);
-  // dv.setUint32(4, index, true);
-
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(4, true);
+  return await sendParameters(21, "i", [index], true);
 }
 
-let setPredictorOrderLast = - 1;
 export async function setPredictorOrder(order) {
-  // Command 0x02 = set predictor order
-  if (order == setPredictorOrderLast) return 0;
-  setPredictorOrderLast = order;
-  return await sendParameters(2, "i", [order]);
-
-  // const buffer = new ArrayBuffer(8);
-  // const dv = new DataView(buffer);
-  // dv.setUint32(0, 2, true);
-  // dv.setUint32(4, order, true);
-
-  // const resp = await sendBinaryBuffer(buffer);
-  // return new DataView(resp).getUint32(4, true);
+  return await sendParameters(2, "i", [order], true);
 }
-let setOutputOffsetLast = [- 1, -1];
+
 export async function setOutputOffsets(offset1, offset2) {
-  // Command 0x0c = set output offsets
-  if (offset1 == setOutputOffsetLast[0] && offset2 == setOutputOffsetLast[1]) return 0;
-  setOutputOffsetLast[0] = offset1;
-  setOutputOffsetLast[1] = offset2;
-
-  return await sendParameters(12, "ii", [offset1, offset2]);
+  return await sendParameters(12, "ii", [offset1, offset2], true);
 }
 
-let setOutputShiftLast = [- 1, -1, -1];
 export async function setOutputShifts(shift1, shift2, shift3) {
-  // Command 0x09 = set output shifts
-  if (shift1 == setOutputShiftLast[0] && shift2 == setOutputShiftLast[1] && shift3 == setOutputShiftLast[2]) return 0;
-  setOutputShiftLast[0] = shift1;
-  setOutputShiftLast[1] = shift2;
-  setOutputShiftLast[2] = shift3;
-
-  return await sendParameters(9, "iii", [shift1, shift2, shift3]);
+  return await sendParameters(9, "iii", [shift1, shift2, shift3], true);
 }
 
-let setInputOffsetLast = -9999999;
 export async function setInputOffset(offset) {
-  // Command 0x0b = set input offsets
-  if (offset == setInputOffsetLast) return 0;
-  setInputOffsetLast = offset;
-
-  return await sendParameters(11, "i", [offset]);
+  return await sendParameters(11, "i", [offset], true);
 }
 
 export async function setInputSelect(inputOption, inputSpecial) {
@@ -261,13 +245,13 @@ export async function getTwoRegisterSamples(r1, r2, n) {
 export function getTwoRegisterStream(r1, r2, n, cb) {
   const buffer = prepareBuffer(19, "iiid", [r1, r2, n, 0.0]);
 
-  sendBinaryBufferConsistent(buffer, cb);
+  return sendBinaryBufferConsistent(buffer, cb);
 }
 
 export function getTwoRegisterQuickStream(r1, r2, r3, r4, interval, cb) {
   const buffer = prepareBuffer(26, "iiiii", [r1, r2, r3, r4, interval]);
 
-  sendBinaryBufferConsistent(buffer, cb);
+  return sendBinaryBufferConsistent(buffer, cb);
 }
 
 export async function SetDitheringParameters(

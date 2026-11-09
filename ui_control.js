@@ -1,6 +1,8 @@
+import { initScopeMenus } from "./scope_menus.js";
+import { handleUIAction } from "./ui.js";
 import { selectOutputSignal, setGains, setOutputOffsets, setOutputShifts, setInputOffset, setPredictor, setPredictorAlpha, setPredictorOrder, setScanOff, setScanOn, setInputSelect, setInt2IsOnSelect, SetDitheringParameters } from "./api.js";
-import { sendBinaryBuffer, packU32, connect, disconnect } from "./transport.js";
-import { setScopeOn, setScopeOff, setScopeColor, getScopeColor} from "./ui_scope.js";
+import { sendBinaryBuffer, packU32, connect, disconnect, onConnectionStateChange } from "./transport.js";
+import { setScopeOn, setScopeOff, setScopeColor, getScopeColor, getScopeDisplaySettings, setScopeDisplaySettings} from "./ui_scope.js";
 
 function changeScopeState(scopeNum) {
   const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
@@ -34,72 +36,6 @@ function changeScopeSign(scopeNum) {
     scopeSign.innerHTML = "+";
   }
 }
-function changeScopeColor(scopeNum, e) {
-  console.log(`Viewport: X=${e.clientX}, Y=${e.clientY}`);
-
-  // 1. Create the native color input element dynamically
-  const dynamicPicker = document.createElement('input');
-  dynamicPicker.type = 'color';
-  dynamicPicker.value = getScopeColor(scopeNum);
-  
-  // 2. Hide it cleanly while maintaining a 1x1 layout box
-  dynamicPicker.style.position = 'absolute';
-  // Use pageX/pageY so it includes scrolling offsets perfectly
-  dynamicPicker.style.left = `${e.pageX}px`;
-  dynamicPicker.style.top = `${e.pageY}px`;
-  
-  dynamicPicker.style.width = '1px';
-  dynamicPicker.style.height = '1px';
-  dynamicPicker.style.padding = '0';
-  dynamicPicker.style.border = 'none';
-  dynamicPicker.style.opacity = '0';
-  dynamicPicker.style.pointerEvents = 'none';
-
-  // 3. Append it to the body (required by some browsers to function)
-  document.body.appendChild(dynamicPicker);
-
-  // 4. CRITICAL FIX: Wait 1 rendering frame so the browser calculates layout bounds
-  requestAnimationFrame(() => {
-    try {
-      dynamicPicker.showPicker();
-    } catch (err) {
-      console.error("Failed to show native picker:", err);
-    }
-  });
-
-  // 5. Handle the color selection
-  dynamicPicker.addEventListener('change', (event) => {
-    const selectedColor = event.target.value;
-    console.log('User chose color:', selectedColor);
-    
-    // Update the button background as an example
-    setScopeColor(scopeNum, selectedColor);
-
-    // 6. Clean up: remove the element from the DOM when done
-    dynamicPicker.remove();
-  });
-
-  // Optional: Clean up if the user cancels or clicks away without picking a color
-  dynamicPicker.addEventListener('blur', () => {
-    // Small timeout ensures the change event fires first if they did select something
-    setTimeout(() => dynamicPicker.remove(), 100);
-  });
-
-
-  // document.getElementById("popupInfo").innerHTML = 
-  //   "<input type='color' id='nativeColorPicker'>";
-  //   const nativeColorPicker = document.getElementById('nativeColorPicker');
-  //   document.getElementById("cover").style.display = "flex";
-
-  //   nativeColorPicker.click();
-
-  //   nativeColorPicker.addEventListener('input', (event) => {
-  //     const selectedColor = event.target.value; // Returns a hex code like #ff0000
-  //     scopeSample3Select
-  //     setScopeColor(scopeNum, selectedColor);
-  //   });
-}
-
 function changeScopeDomain(scopeNum) {
   const scopeDomain = document.getElementById(`scope${scopeNum}Domain`);
   if (scopeDomain.innerHTML === "T") {
@@ -124,10 +60,6 @@ document.getElementById("scope1Sign").onclick = () => changeScopeSign(1);
 document.getElementById("scope2Sign").onclick = () => changeScopeSign(2);
 document.getElementById("scope3Sign").onclick = () => changeScopeSign(3);
 document.getElementById("scope4Sign").onclick = () => changeScopeSign(4);
-document.getElementById("scope1Color").onclick = (e) => changeScopeColor(1, e);
-document.getElementById("scope2Color").onclick = (e) => changeScopeColor(2, e);
-document.getElementById("scope3Color").onclick = (e) => changeScopeColor(3, e);
-document.getElementById("scope4Color").onclick = (e) => changeScopeColor(4, e);
 document.getElementById("scope1Domain").onclick = () => changeScopeDomain(1);
 document.getElementById("scope2Domain").onclick = () => changeScopeDomain(2);
 document.getElementById("scope3Domain").onclick = () => changeScopeDomain(3);
@@ -145,8 +77,8 @@ export function isScopeEnabled(scopeNum) {
 function setChangeHandlers(handler, ...controls) {
   controls.forEach(c => {
     const el = document.getElementById(c)
-    el.onchange = handler;
-    el.oninput = handler;
+    el.onchange = handleUIAction(handler);
+    el.oninput = el.onchange;
   });
 }
 
@@ -176,16 +108,26 @@ function setTuneState() {
 }
 
 export function initControlUI() {
+  initScopeMenus(getScopeColor, setScopeColor, getScopeDisplaySettings, setScopeDisplaySettings);
   const status = document.getElementById("connectionStatus");
+  const connectionToggle = document.getElementById("connect");
+  onConnectionStateChange((state, error) => {
+    if (state !== "disconnected") return;
+    setScopeOff();
+    connectionToggle.checked = false;
+    document.getElementById("scope").checked = false;
+    // The controller may still be running; its state is unknown until reconnected.
+    status.textContent = `DISCONNECTED: ${error.message}`;
+  });
 
-  document.getElementById("rebootBtn").onclick = async () => {
+  document.getElementById("rebootBtn").onclick = handleUIAction(async () => {
       await sendBinaryBuffer(packU32(99));
-  };
+  });
   document.getElementById("tuneBtn").onclick = async () => {
       setTuneState();
   };
 
-  document.getElementById("getVersionBtn").onclick = async () => {
+  document.getElementById("getVersionBtn").onclick = handleUIAction(async () => {
       console.log("Getting version...");
       const r = await sendBinaryBuffer(packU32(0));
       const vIndex = status.textContent.indexOf("VERSION:");
@@ -194,10 +136,12 @@ export function initControlUI() {
       } else {
         status.textContent += "  VERSION: " + new TextDecoder().decode(r);
       }
-  };
+  });
 
   document.getElementById("connect").onchange = async ev => {
     if (ev.target.checked) {
+        connectionToggle.disabled = true;
+        status.textContent = "CONNECTING";
         try {
             await connect();
             status.textContent = "CONNECTED";
@@ -205,8 +149,11 @@ export function initControlUI() {
             status.textContent = "CONNECTED - PREDICTOR OFF";
             document.getElementById("predict").checked = false;
         } catch(er) {
+            disconnect();
             ev.target.checked = false;
-            status.textContent = `CONNECTION ERROR`;
+            status.textContent = `CONNECTION ERROR: ${er.message}`;
+        } finally {
+            connectionToggle.disabled = false;
         }        
     } else {
         disconnect();
@@ -214,10 +161,10 @@ export function initControlUI() {
     }
   }
 
-  document.getElementById("predict").onchange = async ev => {
+  document.getElementById("predict").onchange = handleUIAction(async ev => {
     await setPredictor(ev.target.checked);
     status.textContent = `CONNECTED - PREDICTOR ${ev.target.checked ? "ON": "OFF"}`;
-  }
+  });
 
   async function handleScan(ev) {
     const scanState = document.getElementById("scan").checked;
@@ -297,7 +244,7 @@ export function initControlUI() {
     console.log(`Gains change to ${pGain} ${piCorner} ${int2Gain} ${avgTimer}`);
     const rc = await setGains(pGain, piCorner, int2Gain, avgTimer);
     console.log(`Gains set rc = ${rc}`);
-    handleDitherSelect();
+    await handleDitherSelect();
   }
   setChangeHandlers(handleGains, "paramPGain", "paramPiCorner", "paramIntegrator2Gain", "paramAveragingTimer");
 
@@ -341,12 +288,12 @@ export function initControlUI() {
   }
   setChangeHandlers(handleDitherSelect, "DitherSelect", "paramDitherOutputAmpliture", "paramDitherInputPhase", "paramDitherInputPolarity");
 
-  document.getElementById("output2Select").onchange = async ev => {
+  document.getElementById("output2Select").onchange = handleUIAction(async ev => {
     const value = ev.target.value;
     console.log(`output2Select = ${value}`);
     const rc = await selectOutputSignal(value);
     console.log(`order set rc = ${rc}`);
-  }
+  });
 
   //add events
   const systemCanvas = document.getElementById("systemCanvas");

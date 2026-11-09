@@ -1,19 +1,15 @@
-// import { connect, disconnect, sendBinaryBuffer, packU32} from "./transport.js";
-// import { RegisterDump, friendlyNames, encode } from "./registers.js";
+import { isConnected } from "./transport.js";
 
-// export const log = s => {
-//     const d = document.getElementById("log");
-//     d.textContent += s + "\n";
-//     d.scrollTop = d.scrollHeight;
-// };
-
-// document.getElementById("getVersionBtn").onclick = async () => {
-//     console.log("Getting version...");
-//     const r = await sendBinaryBuffer(packU32(0));
-//     console.log("Got version response:", r);
-//     log("VERSION: " + new TextDecoder().decode(r));
-// };
-
-// document.getElementById("rebootBtn").onclick = async () => {
-//     const r = await sendBinaryBuffer(packU32(99));
-// };
+// Catch rejected hardware actions at the UI boundary, while API callers still
+// receive normal rejected promises and can choose their own recovery behavior.
+export function handleUIAction(action) {
+  return async (...args) => {
+    try {
+      return await action(...args);
+    } catch (error) {
+      const status = document.getElementById("connectionStatus");
+      if (status) status.textContent = `${isConnected() ? "COMMAND FAILED" : "DISCONNECTED"}: ${error.message ?? error}`;
+      console.error("Hardware command failed", error);
+    }
+  };
+}
