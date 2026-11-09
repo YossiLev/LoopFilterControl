@@ -48,7 +48,7 @@ function displayDiff([key, value]) {
 }
 
 function fixSigned16(b16) {
-  b16 == b16 & 0xfff;
+  b16 = b16 & 0xfff;
   if (b16 > 32767) {
     b16 = b16 - 65536;
   }

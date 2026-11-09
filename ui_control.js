@@ -135,7 +135,7 @@ document.getElementById("scope4Domain").onclick = () => changeScopeDomain(4);
 document.getElementById("scope1Abs").onclick = () => changeScopeToggleAbs(1);
 document.getElementById("scope2Abs").onclick = () => changeScopeToggleAbs(2);
 document.getElementById("scope3Abs").onclick = () => changeScopeToggleAbs(3);
-document.getElementById("scope4Abs").onclick = () => changeScopeAbs(4);
+document.getElementById("scope4Abs").onclick = () => changeScopeToggleAbs(4);
 
 export function isScopeEnabled(scopeNum) {
   const scopeSelect = document.getElementById(`scopeSample${scopeNum}Select`);
