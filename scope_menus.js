@@ -35,6 +35,10 @@ export function initScopeMenus(getColor, setColor, getDisplaySettings, setDispla
     }
     gain.oninput = gain.onchange = changeDisplaySettings;
     offset.oninput = offset.onchange = changeDisplaySettings;
+    document.getElementById(`scope${channel}Reset`).onclick = () => {
+      setDisplaySettings(channel, { gain: 1, offset: 0 });
+      refreshDisplayControls();
+    };
 
     button.onclick = event => {
       // The button sits inside the channel's select label.

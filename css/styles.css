@@ -118,3 +118,5 @@ option:hover { background: #e0e0e0; }
 }
 .scope-slider-label output { font-variant-numeric: tabular-nums; font-weight: 400; }
 .scope-tools-body input[type="range"] { display: block; margin: 6px 0 14px; }
+
+.scope-display-reset { width: auto; padding: 5px 12px; margin-bottom: 12px; font-size: 13px; }
